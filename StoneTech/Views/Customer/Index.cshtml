@@ -1,0 +1,538 @@
+﻿@using StoneTech.Models.Customer
+@using StoneTech.Enums
+@model IEnumerable<CustomerListViewModel>
+
+@{
+    ViewData["Title"] = "Müşteriler";
+
+    string search = ViewBag.Search ?? "";
+    int page = ViewBag.Page ?? 1;
+    int pageSize = ViewBag.PageSize ?? 10;
+    int totalPages = ViewBag.TotalPages ?? 0;
+    int totalCount = ViewBag.TotalCount ?? 0;
+
+    int firstItem = totalCount == 0
+        ? 0
+        : ((page - 1) * pageSize) + 1;
+
+    int lastItem = Math.Min(
+        page * pageSize,
+        totalCount
+    );
+}
+
+<div class="section__content section__content--p30">
+    <div class="container-fluid">
+
+        <!-- Sayfa başlığı -->
+        <div class="page-header">
+
+            <div>
+
+                <h1>Müşteriler</h1>
+
+                <p class="subtitle">
+                    Müşteri kayıtlarını ve cari durumlarını görüntüleyin.
+                </p>
+
+            </div>
+
+            <div class="page-header__actions">
+
+                <a asp-controller="Customer"
+                   asp-action="Create"
+                   class="m-btn m-btn--primary">
+
+                    <i class="fa-solid fa-plus"></i>
+                    Yeni Müşteri
+
+                </a>
+
+            </div>
+
+        </div>
+
+        <!-- Başarı mesajı -->
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success">
+                @TempData["SuccessMessage"]
+            </div>
+        }
+
+        <!-- Hata mesajı -->
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger">
+                @TempData["ErrorMessage"]
+            </div>
+        }
+
+        <!-- Müşteri listesi -->
+        <section class="m-card" style="padding: 20px;">
+
+            <!-- Arama ve sayfa başına kayıt -->
+            <form asp-controller="Customer"
+                  asp-action="Index"
+                  method="get">
+
+                <div class="dt-toolbar">
+
+                    <!-- Müşteri arama -->
+                    <div class="dt-search">
+
+                        <i class="fa-solid fa-magnifying-glass"
+                           aria-hidden="true"></i>
+
+                        <input type="search"
+                               name="search"
+                               value="@search"
+                               placeholder="Ad, telefon, e-posta, T.C. veya vergi no ara..."
+                               aria-label="Müşteri ara">
+
+                    </div>
+
+                    <!-- Sayfa başına kayıt seçimi -->
+                    <div style="display: flex;
+                                gap: 8px;
+                                align-items: center;">
+
+                        <label style="font-size: 12.5px;
+                                      color: var(--m-text-muted);
+                                      display: inline-flex;
+                                      align-items: center;
+                                      gap: 8px;">
+
+                            Göster
+
+                            <select name="pageSize"
+                                    class="form-select"
+                                    style="width: 80px;
+                                           height: 32px;
+                                           padding: 0 24px 0 10px;
+                                           font-size: 12.5px;"
+                                    onchange="this.form.submit()">
+
+                                <option value="5"
+                                        selected="@(pageSize == 5)">
+                                    5
+                                </option>
+
+                                <option value="10"
+                                        selected="@(pageSize == 10)">
+                                    10
+                                </option>
+
+                                <option value="20"
+                                        selected="@(pageSize == 20)">
+                                    20
+                                </option>
+
+                                <option value="50"
+                                        selected="@(pageSize == 50)">
+                                    50
+                                </option>
+
+                            </select>
+
+                            kayıt
+
+                        </label>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+            <!-- Müşteri tablosu -->
+            <div class="table-responsive">
+
+                <table class="m-table dt-table">
+
+                    <thead>
+
+                        <tr>
+                            <th>Müşteri</th>
+                            <th>Tip</th>
+                            <th>Telefon</th>
+                            <th>E-posta</th>
+                            <th>İş Sayısı</th>
+                            <th>Toplam Tutar</th>
+                            <th>Ödenen</th>
+                            <th>Kalan Borç</th>
+                            <th>Durum</th>
+                            <th></th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        @if (!Model.Any())
+                        {
+                            <tr>
+
+                                <td colspan="10">
+
+                                    <div class="empty-state">
+
+                                        <span class="empty-state__icon">
+
+                                            <i class="fa-solid fa-users"></i>
+
+                                        </span>
+
+                                        <h3 class="empty-state__title">
+                                            Müşteri bulunamadı
+                                        </h3>
+
+                                        <p class="empty-state__text">
+
+                                            @if (!string.IsNullOrWhiteSpace(search))
+                                            {
+                                                @:Aramanızla eşleşen müşteri bulunamadı.
+                                            }
+                                            else
+                                            {
+                                                @:Henüz sisteme müşteri eklenmemiş.
+                                            }
+
+                                        </p>
+
+                                        @if (!string.IsNullOrWhiteSpace(search))
+                                        {
+                                            <div class="empty-state__actions">
+
+                                                <a asp-controller="Customer"
+                                                   asp-action="Index"
+                                                   class="m-btn m-btn--ghost">
+
+                                                    Aramayı temizle
+
+                                                </a>
+
+                                            </div>
+                                        }
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var customer in Model)
+                            {
+                                <tr>
+
+                                    <!-- Müşteri adı / firma unvanı -->
+                                    <td>
+
+                                        <span class="name">
+                                            @customer.CustomerName
+                                        </span>
+
+                                    </td>
+
+                                    <!-- Müşteri tipi -->
+                                    <td>
+
+                                        @if (customer.CustomerType == CustomerType.Individual)
+                                        {
+                                            <span class="badge bg-primary">
+                                                Bireysel
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-info">
+                                                Kurumsal
+                                            </span>
+                                        }
+
+                                    </td>
+
+                                    <!-- Telefon -->
+                                    <td>
+                                        @customer.Phone
+                                    </td>
+
+                                    <!-- E-posta -->
+                                    <td>
+
+                                        @if (!string.IsNullOrWhiteSpace(customer.Email))
+                                        {
+                                            @customer.Email
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">
+                                                -
+                                            </span>
+                                        }
+
+                                    </td>
+
+                                    <!-- İş emri sayısı -->
+                                    <td>
+
+                                        <strong>
+                                            @customer.WorkOrderCount
+                                        </strong>
+
+                                    </td>
+
+                                    <!-- Toplam iş tutarı -->
+                                    <td>
+                                        @customer.TotalAmount.ToString("N2") ₺
+                                    </td>
+
+                                    <!-- Toplam ödenen -->
+                                    <td>
+
+                                        @if (customer.TotalPaid > 0)
+                                        {
+                                            <span class="text-success">
+                                                @customer.TotalPaid.ToString("N2") ₺
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">
+                                                0,00 ₺
+                                            </span>
+                                        }
+
+                                    </td>
+
+                                    <!-- Kalan borç -->
+                                    <td>
+
+                                        @if (customer.RemainingDebt > 0)
+                                        {
+                                            <strong class="text-danger">
+                                                @customer.RemainingDebt.ToString("N2") ₺
+                                            </strong>
+                                        }
+                                        else
+                                        {
+                                            <strong class="text-success">
+                                                0,00 ₺
+                                            </strong>
+                                        }
+
+                                    </td>
+
+                                    <!-- Müşteri durumu -->
+                                    <td>
+
+                                        @if (customer.IsActive)
+                                        {
+                                            <span class="badge bg-success">
+                                                Aktif
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">
+                                                Pasif
+                                            </span>
+                                        }
+
+                                    </td>
+
+                                    <!-- İşlemler -->
+                                    <td>
+
+                                        <div class="table-data-feature"
+                                             style="justify-content: flex-start; gap: 10px;">
+
+                                            <!-- Müşteri detayları -->
+                                            <a asp-controller="Customer"
+                                               asp-action="Details"
+                                               asp-route-id="@customer.CustomerId"
+                                               class="item"
+                                               data-bs-toggle="tooltip"
+                                               title="Detay">
+
+                                                <i class="fa-solid fa-eye"></i>
+
+                                            </a>
+
+                                            <!-- Müşteri düzenleme -->
+                                            <a asp-controller="Customer"
+                                               asp-action="Edit"
+                                               asp-route-id="@customer.CustomerId"
+                                               class="item"
+                                               data-bs-toggle="tooltip"
+                                               title="Düzenle">
+
+                                                <i class="fa-solid fa-pen-to-square"></i>
+
+                                            </a>
+
+                                            @if (customer.IsActive)
+                                            {
+                                                <!-- Aktif müşteriyi pasif yapar -->
+                                                <form asp-controller="Customer"
+                                                      asp-action="Deactivate"
+                                                      asp-route-id="@customer.CustomerId"
+                                                      method="post"
+                                                      style="display: inline-flex; margin: 0; padding: 0;">
+
+                                                    @Html.AntiForgeryToken()
+
+                                                    <button type="submit"
+                                                            class="item"
+                                                            data-bs-toggle="tooltip"
+                                                            title="Pasife Al">
+
+                                                        <i class="fa-solid fa-ban"></i>
+
+                                                    </button>
+
+                                                </form>
+                                            }
+                                            else
+                                            {
+                                                <!-- Pasif müşteriyi tekrar aktif yapar -->
+                                                <form asp-controller="Customer"
+                                                      asp-action="Activate"
+                                                      asp-route-id="@customer.CustomerId"
+                                                      method="post"
+                                                      style="display: inline-flex; margin: 0; padding: 0;">
+
+                                                    @Html.AntiForgeryToken()
+
+                                                    <button type="submit"
+                                                            class="item"
+                                                            data-bs-toggle="tooltip"
+                                                            title="Aktifleştir">
+
+                                                        <i class="fa-solid fa-check"></i>
+
+                                                    </button>
+
+                                                </form>
+                                            }
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+                            }
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <!-- Sayfalama -->
+            <div class="dt-pagination">
+
+                <!-- Gösterilen kayıt bilgisi -->
+                <span class="dt-pagination__info">
+
+                    @if (totalCount == 0)
+                    {
+                        @:Sonuç yok
+                    }
+                    else
+                    {
+                        @:@firstItem–@lastItem / @totalCount kayıt
+                    }
+
+                </span>
+
+                <!-- Sayfa navigasyonu -->
+                <div class="dt-pagination__nav">
+
+                    <!-- Önceki sayfa -->
+                    @if (page > 1)
+                    {
+                        <a asp-controller="Customer"
+                           asp-action="Index"
+                           asp-route-search="@search"
+                           asp-route-page="@(page - 1)"
+                           asp-route-pageSize="@pageSize">
+
+                            <i class="fa-solid fa-chevron-left"></i>
+
+                        </a>
+                    }
+                    else
+                    {
+                        <button type="button"
+                                disabled>
+
+                            <i class="fa-solid fa-chevron-left"></i>
+
+                        </button>
+                    }
+
+                    <!-- Sayfa numaraları -->
+                    @if (totalPages > 0)
+                    {
+                        @for (int i = 1; i <= totalPages; i++)
+                        {
+                            if (i == page)
+                            {
+                                <button type="button"
+                                        class="is-active"
+                                        disabled>
+
+                                    @i
+
+                                </button>
+                            }
+                            else
+                            {
+                                <a asp-controller="Customer"
+                                   asp-action="Index"
+                                   asp-route-search="@search"
+                                   asp-route-page="@i"
+                                   asp-route-pageSize="@pageSize">
+
+                                    @i
+
+                                </a>
+                            }
+                        }
+                    }
+
+                    <!-- Sonraki sayfa -->
+                    @if (totalPages > 0 && page < totalPages)
+                    {
+                        <a asp-controller="Customer"
+                           asp-action="Index"
+                           asp-route-search="@search"
+                           asp-route-page="@(page + 1)"
+                           asp-route-pageSize="@pageSize">
+
+                            <i class="fa-solid fa-chevron-right"></i>
+
+                        </a>
+                    }
+                    else
+                    {
+                        <button type="button"
+                                disabled>
+
+                            <i class="fa-solid fa-chevron-right"></i>
+
+                        </button>
+                    }
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </div>
+</div>

@@ -1,0 +1,322 @@
+﻿@using StoneTech.Models.Gallery
+@model GalleryCreateViewModel
+
+@{
+    ViewData["Title"] = "Galeri Görseli Ekle";
+}
+
+<div class="section__content section__content--p30">
+    <div class="container-fluid">
+
+        <!-- Sayfa başlığı -->
+        <div class="page-header">
+
+            <div>
+                <h1>Yeni Galeri Görseli</h1>
+
+                <p class="subtitle">
+                    Web sitesinin galeri bölümüne yeni bir görsel ekleyin.
+                </p>
+            </div>
+
+            <div class="page-header__actions">
+
+                <a asp-controller="Gallery"
+                   asp-action="Index"
+                   class="m-btn m-btn--ghost">
+
+                    <i class="fa-solid fa-arrow-left"></i>
+                    Galeriye Dön
+
+                </a>
+
+            </div>
+
+        </div>
+
+        <!-- Galeri görseli ekleme formu -->
+        <section class="m-card" style="padding: 24px;">
+
+            <form asp-controller="Gallery"
+                  asp-action="Create"
+                  method="post"
+                  enctype="multipart/form-data"
+                  id="galleryCreateForm">
+
+                @Html.AntiForgeryToken()
+
+                <!-- Genel doğrulama hataları -->
+                <div asp-validation-summary="ModelOnly"
+                     class="text-danger mb-3">
+                </div>
+
+                <div class="row">
+
+                    <!-- Sol taraf -->
+                    <div class="col-lg-8">
+
+                        <div class="row">
+
+                            <!-- Görsel başlığı -->
+                            <div class="col-md-12 mb-4">
+
+                                <label asp-for="Title"
+                                       class="form-label">
+                                    Görsel Başlığı
+                                </label>
+
+                                <input asp-for="Title"
+                                       class="form-control"
+                                       maxlength="150"
+                                       placeholder="Örn: Mermer Mutfak Tezgahı" />
+
+                                <span asp-validation-for="Title"
+                                      class="text-danger">
+                                </span>
+
+                                <small class="text-muted">
+                                    Görsel başlığı isteğe bağlıdır.
+                                </small>
+
+                            </div>
+
+                            <!-- Görüntülenme sırası -->
+                            <div class="col-md-6 mb-4">
+
+                                <label asp-for="DisplayOrder"
+                                       class="form-label">
+                                    Görüntülenme Sırası
+                                </label>
+
+                                <input asp-for="DisplayOrder"
+                                       type="number"
+                                       min="0"
+                                       class="form-control"
+                                       placeholder="Örn: 1" />
+
+                                <span asp-validation-for="DisplayOrder"
+                                      class="text-danger">
+                                </span>
+
+                                <small class="text-muted">
+                                    Küçük numaralı görsel önce gösterilir.
+                                </small>
+
+                            </div>
+
+                            <!-- Aktiflik durumu -->
+                            <div class="col-md-6 mb-4">
+
+                                <label class="form-label">
+                                    Görsel Durumu
+                                </label>
+
+                                <div class="form-check mt-2">
+
+                                    <input asp-for="IsActive"
+                                           class="form-check-input"
+                                           type="checkbox" />
+
+                                    <label asp-for="IsActive"
+                                           class="form-check-label">
+                                        Aktif
+                                    </label>
+
+                                </div>
+
+                                <span asp-validation-for="IsActive"
+                                      class="text-danger">
+                                </span>
+
+                                <small class="text-muted d-block mt-2">
+                                    Aktif görseller web sitesinde gösterilir.
+                                </small>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- Sağ taraf -->
+                    <div class="col-lg-4">
+
+                        <!-- Galeri görseli -->
+                        <div class="mb-4">
+
+                            <label asp-for="ImageFile"
+                                   class="form-label">
+                                Galeri Görseli
+                            </label>
+
+                            <!-- Görsel önizleme alanı -->
+                            <div id="imagePreviewContainer"
+                                 style="width: 100%;
+                                height: 220px;
+                                border: 1px dashed #d8dde6;
+                                border-radius: 10px;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                overflow: hidden;
+                                margin-bottom: 12px;
+                                background: #f8f9fb;">
+
+                                <div id="imagePlaceholder"
+                                     style="text-align: center;
+                                    color: #8b95a7;">
+
+                                    <i class="fa-regular fa-image"
+                                       style="font-size: 32px;
+                                        margin-bottom: 10px;">
+                                    </i>
+
+                                    <div>
+                                        Görsel seçilmedi
+                                    </div>
+
+                                </div>
+
+                                <img id="imagePreview"
+                                     alt="Galeri görseli önizleme"
+                                     style="width: 100%;
+                                height: 100%;
+                                object-fit: cover;
+                                display: none;" />
+
+                            </div>
+
+                            <!-- Görsel seçme alanı -->
+                            <input asp-for="ImageFile"
+                                   id="imageFile"
+                                   type="file"
+                                   class="form-control"
+                                   accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" />
+
+                            <span asp-validation-for="ImageFile"
+                                  class="text-danger">
+                            </span>
+
+                            <small class="text-muted d-block mt-2">
+                                JPG, JPEG, PNG veya WEBP. Maksimum 5 MB.
+                            </small>
+
+                            <small class="text-muted d-block mt-2">
+                                Yüksek çözünürlüklü bir görsel kullanmanız önerilir.
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- Butonlar -->
+                <div style="display: flex;
+                    justify-content: flex-end;
+                    gap: 10px;
+                    margin-top: 10px;">
+
+                    <a asp-controller="Gallery"
+                       asp-action="Index"
+                       class="m-btn m-btn--ghost">
+
+                        İptal
+
+                    </a>
+
+                    <button type="submit"
+                            class="m-btn m-btn--primary">
+
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        Görseli Kaydet
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </section>
+
+    </div>
+</div>
+
+@section Scripts {
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+
+            const imageFile = document.getElementById("imageFile");
+            const imagePreview = document.getElementById("imagePreview");
+            const imagePlaceholder = document.getElementById("imagePlaceholder");
+
+            const allowedExtensions = [
+                ".jpg",
+                ".jpeg",
+                ".png",
+                ".webp"
+            ];
+
+            const maxFileSize = 5 * 1024 * 1024;
+
+            // Görsel seçildiğinde önizleme gösterir
+            imageFile.addEventListener("change", function() {
+
+                const file = this.files[0];
+
+                // Görsel seçimi kaldırılırsa önizlemeyi temizler
+                if (!file) {
+
+                    imagePreview.removeAttribute("src");
+                    imagePreview.style.display = "none";
+                    imagePlaceholder.style.display = "block";
+
+                    return;
+                }
+
+                // Dosya uzantısını belirler
+                const extension = file.name.substring(
+                    file.name.lastIndexOf(".")
+                ).toLowerCase();
+
+                // Dosya uzantısını ve boyutunu kontrol eder
+                if (
+                    !allowedExtensions.includes(extension) ||
+                    file.size === 0 ||
+                    file.size > maxFileSize
+                ) {
+
+                    alert(
+                        "JPG, JPEG, PNG veya WEBP formatında, en fazla 5 MB görsel seçiniz."
+                    );
+
+                    imageFile.value = "";
+
+                    imagePreview.removeAttribute("src");
+                    imagePreview.style.display = "none";
+                    imagePlaceholder.style.display = "block";
+
+                    return;
+                }
+
+                // Seçilen görseli önizleme alanında gösterir
+                const reader = new FileReader();
+
+                reader.onload = function(event) {
+
+                    imagePreview.src = event.target.result;
+                    imagePreview.style.display = "block";
+                    imagePlaceholder.style.display = "none";
+
+                };
+
+                reader.readAsDataURL(file);
+
+            });
+
+        });
+    </script>
+
+}
+

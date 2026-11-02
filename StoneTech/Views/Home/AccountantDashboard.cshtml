@@ -1,0 +1,1077 @@
+﻿@using StoneTech.Enums
+@model StoneTech.Models.Dashboard.AccountantDashboardViewModel
+
+@{
+    ViewData["Title"] = "Muhasebe Dashboard";
+}
+
+<div class="section__content section__content--p30">
+    <div class="container-fluid">
+
+        @* Sayfa başlığı *@
+        <div class="page-header">
+
+            <div>
+                <h1>
+                    Hoş Geldiniz, @Model.CurrentUserFullName
+                </h1>
+
+                <p class="subtitle">
+                    Tahsilat, alacak, fatura ve satın alma süreçlerinizi tek ekrandan takip edin.
+                </p>
+            </div>
+
+            <div class="page-header__actions">
+
+                <span class="date-chip">
+                    <i class="fa-regular fa-calendar"></i>
+                    <span id="dashboardDate"></span>
+                </span>
+
+                <span class="date-chip">
+                    <i class="fa-regular fa-clock"></i>
+                    <span id="dashboardClock"></span>
+                </span>
+
+                <a asp-controller="Report"
+                   asp-action="Index"
+                   class="m-btn m-btn--ghost">
+                    <i class="fa-solid fa-chart-column"></i>
+                    Rapor Merkezi
+                </a>
+
+            </div>
+
+        </div>
+
+
+        @* Muhasebe personelinin sık kullandığı işlemler *@
+        <div class="m-card mb-3">
+
+            <header class="m-card__header">
+
+                <div>
+                    <h2 class="m-card__title">
+                        Hızlı İşlemler
+                    </h2>
+
+                    <p class="m-card__subtitle">
+                        Finansal işlemlere hızlı erişim sağlayın.
+                    </p>
+                </div>
+
+            </header>
+
+            <div class="p-3">
+
+                <div class="d-flex flex-wrap gap-2">
+
+                    <a asp-controller="Payment"
+                       asp-action="Index"
+                       class="m-btn m-btn--ghost">
+                        <i class="fa-solid fa-money-bill-transfer"></i>
+                        Tahsilatlar
+                    </a>
+
+                    <a asp-controller="Invoice"
+                       asp-action="Index"
+                       class="m-btn m-btn--ghost">
+                        <i class="fa-solid fa-file-invoice"></i>
+                        Faturalar
+                    </a>
+
+                    <a asp-controller="Purchase"
+                       asp-action="Index"
+                       class="m-btn m-btn--ghost">
+                        <i class="fa-solid fa-cart-shopping"></i>
+                        Satın Almalar
+                    </a>
+
+                    <a asp-controller="Supplier"
+                       asp-action="Index"
+                       class="m-btn m-btn--ghost">
+                        <i class="fa-solid fa-truck-field"></i>
+                        Tedarikçiler
+                    </a>
+
+                    <a asp-controller="Report"
+                       asp-action="Index"
+                       class="m-btn m-btn--ghost">
+                        <i class="fa-solid fa-chart-column"></i>
+                        Finans Raporları
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        @* Birinci sıra - Finans özeti *@
+        <div class="row row-tight">
+
+            <div class="col-sm-6 col-lg-3">
+
+                <article class="stat-card">
+
+                    <div class="stat-card__head">
+
+                        <p class="stat-card__label">
+                            Bu Ay Ciro
+                        </p>
+
+                        <span class="stat-card__icon stat-card__icon--c1">
+                            <i class="fa-solid fa-chart-line"></i>
+                        </span>
+
+                    </div>
+
+                    <p class="stat-card__value">
+                        @Model.MonthlyRevenue.ToString("N2") ₺
+                    </p>
+
+                    <p class="stat-card__delta">
+
+                        <i class="fa-solid fa-turkish-lira-sign"></i>
+
+                        <span class="stat-card__delta-period">
+                            Tamamlanan işler
+                        </span>
+
+                    </p>
+
+                </article>
+
+            </div>
+
+
+            <div class="col-sm-6 col-lg-3">
+
+                <article class="stat-card">
+
+                    <div class="stat-card__head">
+
+                        <p class="stat-card__label">
+                            Bu Ay Tahsilat
+                        </p>
+
+                        <span class="stat-card__icon stat-card__icon--c2">
+                            <i class="fa-solid fa-money-bill-wave"></i>
+                        </span>
+
+                    </div>
+
+                    <p class="stat-card__value">
+                        @Model.MonthlyCollection.ToString("N2") ₺
+                    </p>
+
+                    <p class="stat-card__delta">
+
+                        <i class="fa-solid fa-arrow-trend-up"></i>
+
+                        <span class="stat-card__delta-period">
+                            Alınan ödemeler
+                        </span>
+
+                    </p>
+
+                </article>
+
+            </div>
+
+
+            <div class="col-sm-6 col-lg-3">
+
+                <article class="stat-card">
+
+                    <div class="stat-card__head">
+
+                        <p class="stat-card__label">
+                            Toplam Alacak
+                        </p>
+
+                        <span class="stat-card__icon stat-card__icon--c3">
+                            <i class="fa-solid fa-hand-holding-dollar"></i>
+                        </span>
+
+                    </div>
+
+                    <p class="stat-card__value">
+                        @Model.TotalReceivable.ToString("N2") ₺
+                    </p>
+
+                    <p class="stat-card__delta">
+
+                        <i class="fa-solid fa-clock"></i>
+
+                        <span class="stat-card__delta-period">
+                            Tahsil edilmemiş bakiye
+                        </span>
+
+                    </p>
+
+                </article>
+
+            </div>
+
+
+            <div class="col-sm-6 col-lg-3">
+
+                <article class="stat-card">
+
+                    <div class="stat-card__head">
+
+                        <p class="stat-card__label">
+                            Bu Ay Satın Alma
+                        </p>
+
+                        <span class="stat-card__icon stat-card__icon--c4">
+                            <i class="fa-solid fa-cart-shopping"></i>
+                        </span>
+
+                    </div>
+
+                    <p class="stat-card__value">
+                        @Model.MonthlyPurchaseAmount.ToString("N2") ₺
+                    </p>
+
+                    <p class="stat-card__delta">
+
+                        <i class="fa-solid fa-truck"></i>
+
+                        <span class="stat-card__delta-period">
+                            Tedarikçi alımları
+                        </span>
+
+                    </p>
+
+                </article>
+
+            </div>
+
+        </div>
+
+
+        @* İkinci sıra - Fatura özeti *@
+        <div class="row row-tight mt-3">
+
+            <div class="col-sm-6 col-lg-3">
+
+                <article class="stat-card">
+
+                    <div class="stat-card__head">
+
+                        <p class="stat-card__label">
+                            Bu Ay Fatura
+                        </p>
+
+                        <span class="stat-card__icon stat-card__icon--c1">
+                            <i class="fa-solid fa-file-invoice"></i>
+                        </span>
+
+                    </div>
+
+                    <p class="stat-card__value">
+                        @Model.MonthlyInvoiceCount
+                    </p>
+
+                    <p class="stat-card__delta">
+
+                        <i class="fa-regular fa-calendar"></i>
+
+                        <span class="stat-card__delta-period">
+                            Oluşturulan fatura
+                        </span>
+
+                    </p>
+
+                </article>
+
+            </div>
+
+
+            <div class="col-sm-6 col-lg-3">
+
+                <article class="stat-card">
+
+                    <div class="stat-card__head">
+
+                        <p class="stat-card__label">
+                            Taslak Fatura
+                        </p>
+
+                        <span class="stat-card__icon stat-card__icon--c2">
+                            <i class="fa-regular fa-file-lines"></i>
+                        </span>
+
+                    </div>
+
+                    <p class="stat-card__value">
+                        @Model.DraftInvoiceCount
+                    </p>
+
+                    <p class="stat-card__delta">
+
+                        <i class="fa-solid fa-pen"></i>
+
+                        <span class="stat-card__delta-period">
+                            Henüz kesinleşmemiş
+                        </span>
+
+                    </p>
+
+                </article>
+
+            </div>
+
+
+            <div class="col-sm-6 col-lg-3">
+
+                <article class="stat-card">
+
+                    <div class="stat-card__head">
+
+                        <p class="stat-card__label">
+                            Kesilmiş Fatura
+                        </p>
+
+                        <span class="stat-card__icon stat-card__icon--c3">
+                            <i class="fa-solid fa-file-circle-check"></i>
+                        </span>
+
+                    </div>
+
+                    <p class="stat-card__value">
+                        @Model.IssuedInvoiceCount
+                    </p>
+
+                    <p class="stat-card__delta">
+
+                        <i class="fa-solid fa-circle-check"></i>
+
+                        <span class="stat-card__delta-period">
+                            Kesinleşmiş faturalar
+                        </span>
+
+                    </p>
+
+                </article>
+
+            </div>
+
+
+            <div class="col-sm-6 col-lg-3">
+
+                <article class="stat-card">
+
+                    <div class="stat-card__head">
+
+                        <p class="stat-card__label">
+                            İptal Fatura
+                        </p>
+
+                        <span class="stat-card__icon stat-card__icon--c4">
+                            <i class="fa-solid fa-file-circle-xmark"></i>
+                        </span>
+
+                    </div>
+
+                    <p class="stat-card__value">
+                        @Model.CancelledInvoiceCount
+                    </p>
+
+                    <p class="stat-card__delta">
+
+                        <i class="fa-solid fa-ban"></i>
+
+                        <span class="stat-card__delta-period">
+                            İptal edilen faturalar
+                        </span>
+
+                    </p>
+
+                </article>
+
+            </div>
+
+        </div>
+
+
+        @* Üçüncü sıra - Takip edilmesi gereken işlemler *@
+        <div class="row row-tight mt-3">
+
+            <div class="col-sm-6 col-lg-3">
+
+                <article class="stat-card">
+
+                    <div class="stat-card__head">
+
+                        <p class="stat-card__label">
+                            Faturalanmamış İş
+                        </p>
+
+                        <span class="stat-card__icon stat-card__icon--c1">
+                            <i class="fa-solid fa-file-circle-question"></i>
+                        </span>
+
+                    </div>
+
+                    <p class="stat-card__value">
+                        @Model.UninvoicedCompletedWorkOrderCount
+                    </p>
+
+                    <p class="stat-card__delta">
+
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+
+                        <span class="stat-card__delta-period">
+                            Tamamlandı, faturası yok
+                        </span>
+
+                    </p>
+
+                </article>
+
+            </div>
+
+
+            <div class="col-sm-6 col-lg-3">
+
+                <article class="stat-card">
+
+                    <div class="stat-card__head">
+
+                        <p class="stat-card__label">
+                            Tahsilat Bekleyen
+                        </p>
+
+                        <span class="stat-card__icon stat-card__icon--c2">
+                            <i class="fa-solid fa-wallet"></i>
+                        </span>
+
+                    </div>
+
+                    <p class="stat-card__value">
+                        @Model.ReceivableWorkOrderCount
+                    </p>
+
+                    <p class="stat-card__delta">
+
+                        <i class="fa-solid fa-clock"></i>
+
+                        <span class="stat-card__delta-period">
+                            Bakiyesi bulunan iş
+                        </span>
+
+                    </p>
+
+                </article>
+
+            </div>
+
+
+            <div class="col-sm-6 col-lg-3">
+
+                <article class="stat-card">
+
+                    <div class="stat-card__head">
+
+                        <p class="stat-card__label">
+                            Bu Ay Tahsilat Sayısı
+                        </p>
+
+                        <span class="stat-card__icon stat-card__icon--c3">
+                            <i class="fa-solid fa-receipt"></i>
+                        </span>
+
+                    </div>
+
+                    <p class="stat-card__value">
+                        @Model.MonthlyPaymentCount
+                    </p>
+
+                    <p class="stat-card__delta">
+
+                        <i class="fa-solid fa-money-check-dollar"></i>
+
+                        <span class="stat-card__delta-period">
+                            Ödeme hareketi
+                        </span>
+
+                    </p>
+
+                </article>
+
+            </div>
+
+
+            <div class="col-sm-6 col-lg-3">
+
+                <article class="stat-card">
+
+                    <div class="stat-card__head">
+
+                        <p class="stat-card__label">
+                            Aktif Tedarikçi
+                        </p>
+
+                        <span class="stat-card__icon stat-card__icon--c4">
+                            <i class="fa-solid fa-truck-field"></i>
+                        </span>
+
+                    </div>
+
+                    <p class="stat-card__value">
+                        @Model.ActiveSupplierCount
+                    </p>
+
+                    <p class="stat-card__delta">
+
+                        <i class="fa-solid fa-building"></i>
+
+                        <span class="stat-card__delta-period">
+                            Aktif tedarikçi
+                        </span>
+
+                    </p>
+
+                </article>
+
+            </div>
+
+        </div>
+
+
+        @* Son tahsilatlar ve tahsilat bekleyen işler *@
+        <div class="row row-tight mt-3">
+
+            <div class="col-xl-6">
+
+                <section class="m-card">
+
+                    <header class="m-card__header">
+
+                        <div>
+                            <h2 class="m-card__title">
+                                Son Tahsilatlar
+                            </h2>
+
+                            <p class="m-card__subtitle">
+                                Sisteme girilen son 5 ödeme hareketi.
+                            </p>
+                        </div>
+
+                        <a asp-controller="Payment"
+                           asp-action="Index"
+                           class="m-btn m-btn--ghost">
+                            Tümünü Gör
+                        </a>
+
+                    </header>
+
+
+                    <div class="table-responsive">
+
+                        <table class="m-table">
+
+                            <thead>
+                                <tr>
+                                    <th>İş Emri</th>
+                                    <th>Müşteri</th>
+                                    <th>Yöntem</th>
+                                    <th>Tarih</th>
+                                    <th class="num">Tutar</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                @if (Model.RecentPayments.Any())
+                                {
+                                    foreach (var item in Model.RecentPayments)
+                                    {
+                                        <tr>
+
+                                            <td>
+                                                <a asp-controller="WorkOrder"
+                                                   asp-action="Details"
+                                                   asp-route-id="@item.WorkOrderId">
+                                                    <strong>
+                                                        @item.WorkOrderNumber
+                                                    </strong>
+                                                </a>
+                                            </td>
+
+                                            <td>
+                                                @item.CustomerName
+                                            </td>
+
+                                            <td>
+                                                @switch (item.PaymentMethod)
+                                                {
+                                                    case PaymentMethod.Cash:
+                                                        <span class="badge bg-success">
+                                                            Nakit
+                                                        </span>
+                                                        break;
+
+                                                    case PaymentMethod.CreditCard:
+                                                        <span class="badge bg-primary">
+                                                            Kredi Kartı
+                                                        </span>
+                                                        break;
+
+                                                    case PaymentMethod.BankTransfer:
+                                                        <span class="badge bg-info">
+                                                            Havale / EFT
+                                                        </span>
+                                                        break;
+                                                }
+                                            </td>
+
+                                            <td>
+                                                @item.PaymentDate.ToString("dd.MM.yyyy")
+                                            </td>
+
+                                            <td class="num">
+                                                @item.Amount.ToString("N2") ₺
+                                            </td>
+
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="5"
+                                            class="text-center">
+                                            Tahsilat kaydı bulunmuyor.
+                                        </td>
+                                    </tr>
+                                }
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </section>
+
+            </div>
+
+
+            <div class="col-xl-6">
+
+                <section class="m-card">
+
+                    <header class="m-card__header">
+
+                        <div>
+                            <h2 class="m-card__title">
+                                Tahsilat Bekleyen İşler
+                            </h2>
+
+                            <p class="m-card__subtitle">
+                                Bakiyesi bulunan tamamlanmış işler.
+                            </p>
+                        </div>
+
+                        <a asp-controller="Payment"
+                           asp-action="Index"
+                           class="m-btn m-btn--ghost">
+                            Tahsilatlara Git
+                        </a>
+
+                    </header>
+
+
+                    <div class="table-responsive">
+
+                        <table class="m-table">
+
+                            <thead>
+                                <tr>
+                                    <th>İş Emri</th>
+                                    <th>Müşteri</th>
+                                    <th class="num">Toplam</th>
+                                    <th class="num">Ödenen</th>
+                                    <th class="num">Kalan</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                @if (Model.Receivables.Any())
+                                {
+                                    foreach (var item in Model.Receivables)
+                                    {
+                                        <tr>
+
+                                            <td>
+                                                <strong>
+                                                    @item.WorkOrderNumber
+                                                </strong>
+                                            </td>
+
+                                            <td>
+                                                @item.CustomerName
+                                            </td>
+
+                                            <td class="num">
+                                                @item.TotalAmount.ToString("N2") ₺
+                                            </td>
+
+                                            <td class="num">
+                                                @item.PaidAmount.ToString("N2") ₺
+                                            </td>
+
+                                            <td class="num">
+                                                <strong>
+                                                    @item.RemainingAmount.ToString("N2") ₺
+                                                </strong>
+                                            </td>
+
+                                            <td class="num">
+
+                                                <a asp-controller="WorkOrder"
+                                                   asp-action="Details"
+                                                   asp-route-id="@item.WorkOrderId"
+                                                   class="m-btn m-btn--ghost"
+                                                   title="İş emrini görüntüle">
+
+                                                    <i class="fa-solid fa-eye"></i>
+
+                                                </a>
+
+                                            </td>
+
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="6"
+                                            class="text-center">
+                                            Tahsilat bekleyen iş bulunmuyor.
+                                        </td>
+                                    </tr>
+                                }
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </section>
+
+            </div>
+
+        </div>
+
+
+        @* Son faturalar ve son satın almalar *@
+        <div class="row row-tight mt-3">
+
+            <div class="col-xl-7">
+
+                <section class="m-card">
+
+                    <header class="m-card__header">
+
+                        <div>
+                            <h2 class="m-card__title">
+                                Son Faturalar
+                            </h2>
+
+                            <p class="m-card__subtitle">
+                                İş emirlerinden oluşturulan son 5 fatura.
+                            </p>
+                        </div>
+
+                        <a asp-controller="Invoice"
+                           asp-action="Index"
+                           class="m-btn m-btn--ghost">
+                            Tümünü Gör
+                        </a>
+
+                    </header>
+
+
+                    <div class="table-responsive">
+
+                        <table class="m-table">
+
+                            <thead>
+                                <tr>
+                                    <th>Fatura</th>
+                                    <th>İş Emri</th>
+                                    <th>Müşteri</th>
+                                    <th>Tarih</th>
+                                    <th>Durum</th>
+                                    <th class="num">Tutar</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                @if (Model.RecentInvoices.Any())
+                                {
+                                    foreach (var item in Model.RecentInvoices)
+                                    {
+                                        <tr>
+
+                                            <td>
+                                                <strong>
+                                                    @item.InvoiceNumber
+                                                </strong>
+                                            </td>
+
+                                            <td>
+                                                @item.WorkOrderNumber
+                                            </td>
+
+                                            <td>
+                                                @item.CustomerName
+                                            </td>
+
+                                            <td>
+                                                @item.InvoiceDate.ToString("dd.MM.yyyy")
+                                            </td>
+
+                                            <td>
+
+                                                @switch (item.Status)
+                                                {
+                                                    case InvoiceStatus.Draft:
+
+                                                        <span class="badge bg-warning">
+                                                            Taslak
+                                                        </span>
+
+                                                        break;
+
+                                                    case InvoiceStatus.Issued:
+
+                                                        <span class="badge bg-success">
+                                                            Kesildi
+                                                        </span>
+
+                                                        break;
+
+                                                    case InvoiceStatus.Cancelled:
+
+                                                        <span class="badge bg-danger">
+                                                            İptal
+                                                        </span>
+
+                                                        break;
+                                                }
+
+                                            </td>
+
+                                            <td class="num">
+                                                @item.TotalAmount.ToString("N2") ₺
+                                            </td>
+
+                                            <td class="num">
+
+                                                <a asp-controller="Invoice"
+                                                   asp-action="Details"
+                                                   asp-route-id="@item.InvoiceId"
+                                                   class="m-btn m-btn--ghost"
+                                                   title="Faturayı görüntüle">
+
+                                                    <i class="fa-solid fa-eye"></i>
+
+                                                </a>
+
+                                            </td>
+
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="7"
+                                            class="text-center">
+                                            Fatura bulunmuyor.
+                                        </td>
+                                    </tr>
+                                }
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </section>
+
+            </div>
+
+
+            <div class="col-xl-5">
+
+                <section class="m-card">
+
+                    <header class="m-card__header">
+
+                        <div>
+                            <h2 class="m-card__title">
+                                Son Satın Almalar
+                            </h2>
+
+                            <p class="m-card__subtitle">
+                                Tedarikçilerden yapılan son 5 alım.
+                            </p>
+                        </div>
+
+                        <a asp-controller="Purchase"
+                           asp-action="Index"
+                           class="m-btn m-btn--ghost">
+                            Tümünü Gör
+                        </a>
+
+                    </header>
+
+
+                    <div class="table-responsive">
+
+                        <table class="m-table">
+
+                            <thead>
+                                <tr>
+                                    <th>Alım No</th>
+                                    <th>Tedarikçi</th>
+                                    <th>Tarih</th>
+                                    <th class="num">Tutar</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                @if (Model.RecentPurchases.Any())
+                                {
+                                    foreach (var item in Model.RecentPurchases)
+                                    {
+                                        <tr>
+
+                                            <td>
+                                                <strong>
+                                                    @item.PurchaseNumber
+                                                </strong>
+                                            </td>
+
+                                            <td>
+                                                @item.SupplierName
+                                            </td>
+
+                                            <td>
+                                                @item.PurchaseDate.ToString("dd.MM.yyyy")
+                                            </td>
+
+                                            <td class="num">
+                                                @item.TotalAmount.ToString("N2") ₺
+                                            </td>
+
+                                            <td class="num">
+
+                                                <a asp-controller="Purchase"
+                                                   asp-action="Details"
+                                                   asp-route-id="@item.PurchaseId"
+                                                   class="m-btn m-btn--ghost"
+                                                   title="Satın almayı görüntüle">
+
+                                                    <i class="fa-solid fa-eye"></i>
+
+                                                </a>
+
+                                            </td>
+
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="5"
+                                            class="text-center">
+                                            Satın alma kaydı bulunmuyor.
+                                        </td>
+                                    </tr>
+                                }
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </section>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+
+@section Scripts
+{
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+
+            // Dashboard üzerindeki tarih ve saati günceller
+            function updateDashboardDateTime() {
+
+                const now = new Date();
+
+                const dateElement =
+                    document.getElementById("dashboardDate");
+
+                const clockElement =
+                    document.getElementById("dashboardClock");
+
+                if (dateElement) {
+
+                    dateElement.textContent =
+                        now.toLocaleDateString("tr-TR", {
+                            day: "2-digit",
+                            month: "long",
+                            year: "numeric",
+                            weekday: "long"
+                        });
+                }
+
+                if (clockElement) {
+
+                    clockElement.textContent =
+                        now.toLocaleTimeString("tr-TR", {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            second: "2-digit"
+                        });
+                }
+            }
+
+            // Sayfa açıldığında tarih ve saati hemen gösterir
+            updateDashboardDateTime();
+
+            // Saati her saniye günceller
+            setInterval(
+                updateDashboardDateTime,
+                1000);
+        });
+
+    </script>
+}

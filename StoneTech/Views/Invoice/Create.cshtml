@@ -1,0 +1,567 @@
+﻿@model StoneTech.Models.Invoice.InvoiceCreateViewModel
+@using StoneTech.Enums
+
+@{
+    ViewData["Title"] = "Fatura Oluştur";
+
+    var workOrder = ViewBag.WorkOrder;
+}
+
+<div class="section__content section__content--p30">
+    <div class="container-fluid">
+
+        <!-- Sayfa başlığı -->
+        <div class="page-header">
+
+            <div>
+
+                <h1>Fatura Oluştur</h1>
+
+                <p class="subtitle">
+                    Tamamlanmış iş emrindeki ticari bilgileri faturaya aktarın.
+                </p>
+
+            </div>
+
+            <div class="page-header__actions">
+
+                @if (User.IsInRole("Accountant"))
+                {
+                    <a asp-controller="Invoice"
+                       asp-action="Index"
+                       class="m-btn m-btn--ghost">
+                        <i class="fa-solid fa-arrow-left"></i>
+                        Faturalar
+                    </a>
+                }
+                else
+                {
+                    <a asp-controller="WorkOrder"
+                       asp-action="Details"
+                       asp-route-id="@Model.WorkOrderId"
+                       class="m-btn m-btn--ghost">
+                        <i class="fa-solid fa-arrow-left"></i>
+                        İş Emrine Dön
+                    </a>
+                }
+
+            </div>
+
+        </div>
+
+        <!-- Hata mesajı -->
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger">
+                @TempData["ErrorMessage"]
+            </div>
+        }
+
+        <form asp-controller="Invoice"
+              asp-action="Create"
+              method="post">
+
+            @Html.AntiForgeryToken()
+
+            <!-- İş emri Id'si kullanıcı tarafından değiştirilmez -->
+            <input asp-for="WorkOrderId"
+                   type="hidden" />
+
+            <div asp-validation-summary="ModelOnly"
+                 class="text-danger mb-3">
+            </div>
+
+            <!-- Fatura bilgileri -->
+            <div class="card mb-4">
+
+                <div class="card-header">
+                    <strong>Fatura Bilgileri</strong>
+                </div>
+
+                <div class="card-body">
+
+                    <div class="row g-3">
+
+                        <!-- Fatura numarası -->
+                        <div class="col-md-6">
+
+                            <label asp-for="InvoiceNumber"
+                                   class="form-label">
+                                Fatura No
+                            </label>
+
+                            <input asp-for="InvoiceNumber"
+                                   type="text"
+                                   class="form-control"
+                                   readonly />
+
+                        </div>
+
+                        <!-- Fatura tarihi -->
+                        <div class="col-md-6">
+
+                            <label asp-for="InvoiceDate"
+                                   class="form-label">
+                                Fatura Tarihi
+                            </label>
+
+                            <input asp-for="InvoiceDate"
+                                   type="date"
+                                   class="form-control" />
+
+                            <span asp-validation-for="InvoiceDate"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+                        <!-- Açıklama -->
+                        <div class="col-12">
+
+                            <label asp-for="Description"
+                                   class="form-label">
+                                Açıklama
+                            </label>
+
+                            <textarea asp-for="Description"
+                                      class="form-control"
+                                      rows="3"
+                                      placeholder="Faturayla ilgili isteğe bağlı açıklama..."></textarea>
+
+                            <span asp-validation-for="Description"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            @if (workOrder != null)
+            {
+                <!-- İş emri bilgileri -->
+                <div class="card mb-4">
+
+                    <div class="card-header">
+
+                        <div>
+
+                            <strong>İş Emri Bilgileri</strong>
+
+                            <div class="text-muted small mt-1">
+                                Fatura bu tamamlanmış iş emrinden oluşturulacaktır.
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="row g-3">
+
+                            <!-- İş emri numarası -->
+                            <div class="col-md-6">
+
+                                <div class="text-muted small mb-1">
+                                    İş Emri No
+                                </div>
+
+                                <strong>
+                                    @workOrder.WorkOrderNumber
+                                </strong>
+
+                            </div>
+
+                            <!-- İş emri tarihi -->
+                            <div class="col-md-6">
+
+                                <div class="text-muted small mb-1">
+                                    İş Emri Tarihi
+                                </div>
+
+                                <strong>
+                                    @workOrder.CreatedDate.ToString("dd.MM.yyyy")
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- Müşteri bilgileri -->
+                <div class="card mb-4">
+
+                    <div class="card-header">
+
+                        <div>
+
+                            <strong>Müşteri Bilgileri</strong>
+
+                            <div class="text-muted small mt-1">
+                                Bu bilgiler fatura oluşturulduğu anda faturaya kaydedilecektir.
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="row g-3">
+
+                            <!-- Müşteri adı -->
+                            <div class="col-md-6">
+
+                                <div class="text-muted small mb-1">
+                                    Müşteri / Firma
+                                </div>
+
+                                <strong>
+                                    @workOrder.CustomerName
+                                </strong>
+
+                            </div>
+
+                            <!-- Müşteri tipi -->
+                            <div class="col-md-6">
+
+                                <div class="text-muted small mb-1">
+                                    Müşteri Tipi
+                                </div>
+
+                                @if (workOrder.CustomerType == CustomerType.Corporate)
+                                {
+                                    <span class="badge bg-primary">
+                                        Kurumsal
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-info text-dark">
+                                        Bireysel
+                                    </span>
+                                }
+
+                            </div>
+
+                            @if (workOrder.CustomerType == CustomerType.Corporate)
+                            {
+                                <!-- Vergi numarası -->
+                                <div class="col-md-6">
+
+                                    <div class="text-muted small mb-1">
+                                        Vergi Numarası
+                                    </div>
+
+                                    <strong>
+                                        @(string.IsNullOrWhiteSpace(workOrder.TaxNumber)
+                                                                        ? "-"
+                                                                        : workOrder.TaxNumber)
+                                                                                          </strong>
+
+                                </div>
+
+                                <!-- Vergi dairesi -->
+                                <div class="col-md-6">
+
+                                    <div class="text-muted small mb-1">
+                                        Vergi Dairesi
+                                    </div>
+
+                                    <strong>
+                                        @(string.IsNullOrWhiteSpace(workOrder.TaxOffice)
+                                                                        ? "-"
+                                                                        : workOrder.TaxOffice)
+                            </strong>
+
+                                </div>
+                                                }
+                            else
+                            {
+                                <!-- T.C. kimlik numarası -->
+                                <div class="col-md-6">
+
+                                    <div class="text-muted small mb-1">
+                                        T.C. Kimlik Numarası
+                                    </div>
+
+                                    <strong>
+                                        @(string.IsNullOrWhiteSpace(workOrder.IdentityNumber)
+                                                                        ? "-"
+                                                                        : workOrder.IdentityNumber)
+                            </strong>
+
+                                </div>
+                                                }
+
+                        <!-- Adres -->
+                        <div class="col-12">
+
+                            <div class="text-muted small mb-1">
+                                Adres
+                            </div>
+
+                            <span>
+                                @(string.IsNullOrWhiteSpace(workOrder.Address)
+                                                                ? "-"
+                                                                : workOrder.Address)
+                            </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- Fatura kalemleri -->
+                <div class="card mb-4">
+
+                    <div class="card-header">
+
+                        <div>
+
+                            <strong>Fatura Kalemleri</strong>
+
+                            <div class="text-muted small mt-1">
+                                Taş ve kesim işçiliği bilgileri tamamlanmış iş emrinden alınmaktadır.
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="table-responsive">
+
+                            <table class="table table-hover align-middle mb-0">
+
+                                <thead>
+
+                                    <tr>
+
+                                        <th>Ürün / Hizmet</th>
+                                        <th class="text-nowrap">Miktar</th>
+                                        <th class="text-nowrap">Birim</th>
+                                        <th class="text-nowrap">Birim Fiyat</th>
+                                        <th class="text-nowrap">KDV Hariç Tutar</th>
+
+                                    </tr>
+
+                                </thead>
+
+                                <tbody>
+
+                                @if (workOrder.StoneDetails != null)
+                                    {
+                                        foreach (var detail in workOrder.StoneDetails)
+                                        {
+                                            decimal lineTotal =
+                                            detail.Quantity * detail.UnitPrice;
+
+                                            <tr>
+
+                                                <!-- Taş -->
+                                                <td>
+
+                                                    <strong>
+                                                        @detail.StoneName
+                                                    </strong>
+
+                                                    @if (!string.IsNullOrWhiteSpace(detail.Description))
+                                                    {
+                                                        <div class="text-muted small mt-1">
+                                                            @detail.Description
+                                                        </div>
+                                                    }
+
+                                                </td>
+
+                                                <!-- Miktar -->
+                                                <td>
+                                                    @detail.Quantity
+                                                </td>
+
+                                                <!-- Birim -->
+                                                <td>
+                                                    Plaka
+                                                </td>
+
+                                                <!-- Birim fiyat -->
+                                                <td class="text-nowrap">
+                                                    @detail.UnitPrice.ToString("N2") ₺
+                                                </td>
+
+                                                <!-- Satır toplamı -->
+                                                <td class="text-nowrap">
+
+                                                    <strong>
+                                                        @lineTotal.ToString("N2") ₺
+                                                    </strong>
+
+                                                </td>
+
+                                            </tr>
+                                        }
+                                    }
+
+                                    @if (workOrder.CuttingMeter > 0)
+                                    {
+                                        decimal cuttingTotal =
+                                        workOrder.CuttingMeter *
+                                        workOrder.CuttingPricePerMeter;
+
+                                        <tr>
+
+                                            <!-- Kesim işçiliği -->
+                                            <td>
+
+                                                <strong>
+                                                    Kesim İşçiliği
+                                                </strong>
+
+                                            </td>
+
+                                            <!-- Kesim metresi -->
+                                            <td>
+                                                @workOrder.CuttingMeter.ToString("N2")
+                                            </td>
+
+                                            <!-- Birim -->
+                                            <td>
+                                                Metre
+                                            </td>
+
+                                            <!-- Metre fiyatı -->
+                                            <td class="text-nowrap">
+                                                @workOrder.CuttingPricePerMeter.ToString("N2") ₺
+                                            </td>
+
+                                            <!-- Kesim toplamı -->
+                                            <td class="text-nowrap">
+
+                                                <strong>
+                                                    @cuttingTotal.ToString("N2") ₺
+                                                </strong>
+
+                                            </td>
+
+                                        </tr>
+                                    }
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- Tutar özeti -->
+                <div class="card mb-4">
+
+                    <div class="card-header">
+                        <strong>Tutar Özeti</strong>
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="row g-3">
+
+                            <!-- KDV hariç ara toplam -->
+                            <div class="col-md-4">
+
+                                <div class="text-muted small mb-1">
+                                    KDV Hariç Ara Toplam
+                                </div>
+
+                                <strong class="fs-5">
+                                    @workOrder.SubTotal.ToString("N2") ₺
+                                </strong>
+
+                            </div>
+
+                            <!-- KDV -->
+                            <div class="col-md-4">
+
+                                <div class="text-muted small mb-1">
+                                    KDV (@workOrder.VatRate.ToString("N2")%)
+                                </div>
+
+                                <strong class="fs-5">
+                                    @workOrder.VatAmount.ToString("N2") ₺
+                                </strong>
+
+                            </div>
+
+                            <!-- Genel toplam -->
+                            <div class="col-md-4">
+
+                                <div class="text-muted small mb-1">
+                                    KDV Dahil Genel Toplam
+                                </div>
+
+                                <strong class="fs-4 text-primary">
+                                    @workOrder.TotalAmount.ToString("N2") ₺
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            }
+
+            <!-- Form işlemleri -->
+            <div class="d-flex justify-content-end gap-2">
+
+                @if (User.IsInRole("Accountant"))
+                {
+                    <a asp-controller="Invoice"
+                       asp-action="Index"
+                       class="m-btn m-btn--ghost">
+                        İptal
+                    </a>
+                }
+                else
+                {
+                    <a asp-controller="WorkOrder"
+                       asp-action="Details"
+                       asp-route-id="@Model.WorkOrderId"
+                       class="m-btn m-btn--ghost">
+                        İptal
+                    </a>
+                }
+
+                <button type="submit"
+                        class="m-btn m-btn--primary">
+
+                    <i class="fa-solid fa-file-invoice"></i>
+                    Faturayı Oluştur
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+}

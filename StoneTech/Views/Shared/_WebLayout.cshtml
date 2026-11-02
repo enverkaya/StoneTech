@@ -1,0 +1,250 @@
+﻿
+@{
+    Layout = null;
+
+    var pageTitle = ViewData["Title"]?.ToString() ?? "Ana Sayfa";
+}
+
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+
+    <meta charset="utf-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1">
+
+    <title>@pageTitle - StoneTech</title>
+
+    <meta name="description"
+          content="StoneTech doğal taş, mermer ve granit çözümleri.">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Bellefair|Open+Sans"
+          rel="stylesheet">
+
+    <!-- FineOak Bootstrap -->
+    <link rel="stylesheet"
+          href="~/web/css/vendor/bootstrap.min.css"
+          asp-append-version="true">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+    <!-- FineOak Icons -->
+    <link rel="stylesheet"
+          href="~/web/css/vendor/icomoon.css"
+          asp-append-version="true">
+
+    <!-- FineOak Main CSS -->
+   <link rel="stylesheet"
+      href="~/Web/css/style.css"
+      asp-append-version="true">
+
+    <!-- FineOak Bootstrap 5 Compatibility -->
+    <link rel="stylesheet"
+          href="~/Web/css/custom-bs5.css"
+          asp-append-version="true">
+
+    @await RenderSectionAsync("Styles", required: false)
+
+</head>
+
+<body>
+
+    <!-- Ana navigasyon -->
+    <nav class="navbar navbar-expand-md navbar-default fixed-top probootstrap-navbar">
+
+        <div class="container">
+
+            <!-- Firma logosu -->
+            <a class="navbar-brand"
+            asp-controller="Web"
+            asp-action="Index"
+            title="KyaTech">
+            @if (!string.IsNullOrWhiteSpace(ViewBag.CompanyLogo as string))
+            {
+                <!-- Slider üzerinde beyaz logo -->
+                <img class="logo-white"
+                src="@Url.Content(ViewBag.CompanyLogo as string)"
+                alt="KyaTech Logo"
+                width="170"
+                height="170">
+                <!-- Sayfa aşağı kaydırılınca siyah logo -->
+                <img class="logo-black"
+                src="@Url.Content(ViewBag.SecondCompanyLogo as string ?? "")"
+                alt="KyaTech Logo"
+                width="170"
+                height="170">
+                }
+                else
+                {
+                    <span>KyaTech</span>
+                }
+
+            </a>
+
+            <!-- Mobil menü -->
+            <button type="button"
+                    class="navbar-toggle navbar-toggler collapsed"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#navbar-collapse"
+                    aria-expanded="false"
+                    aria-controls="navbar-collapse"
+                    aria-label="Menüyü Aç">
+
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+
+            </button>
+
+            <!-- Menü bağlantıları -->
+            <div id="navbar-collapse"
+                 class="navbar-collapse collapse">
+
+                <ul class="nav navbar-nav navbar-right ms-auto">
+
+                    <!-- Ana sayfa -->
+                    <li>
+                        <a asp-controller="Web"
+                           asp-action="Index">
+                            Ana Sayfa
+                        </a>
+                    </li>
+
+                    <!-- Hakkımızda -->
+                    <li>
+                        <a asp-controller="Web"
+                           asp-action="About">
+                            Hakkımızda
+                        </a>
+                    </li>
+
+                    <!-- Hizmetler -->
+                    <li>
+                        <a asp-controller="Web"
+                           asp-action="Services">
+                            Hizmetler
+                        </a>
+                    </li>
+
+                    <!-- Taşlarımız -->
+                    <li>
+                        <a asp-controller="Web"
+                           asp-action="Stones">
+                            Taşlarımız
+                        </a>
+                    </li>
+
+                    <!-- Galeri -->
+                    <li>
+                        <a asp-controller="Web"
+                           asp-action="Gallery">
+                            Galeri
+                        </a>
+                    </li>
+
+                    <!-- İletişim -->
+                    <li>
+                        <a asp-controller="Web"
+                           asp-action="Contact">
+                            İletişim
+                        </a>
+                    </li>
+
+              
+
+                </ul>
+
+            </div>
+
+        </div>
+
+    </nav>
+
+    <!-- Sayfa içeriği -->
+    <main>
+
+        @RenderBody()
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="probootstrap-footer">
+
+        <div class="container">
+
+            <!-- Sosyal medya -->
+            <div class="row">
+
+                <div class="col-md-12 text-center">
+
+                    <ul class="probootstrap-footer-social">
+
+                        <li>
+                            <a href="#"
+                               aria-label="Facebook">
+                                <i class="icon-facebook"></i>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="#"
+                               aria-label="Instagram">
+                                <i class="icon-instagram"></i>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="#"
+                               aria-label="LinkedIn">
+                                <i class="icon-linkedin"></i>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="#"
+                               aria-label="YouTube">
+                                <i class="icon-youtube"></i>
+                            </a>
+                        </li>
+
+                    </ul>
+
+                </div>
+
+            </div>
+
+            <!-- Telif hakkı -->
+            <div class="row">
+
+                <div class="col-md-12 copyright text-center">
+
+                    <p>
+                        &copy; @DateTime.Now.Year KyaTech.
+                        Tüm Hakları Saklıdır.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </footer>
+
+    <!-- FineOak Bootstrap JavaScript -->
+    <script src="~/Web/js/vendor/bootstrap.bundle.min.js"
+            asp-append-version="true"></script>
+
+    <!-- FineOak Main JavaScript -->
+    <script src="~/Web/js/custom.min.js"
+            asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+
+</body>
+
+</html>

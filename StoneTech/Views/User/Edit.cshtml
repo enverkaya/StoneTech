@@ -1,0 +1,310 @@
+﻿@using StoneTech.Models.User
+@using StoneTech.Enums
+@model UserEditViewModel
+
+@{
+    ViewData["Title"] = "Kullanıcı Düzenle";
+}
+
+<div class="section__content section__content--p30">
+    <div class="container-fluid">
+
+        <!-- Sayfa başlığı -->
+        <div class="page-header">
+
+            <div>
+
+                <h1>Kullanıcı Düzenle</h1>
+
+                <p class="subtitle">
+                    Kullanıcı hesabının giriş bilgilerini, rolünü ve durumunu düzenleyin.
+                </p>
+
+            </div>
+
+            <div class="page-header__actions">
+
+                <a asp-controller="User"
+                   asp-action="Index"
+                   class="m-btn m-btn--ghost">
+
+                    <i class="fa-solid fa-arrow-left"></i>
+                    Kullanıcılara Dön
+
+                </a>
+
+            </div>
+
+        </div>
+
+        <!-- Kullanıcı düzenleme formu -->
+        <form asp-controller="User"
+              asp-action="Edit"
+              asp-route-id="@Model.UserId"
+              method="post">
+
+            @Html.AntiForgeryToken()
+
+            <!-- Kullanıcı Id bilgisi yalnızca işlem için tutulur -->
+            <input asp-for="UserId" type="hidden">
+
+            <!-- Personel Id bilgisi yalnızca işlem için tutulur -->
+            <input asp-for="EmployeeId" type="hidden">
+
+            <!-- Genel validasyon hataları -->
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div asp-validation-summary="ModelOnly"
+                     class="alert alert-danger">
+                </div>
+            }
+
+            <div class="row">
+
+                <!-- Kullanıcı bilgileri -->
+                <div class="col-lg-8">
+
+                    <section class="m-card"
+                             style="padding: 20px; margin-bottom: 20px;">
+
+                        <div style="margin-bottom: 20px;">
+
+                            <h4 style="margin-bottom: 5px;">
+                                Kullanıcı Bilgileri
+                            </h4>
+
+                            <p class="text-muted"
+                               style="margin: 0;">
+                                Kullanıcının sisteme giriş bilgilerini düzenleyin.
+                            </p>
+
+                        </div>
+
+                        <!-- Bağlı personel -->
+                        <div class="form-group">
+
+                            <label class="control-label">
+                                Personel
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   value="@Model.FullName"
+                                   readonly>
+
+                            <small class="form-text text-muted">
+                                Kullanıcı hesabının bağlı olduğu personel değiştirilemez.
+                            </small>
+
+                        </div>
+
+                        <!-- Kullanıcı adı -->
+                        <div class="form-group"
+                             style="margin-top: 20px;">
+
+                            <label asp-for="Username"
+                                   class="control-label">
+                                Kullanıcı Adı
+                            </label>
+
+                            <input asp-for="Username"
+                                   class="form-control"
+                                   autocomplete="off">
+
+                            <span asp-validation-for="Username"
+                                  class="text-danger">
+                            </span>
+
+                            <small class="form-text text-muted">
+                                Kullanıcı sisteme bu kullanıcı adıyla giriş yapacaktır.
+                            </small>
+
+                        </div>
+
+                    </section>
+
+                </div>
+
+                <!-- Yetki ve hesap durumu -->
+                <div class="col-lg-4">
+
+                    <section class="m-card"
+                             style="padding: 20px; margin-bottom: 20px;">
+
+                        <div style="margin-bottom: 20px;">
+
+                            <h4 style="margin-bottom: 5px;">
+                                Yetki ve Erişim
+                            </h4>
+
+                            <p class="text-muted"
+                               style="margin: 0;">
+                                Kullanıcının sistem yetkisini ve hesap durumunu belirleyin.
+                            </p>
+
+                        </div>
+
+                        <!-- Kullanıcı rolü -->
+                        <div class="form-group">
+
+                            <label asp-for="Role"
+                                   class="control-label">
+                                Kullanıcı Rolü
+                            </label>
+
+                            <select asp-for="Role"
+                                    class="form-control">
+
+                                <option value="@UserRole.Admin">
+                                    Admin
+                                </option>
+
+                                <option value="@UserRole.Manager">
+                                    Yönetici
+                                </option>
+
+                                <option value="@UserRole.Sales">
+                                    Satış
+                                </option>
+
+                                <option value="@UserRole.Accountant">
+                                    Muhasebe
+                                </option>
+
+                                <option value="@UserRole.Workshop">
+                                    Atölye
+                                </option>
+
+                            </select>
+
+                            <span asp-validation-for="Role"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+                        <!-- Hesap durumu -->
+                        <div class="form-group"
+                             style="margin-top: 20px;">
+
+                            <div class="form-check">
+
+                                <input asp-for="IsActive"
+                                       class="form-check-input">
+
+                                <label asp-for="IsActive"
+                                       class="form-check-label">
+                                    Kullanıcı hesabı aktif
+                                </label>
+
+                            </div>
+
+                            <small class="form-text text-muted">
+                                Pasif kullanıcı hesapları sisteme giriş yapamaz.
+                            </small>
+
+                        </div>
+
+                    </section>
+
+                    <!-- Rol açıklamaları -->
+                    <section class="m-card"
+                             style="padding: 20px; margin-bottom: 20px;">
+
+                        <h4 style="margin-bottom: 15px;">
+                            Roller
+                        </h4>
+
+                        <div style="font-size: 13px;">
+
+                            <p>
+                                <strong>Admin:</strong>
+                                Sistem yönetimi ve tüm yetkiler.
+                            </p>
+
+                            <p>
+                                <strong>Yönetici:</strong>
+                                İşletme yönetimi ve iş emri onay işlemleri.
+                            </p>
+
+                            <p>
+                                <strong>Satış:</strong>
+                                Müşteri ve iş emri oluşturma işlemleri.
+                            </p>
+
+                            <p>
+                                <strong>Muhasebe:</strong>
+                                Ödeme, tahsilat ve finans işlemleri.
+                            </p>
+
+                            <p style="margin-bottom: 0;">
+                                <strong>Atölye:</strong>
+                                Onaylanan işlerin atölye süreçleri.
+                            </p>
+
+                        </div>
+
+                    </section>
+
+                </div>
+
+            </div>
+
+            <!-- Form işlemleri -->
+            <section class="m-card"
+                     style="padding: 20px;">
+
+                <div style="display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                            gap: 10px;">
+
+                    <div>
+
+                        <a asp-controller="User"
+                           asp-action="Details"
+                           asp-route-id="@Model.UserId"
+                           class="m-btn m-btn--ghost">
+
+                            <i class="fa-solid fa-eye"></i>
+                            Detay
+
+                        </a>
+
+                    </div>
+
+                    <div style="display: flex;
+                                align-items: center;
+                                gap: 10px;">
+
+                        <a asp-controller="User"
+                           asp-action="Index"
+                           class="m-btn m-btn--ghost">
+
+                            Vazgeç
+
+                        </a>
+
+                        <button type="submit"
+                                class="m-btn m-btn--primary">
+
+                            <i class="fa-solid fa-floppy-disk"></i>
+                            Değişiklikleri Kaydet
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </form>
+
+    </div>
+</div>
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+}

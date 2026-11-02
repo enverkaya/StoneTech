@@ -1,0 +1,262 @@
+﻿@using StoneTech.Entities
+@model CompanySetting
+
+@{
+    ViewData["Title"] = "İletişim";
+    Layout = "_WebLayout";
+}
+
+<!-- Sayfa başlığı -->
+<section class="flexslider">
+    <ul class="slides">
+
+        <li style="background-image: url('/web/img/slider_1.jpg')"
+            class="overlay">
+
+            <div class="container">
+                <div class="row">
+
+                    <div class="col-md-8 offset-md-2">
+
+                        <div class="probootstrap-slider-text text-center">
+
+                            <h1 class="probootstrap-heading">
+                                İletişim
+                            </h1>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </li>
+
+    </ul>
+</section>
+
+<!-- İletişim alanı -->
+<section class="probootstrap-section probootstrap-bg-white">
+
+    <div class="container">
+
+        <div class="row">
+
+            <!-- İletişim formu -->
+            <div class="col-md-5 probootstrap-animate">
+
+                <h3>Bizimle İletişime Geçin</h3>
+
+                <p>
+                    Ürünlerimiz ve hizmetlerimiz hakkında bilgi almak
+                    için bize mesaj gönderebilirsiniz.
+                </p>
+
+                <!-- Başarı mesajı -->
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success">
+                        @TempData["SuccessMessage"]
+                    </div>
+                }
+
+                <!-- Hata mesajı -->
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger">
+                        @TempData["ErrorMessage"]
+                    </div>
+                }
+
+                <form asp-controller="Web"
+                      asp-action="Contact"
+                      method="post"
+                      class="probootstrap-form">
+
+                    @Html.AntiForgeryToken()
+
+                    <!-- Ad soyad -->
+                    <div class="mb-3">
+
+                        <label for="FullName">
+                            Ad Soyad
+                        </label>
+
+                        <input type="text"
+                               class="form-control"
+                               id="FullName"
+                               name="FullName"
+                               maxlength="150"
+                               required>
+
+                    </div>
+
+                    <!-- E-posta -->
+                    <div class="mb-3">
+
+                        <label for="Email">
+                            E-posta
+                        </label>
+
+                        <input type="email"
+                               class="form-control"
+                               id="Email"
+                               name="Email"
+                               maxlength="150"
+                               required>
+
+                    </div>
+
+                    <!-- Konu -->
+                    <div class="mb-3">
+
+                        <label for="Subject">
+                            Konu
+                        </label>
+
+                        <input type="text"
+                               class="form-control"
+                               id="Subject"
+                               name="Subject"
+                               maxlength="200"
+                               required>
+
+                    </div>
+
+                    <!-- Mesaj -->
+                    <div class="mb-3">
+
+                        <label for="Message">
+                            Mesajınız
+                        </label>
+
+                        <textarea cols="30"
+                                  rows="10"
+                                  class="form-control"
+                                  id="Message"
+                                  name="Message"
+                                  maxlength="5000"
+                                  required></textarea>
+
+                    </div>
+
+                    <!-- Gönder butonu -->
+                    <div class="mb-3">
+
+                        <button type="submit"
+                                class="btn btn-primary btn-lg">
+
+                            Mesaj Gönder
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+            <!-- Firma iletişim bilgileri -->
+            <div class="col-md-6 offset-md-1 probootstrap-animate">
+
+                <h3>
+                    @(Model?.CompanyName ?? "KAYA Ceramic & Tile")
+                </h3>
+
+                <p>
+                    Bizimle aşağıdaki iletişim kanallarından
+                    da iletişime geçebilirsiniz.
+                </p>
+
+                <h4>İletişim Bilgilerimiz</h4>
+
+                <ul class="probootstrap-contact-info">
+
+                    <!-- Firma adresi -->
+                    @if (!string.IsNullOrWhiteSpace(Model?.Address))
+                    {
+                        <li>
+
+                            <i class="icon-pin"></i>
+
+                            <span>
+                                @Model.Address
+                            </span>
+
+                        </li>
+                    }
+
+                    <!-- Firma e-posta adresi -->
+                    @if (!string.IsNullOrWhiteSpace(Model?.Email))
+                    {
+                        <li>
+
+                            <i class="icon-email"></i>
+
+                            <span>
+
+                                <a href="mailto:@Model.Email" class="text-muted">
+                                    @Model.Email
+                                </a>
+
+                            </span>
+
+                        </li>
+                    }
+
+                    <!-- Firma telefon numarası -->
+                    @if (!string.IsNullOrWhiteSpace(Model?.Phone))
+                    {
+                        <li>
+
+                            <i class="icon-phone"></i>
+
+                            <span>
+
+                                <a href="tel:@Model.Phone" class="text-muted">
+                                    @Model.Phone
+                                </a>
+
+                            </span>
+
+                        </li>
+                    }
+
+                </ul>
+
+                <!-- WhatsApp -->
+                @if (!string.IsNullOrWhiteSpace(Model?.WhatsAppUrl))
+                {
+                    <h4>WhatsApp</h4>
+
+                    <ul class="probootstrap-contact-info">
+
+                        <li>
+
+                            <i class="icon-phone"></i>
+
+                            <span>
+
+                                <a href="@Model.WhatsAppUrl"
+                                   target="_blank"
+                                   rel="noopener noreferrer">
+
+                                    WhatsApp Üzerinden İletişim
+
+                                </a>
+
+                            </span>
+
+                        </li>
+
+                    </ul>
+                }
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>

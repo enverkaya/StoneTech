@@ -1,0 +1,439 @@
+﻿@model StoneTech.Entities.About
+
+@{
+    ViewData["Title"] = "Hakkımızda Detayı";
+
+    int imageCount = 0;
+
+    if (!string.IsNullOrWhiteSpace(Model.ImageUrl1))
+    {
+        imageCount++;
+    }
+
+    if (!string.IsNullOrWhiteSpace(Model.ImageUrl2))
+    {
+        imageCount++;
+    }
+
+    if (!string.IsNullOrWhiteSpace(Model.ImageUrl3))
+    {
+        imageCount++;
+    }
+
+    string? coverImage = !string.IsNullOrWhiteSpace(Model.ImageUrl1)
+        ? Model.ImageUrl1
+        : !string.IsNullOrWhiteSpace(Model.ImageUrl2)
+            ? Model.ImageUrl2
+            : Model.ImageUrl3;
+}
+
+<div class="section__content section__content--p30">
+    <div class="container-fluid">
+
+        <!-- Sayfa başlığı -->
+        <div class="page-header">
+
+            <div>
+                <h1>Hakkımızda Detayı</h1>
+
+                <p class="subtitle">
+                    Web sitesinin hakkımızda bölümüne ait bilgileri görüntüleyin.
+                </p>
+            </div>
+
+            <div class="page-header__actions">
+
+                <a asp-controller="About"
+                   asp-action="Index"
+                   class="m-btn m-btn--ghost">
+
+                    <i class="fa-solid fa-arrow-left"></i>
+                    Hakkımızda Sayfasına Dön
+
+                </a>
+
+                @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
+                {
+                    <a asp-controller="About"
+                       asp-action="Edit"
+                       asp-route-id="@Model.Id"
+                       class="m-btn m-btn--primary">
+
+                        <i class="fa-solid fa-pen-to-square"></i>
+                        Düzenle
+
+                    </a>
+                }
+
+            </div>
+
+        </div>
+
+        <!-- Hakkımızda özet kartı -->
+        <section class="m-card mb-4" style="padding: 24px;">
+
+            <div class="row align-items-center">
+
+                <!-- Ana görsel -->
+                <div class="col-lg-5 mb-3 mb-lg-0">
+
+                    @if (!string.IsNullOrWhiteSpace(coverImage))
+                    {
+                        <img src="@coverImage"
+                             alt="@Model.Title"
+                             style="width: 100%;
+                        height: 280px;
+                        object-fit: cover;
+                        border-radius: 10px;" />
+                    }
+                    else
+                    {
+                        <div style="width: 100%;
+                            height: 280px;
+                            background: #f8f9fb;
+                            border: 1px dashed #d8dde6;
+                            border-radius: 10px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            color: #8b95a7;">
+
+                            <i class="fa-regular fa-image"
+                               style="font-size: 40px;"></i>
+
+                        </div>
+                    }
+
+                </div>
+
+                <!-- Özet bilgiler -->
+                <div class="col-lg-7">
+
+                    <h2 class="mb-3">
+                        @Model.Title
+                    </h2>
+
+                    <p class="text-muted mb-4">
+                        StoneTech web sitesinin hakkımızda bölümünde
+                        kullanılacak firma tanıtım içeriği.
+                    </p>
+
+                    <div class="row">
+
+                        <!-- Kayıt numarası -->
+                        <div class="col-md-6 mb-3">
+
+                            <small class="text-muted d-block mb-2">
+                                Kayıt Numarası
+                            </small>
+
+                            <strong>
+                                #@Model.Id
+                            </strong>
+
+                        </div>
+
+                        <!-- Görsel sayısı -->
+                        <div class="col-md-6 mb-3">
+
+                            <small class="text-muted d-block mb-2">
+                                Yüklenen Görsel
+                            </small>
+
+                            <span class="badge bg-secondary">
+                                @imageCount / 3 Görsel
+                            </span>
+
+                        </div>
+
+                        <!-- Birinci açıklama durumu -->
+                        <div class="col-md-6 mb-3">
+
+                            <small class="text-muted d-block mb-2">
+                                Birinci Açıklama
+                            </small>
+
+                            @if (!string.IsNullOrWhiteSpace(Model.Description1))
+                            {
+                                <span class="badge bg-success">
+                                    Dolu
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">
+                                    Boş
+                                </span>
+                            }
+
+                        </div>
+
+                        <!-- İkinci açıklama durumu -->
+                        <div class="col-md-6 mb-3">
+
+                            <small class="text-muted d-block mb-2">
+                                İkinci Açıklama
+                            </small>
+
+                            @if (!string.IsNullOrWhiteSpace(Model.Description2))
+                            {
+                                <span class="badge bg-success">
+                                    Dolu
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">
+                                    Boş
+                                </span>
+                            }
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- Hakkımızda bilgileri -->
+        <section class="m-card mb-4" style="padding: 24px;">
+
+            <h3 class="mb-4">
+                <i class="fa-solid fa-circle-info me-2"></i>
+                Hakkımızda Bilgileri
+            </h3>
+
+            <div class="row">
+
+                <!-- Kayıt numarası -->
+                <div class="col-md-6 mb-4">
+
+                    <label class="form-label">
+                        Kayıt Numarası
+                    </label>
+
+                    <input type="text"
+                           class="form-control"
+                           value="@Model.Id"
+                           readonly />
+
+                </div>
+
+                <!-- Hakkımızda başlığı -->
+                <div class="col-md-6 mb-4">
+
+                    <label class="form-label">
+                        Hakkımızda Başlığı
+                    </label>
+
+                    <input type="text"
+                           class="form-control"
+                           value="@Model.Title"
+                           readonly />
+
+                </div>
+
+                <!-- Birinci açıklama -->
+                <div class="col-md-12 mb-4">
+
+                    <label class="form-label">
+                        Birinci Açıklama
+                    </label>
+
+                    <textarea class="form-control"
+                              rows="7"
+                              readonly>@Model.Description1</textarea>
+
+                </div>
+
+                <!-- İkinci açıklama -->
+                <div class="col-md-12 mb-4">
+
+                    <label class="form-label">
+                        İkinci Açıklama
+                    </label>
+
+                    <textarea class="form-control"
+                              rows="7"
+                              readonly>@Model.Description2</textarea>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- Hakkımızda görselleri -->
+        <section class="m-card" style="padding: 24px;">
+
+            <div class="d-flex align-items-center justify-content-between mb-4">
+
+                <h3 class="mb-0">
+                    <i class="fa-regular fa-images me-2"></i>
+                    Hakkımızda Görselleri
+                </h3>
+
+                <span class="badge bg-secondary">
+                    @imageCount / 3 Görsel
+                </span>
+
+            </div>
+
+            <div class="row">
+
+                <!-- Birinci görsel -->
+                <div class="col-lg-4 col-md-6 mb-4">
+
+                    <label class="form-label">
+                        Birinci Görsel
+                    </label>
+
+                    @if (!string.IsNullOrWhiteSpace(Model.ImageUrl1))
+                    {
+                        <img src="@Model.ImageUrl1"
+                             alt="Birinci hakkımızda görseli"
+                             style="width: 100%;
+                        height: 220px;
+                        object-fit: cover;
+                        border-radius: 10px;
+                        display: block;" />
+                    }
+                    else
+                    {
+                        <div style="width: 100%;
+                            height: 220px;
+                            border: 1px dashed #d8dde6;
+                            border-radius: 10px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            background: #f8f9fb;
+                            color: #8b95a7;">
+
+                            <div class="text-center">
+
+                                <i class="fa-regular fa-image"
+                                   style="font-size: 30px;"></i>
+
+                                <p class="mt-2 mb-0">
+                                    Görsel eklenmemiş
+                                </p>
+
+                            </div>
+
+                        </div>
+                    }
+
+                    <small class="text-muted d-block mt-2">
+                        @(Model.ImageUrl1 ?? "Görsel yolu bulunmuyor.")
+                    </small>
+
+                </div>
+
+                <!-- İkinci görsel -->
+                <div class="col-lg-4 col-md-6 mb-4">
+
+                    <label class="form-label">
+                        İkinci Görsel
+                    </label>
+
+                    @if (!string.IsNullOrWhiteSpace(Model.ImageUrl2))
+                    {
+                        <img src="@Model.ImageUrl2"
+                             alt="İkinci hakkımızda görseli"
+                             style="width: 100%;
+                        height: 220px;
+                        object-fit: cover;
+                        border-radius: 10px;
+                        display: block;" />
+                    }
+                    else
+                    {
+                        <div style="width: 100%;
+                            height: 220px;
+                            border: 1px dashed #d8dde6;
+                            border-radius: 10px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            background: #f8f9fb;
+                            color: #8b95a7;">
+
+                            <div class="text-center">
+
+                                <i class="fa-regular fa-image"
+                                   style="font-size: 30px;"></i>
+
+                                <p class="mt-2 mb-0">
+                                    Görsel eklenmemiş
+                                </p>
+
+                            </div>
+
+                        </div>
+                    }
+
+                    <small class="text-muted d-block mt-2">
+                        @(Model.ImageUrl2 ?? "Görsel yolu bulunmuyor.")
+                    </small>
+
+                </div>
+
+                <!-- Üçüncü görsel -->
+                <div class="col-lg-4 col-md-6 mb-4">
+
+                    <label class="form-label">
+                        Üçüncü Görsel
+                    </label>
+
+                    @if (!string.IsNullOrWhiteSpace(Model.ImageUrl3))
+                    {
+                        <img src="@Model.ImageUrl3"
+                             alt="Üçüncü hakkımızda görseli"
+                             style="width: 100%;
+                        height: 220px;
+                        object-fit: cover;
+                        border-radius: 10px;
+                        display: block;" />
+                    }
+                    else
+                    {
+                        <div style="width: 100%;
+                            height: 220px;
+                            border: 1px dashed #d8dde6;
+                            border-radius: 10px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            background: #f8f9fb;
+                            color: #8b95a7;">
+
+                            <div class="text-center">
+
+                                <i class="fa-regular fa-image"
+                                   style="font-size: 30px;"></i>
+
+                                <p class="mt-2 mb-0">
+                                    Görsel eklenmemiş
+                                </p>
+
+                            </div>
+
+                        </div>
+                    }
+
+                    <small class="text-muted d-block mt-2">
+                        @(Model.ImageUrl3 ?? "Görsel yolu bulunmuyor.")
+                    </small>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </div>
+</div>

@@ -1,0 +1,261 @@
+﻿@using StoneTech.Entities
+
+@{
+    ViewData["Title"] = "Hizmetlerimiz";
+
+    Layout = "_WebLayout";
+
+    var services = ViewBag.Services as List<Service>
+                   ?? new List<Service>();
+
+    var whyChooseUs = ViewBag.WhyChooseUs as List<WhyChooseUs>
+                      ?? new List<WhyChooseUs>();
+}
+
+<!-- Hizmetler üst görsel alanı -->
+<section class="flexslider">
+    <ul class="slides">
+
+        <li style="background-image: url('@Url.Content("~/Web/img/slider_1.jpg")')"
+            class="overlay">
+
+            <div class="container">
+                <div class="row">
+
+                    <div class="col-md-8 offset-md-2">
+
+                        <div class="probootstrap-slider-text text-center">
+
+                            <h1 class="probootstrap-heading">
+                                Hizmetlerimiz
+                            </h1>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </li>
+
+    </ul>
+</section>
+
+<!-- Hizmetler listesi -->
+<section class="probootstrap-section probootstrap-bg-white">
+
+    <div class="container">
+
+        <div class="row">
+
+            <div class="col-md-6 offset-md-3 text-center section-heading probootstrap-animate"
+                 data-animate-effect="fadeIn">
+
+                <h2>Sunduğumuz Hizmetler</h2>
+
+            </div>
+
+        </div>
+
+        <!-- Hizmet kartları -->
+        <div class="row">
+
+            @if (services.Any())
+            {
+                var leftServices = services
+                    .Where((item, index) => index % 2 == 0)
+                    .ToList();
+
+                var rightServices = services
+                    .Where((item, index) => index % 2 == 1)
+                    .ToList();
+
+                <!-- Sol sütun -->
+                <div class="col-md-6">
+
+                    @foreach (var service in leftServices)
+                    {
+                        <div class="probootstrap-service-2 probootstrap-animate">
+
+                            <div class="image">
+
+                                <div class="image-bg">
+
+                                    @if (!string.IsNullOrWhiteSpace(service.ImageUrl))
+                                    {
+                                        <img src="@Url.Content(service.ImageUrl)"
+                                             alt="@service.Title" />
+                                    }
+
+                                </div>
+
+                            </div>
+
+                            <div class="text">
+
+                                <h3>@service.Title</h3>
+
+                                @if (!string.IsNullOrWhiteSpace(service.ShortDescription))
+                                {
+                                    <p>@service.ShortDescription</p>
+                                }
+                                else if (!string.IsNullOrWhiteSpace(service.Description))
+                                {
+                                    <p>@service.Description</p>
+                                }
+
+                            </div>
+
+                        </div>
+                    }
+
+                </div>
+
+                <!-- Sağ sütun -->
+                <div class="col-md-6">
+
+                    @foreach (var service in rightServices)
+                    {
+                        <div class="probootstrap-service-2 probootstrap-animate">
+
+                            <div class="image">
+
+                                <div class="image-bg">
+
+                                    @if (!string.IsNullOrWhiteSpace(service.ImageUrl))
+                                    {
+                                        <img src="@Url.Content(service.ImageUrl)"
+                                             alt="@service.Title" />
+                                    }
+
+                                </div>
+
+                            </div>
+
+                            <div class="text">
+
+                                <h3>@service.Title</h3>
+
+                                @if (!string.IsNullOrWhiteSpace(service.ShortDescription))
+                                {
+                                    <p>@service.ShortDescription</p>
+                                }
+                                else if (!string.IsNullOrWhiteSpace(service.Description))
+                                {
+                                    <p>@service.Description</p>
+                                }
+
+                            </div>
+
+                        </div>
+                    }
+
+                </div>
+            }
+            else
+            {
+                <div class="col-12 text-center">
+
+                    <p>Şu anda görüntülenecek hizmet bulunmamaktadır.</p>
+
+                </div>
+            }
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- Neden bizi tercih etmelisiniz -->
+@if (whyChooseUs.Any())
+{
+    <section class="probootstrap-section">
+
+        <div class="container">
+
+            <div class="row">
+
+                <div class="col-md-6 offset-md-3 text-center section-heading probootstrap-animate">
+
+                    <h2>Neden Bizi Tercih Etmelisiniz?</h2>
+
+                </div>
+
+            </div>
+
+            <div class="row">
+
+                <!-- Sol sütun -->
+                <div class="col-md-6">
+
+                    @foreach (var item in whyChooseUs.Where((item, index) => index % 2 == 0))
+                    {
+                        <div class="service left-icon probootstrap-animate"
+                             data-animate-effect="fadeInLeft">
+
+                            <div class="icon">
+
+                                @if (!string.IsNullOrWhiteSpace(item.IconClass))
+                                {
+                                    <i class="@item.IconClass"></i>
+                                }
+
+                            </div>
+
+                            <div class="text">
+
+                                <h3>@item.Title</h3>
+
+                                @if (!string.IsNullOrWhiteSpace(item.Description))
+                                {
+                                    <p>@item.Description</p>
+                                }
+
+                            </div>
+
+                        </div>
+                    }
+
+                </div>
+
+                <!-- Sağ sütun -->
+                <div class="col-md-6">
+
+                    @foreach (var item in whyChooseUs.Where((item, index) => index % 2 == 1))
+                    {
+                        <div class="service left-icon probootstrap-animate"
+                             data-animate-effect="fadeInLeft">
+
+                            <div class="icon">
+
+                                @if (!string.IsNullOrWhiteSpace(item.IconClass))
+                                {
+                                    <i class="@item.IconClass"></i>
+                                }
+
+                            </div>
+
+                            <div class="text">
+
+                                <h3>@item.Title</h3>
+
+                                @if (!string.IsNullOrWhiteSpace(item.Description))
+                                {
+                                    <p>@item.Description</p>
+                                }
+
+                            </div>
+
+                        </div>
+                    }
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+}

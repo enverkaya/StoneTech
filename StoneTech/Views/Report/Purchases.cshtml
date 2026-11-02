@@ -1,0 +1,395 @@
+@using StoneTech.Models.Report
+@model PurchaseReportViewModel
+
+@{
+    ViewData["Title"] = "Alım Raporu";
+}
+
+<section class="section__content section__content--p30">
+    <div class="container-fluid">
+
+        <!-- Sayfa başlığı -->
+        <div class="page-header">
+            <div>
+                <h2 class="page-header__title">
+                    Alım Raporu
+                </h2>
+
+                <p class="page-header__subtitle">
+                    Tedarikçi, plaka miktarı ve maliyet bazında alımları görüntüleyin.
+                </p>
+            </div>
+
+            <div class="d-flex gap-2 flex-wrap">
+
+                <!-- Raporlama merkezine dönüş -->
+                <a asp-action="Index"
+                   class="btn btn-outline-secondary">
+                    <i class="fa-solid fa-arrow-left me-1"></i>
+                    Raporlama Merkezi
+                </a>
+
+                <!-- Excel raporu -->
+                <a asp-action="Export"
+                   asp-route-report="Purchases"
+                   asp-route-format="Excel"
+                   asp-route-startDate="@(Model.StartDate?.ToString("yyyy-MM-dd"))"
+                   asp-route-endDate="@(Model.EndDate?.ToString("yyyy-MM-dd"))"
+                   asp-route-supplierId="@Model.SupplierId"
+                   asp-route-search="@Model.Search"
+                   class="btn btn-success">
+                    <i class="fa-solid fa-file-excel me-1"></i>
+                    Excel
+                </a>
+
+                <!-- PDF raporu -->
+                <a asp-action="Export"
+                   asp-route-report="Purchases"
+                   asp-route-format="Pdf"
+                   asp-route-startDate="@(Model.StartDate?.ToString("yyyy-MM-dd"))"
+                   asp-route-endDate="@(Model.EndDate?.ToString("yyyy-MM-dd"))"
+                   asp-route-supplierId="@Model.SupplierId"
+                   asp-route-search="@Model.Search"
+                   class="btn btn-danger">
+                    <i class="fa-solid fa-file-pdf me-1"></i>
+                    PDF
+                </a>
+
+            </div>
+        </div>
+
+        <!-- Hata mesajı -->
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger">
+                @TempData["ErrorMessage"]
+            </div>
+        }
+
+        <!-- Rapor filtreleri -->
+        <div class="m-card mb-4 p-4">
+            <div class="m-card__header mb-3">
+                <div>
+                    <h4 class="m-card__title">
+                        Rapor Filtreleri
+                    </h4>
+
+                    <p class="m-card__subtitle">
+                        Tarih, tedarikçi, alım numarası, açıklama veya taş adına göre filtreleyin.
+                    </p>
+                </div>
+            </div>
+
+            <form asp-action="Purchases" method="get">
+                <div class="row align-items-end">
+
+                    <!-- Başlangıç tarihi -->
+                    <div class="col-lg-2 col-md-6 mb-3">
+                        <label class="form-label">
+                            Başlangıç Tarihi
+                        </label>
+
+                        <input type="date"
+                               name="startDate"
+                               class="form-control"
+                               value="@(Model.StartDate?.ToString("yyyy-MM-dd"))" />
+                    </div>
+
+                    <!-- Bitiş tarihi -->
+                    <div class="col-lg-2 col-md-6 mb-3">
+                        <label class="form-label">
+                            Bitiş Tarihi
+                        </label>
+
+                        <input type="date"
+                               name="endDate"
+                               class="form-control"
+                               value="@(Model.EndDate?.ToString("yyyy-MM-dd"))" />
+                    </div>
+
+                    <!-- Tedarikçi filtresi -->
+                    <div class="col-lg-3 col-md-6 mb-3">
+                        <label class="form-label">
+                            Tedarikçi
+                        </label>
+
+                        <select name="supplierId"
+                                class="form-control">
+
+                            <option value="">
+                                Tüm Tedarikçiler
+                            </option>
+
+                            @foreach (var supplier in Model.Suppliers)
+                            {
+                                if (supplier.Id == Model.SupplierId)
+                                {
+                                    <option value="@supplier.Id" selected>
+                                        @supplier.Name
+                                    </option>
+                                }
+                                else
+                                {
+                                    <option value="@supplier.Id">
+                                        @supplier.Name
+                                    </option>
+                                }
+                            }
+
+                        </select>
+                    </div>
+
+                    <!-- Arama -->
+                    <div class="col-lg-2 col-md-6 mb-3">
+                        <label class="form-label">
+                            Arama
+                        </label>
+
+                        <input type="text"
+                               name="search"
+                               class="form-control"
+                               value="@Model.Search"
+                               placeholder="Alım no, taş..." />
+                    </div>
+
+                    <!-- Filtre butonları -->
+                    <div class="col-lg-3 col-md-12 mb-3">
+                        <div class="d-flex gap-2">
+
+                            <button class="btn btn-primary flex-fill"
+                                    type="submit">
+                                <i class="fa-solid fa-filter me-1"></i>
+                                Filtrele
+                            </button>
+
+                            <a asp-action="Purchases"
+                               class="btn btn-outline-secondary flex-fill">
+                                <i class="fa-solid fa-rotate-left me-1"></i>
+                                Temizle
+                            </a>
+
+                        </div>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+
+        <!-- KPI kartları -->
+        <div class="row row-tight mb-4">
+
+            <!-- Toplam alım -->
+            <div class="col-sm-6 col-xl-3">
+                <article class="stat-card">
+                    <div class="stat-card__head">
+                        <span class="stat-card__label">
+                            Alım
+                        </span>
+
+                        <span class="stat-card__icon">
+                            <i class="fa-solid fa-cart-shopping"></i>
+                        </span>
+                    </div>
+
+                    <div class="stat-card__value">
+                        @Model.PurchaseCount
+                    </div>
+
+                    <div class="stat-card__meta">
+                        Toplam alım kaydı
+                    </div>
+                </article>
+            </div>
+
+            <!-- Tedarikçi -->
+            <div class="col-sm-6 col-xl-3">
+                <article class="stat-card">
+                    <div class="stat-card__head">
+                        <span class="stat-card__label">
+                            Tedarikçi
+                        </span>
+
+                        <span class="stat-card__icon">
+                            <i class="fa-solid fa-truck"></i>
+                        </span>
+                    </div>
+
+                    <div class="stat-card__value">
+                        @Model.SupplierCount
+                    </div>
+
+                    <div class="stat-card__meta">
+                        Alım yapılan tedarikçi
+                    </div>
+                </article>
+            </div>
+
+            <!-- Toplam plaka -->
+            <div class="col-sm-6 col-xl-3">
+                <article class="stat-card">
+                    <div class="stat-card__head">
+                        <span class="stat-card__label">
+                            Plaka
+                        </span>
+
+                        <span class="stat-card__icon">
+                            <i class="fa-solid fa-layer-group"></i>
+                        </span>
+                    </div>
+
+                    <div class="stat-card__value">
+                        @Model.TotalPlateCount
+                    </div>
+
+                    <div class="stat-card__meta">
+                        Alınan toplam plaka
+                    </div>
+                </article>
+            </div>
+
+            <!-- Toplam maliyet -->
+            <div class="col-sm-6 col-xl-3">
+                <article class="stat-card">
+                    <div class="stat-card__head">
+                        <span class="stat-card__label">
+                            Toplam Tutar
+                        </span>
+
+                        <span class="stat-card__icon">
+                            <i class="fa-solid fa-turkish-lira-sign"></i>
+                        </span>
+                    </div>
+
+                    <div class="stat-card__value">
+                        @Model.TotalAmount.ToString("N2") ₺
+                    </div>
+
+                    <div class="stat-card__meta">
+                        Alımların toplam maliyeti
+                    </div>
+                </article>
+            </div>
+
+        </div>
+
+        <!-- Alım detayları -->
+        <div class="m-card p-4">
+            <div class="m-card__header mb-3">
+                <div>
+                    <h4 class="m-card__title">
+                        Alım Detayları
+                    </h4>
+
+                    <p class="m-card__subtitle">
+                        Filtrelenen alımların detaylı listesi.
+                    </p>
+                </div>
+
+                @if (Model.Items.Any())
+                {
+                    <div class="text-muted">
+                        <strong>@Model.Items.Count</strong> alım
+                    </div>
+                }
+            </div>
+
+            <div class="table-responsive">
+                <table class="table m-table dt-table align-middle">
+
+                    <thead>
+                        <tr>
+                            <th>Alım No</th>
+                            <th>Tedarikçi</th>
+                            <th>Tarih</th>
+                            <th class="text-end">Kalem</th>
+                            <th class="text-end">Plaka</th>
+                            <th class="text-end">Toplam Tutar</th>
+                            <th>Açıklama</th>
+                            <th class="text-center">İşlem</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @if (Model.Items.Any())
+                        {
+                            foreach (var item in Model.Items)
+                            {
+                                <tr>
+
+                                    <!-- Alım numarası -->
+                                    <td>
+                                        <strong>
+                                            @item.PurchaseNumber
+                                        </strong>
+                                    </td>
+
+                                    <!-- Tedarikçi -->
+                                    <td>
+                                        @item.SupplierName
+                                    </td>
+
+                                    <!-- Alım tarihi -->
+                                    <td>
+                                        @item.PurchaseDate.ToString("dd.MM.yyyy")
+                                    </td>
+
+                                    <!-- Alımdaki farklı kalem sayısı -->
+                                    <td class="text-end">
+                                        @item.DetailCount
+                                    </td>
+
+                                    <!-- Toplam alınan plaka -->
+                                    <td class="text-end">
+                                        @item.TotalQuantity
+                                    </td>
+
+                                    <!-- Alım toplam tutarı -->
+                                    <td class="text-end">
+                                        <strong>
+                                            @item.TotalAmount.ToString("N2") ₺
+                                        </strong>
+                                    </td>
+
+                                    <!-- Alım açıklaması -->
+                                    <td>
+                                        @(item.Description ?? "-")
+                                    </td>
+
+                                    <!-- Alım detayına git -->
+                                    <td class="text-center">
+                                        <a asp-controller="Purchase"
+                                           asp-action="Details"
+                                           asp-route-id="@item.PurchaseId"
+                                           class="text-secondary"
+                                           title="Alım Detayını Görüntüle">
+                                            <i class="fa-solid fa-eye"></i>
+                                        </a>
+                                    </td>
+
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="8"
+                                    class="text-center py-5 text-muted">
+                                    Seçilen filtrelere uygun alım bulunamadı.
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+
+                </table>
+            </div>
+
+            @if (Model.Items.Any())
+            {
+                <div class="mt-3 text-muted">
+                    Toplam <strong>@Model.Items.Count</strong> alım listeleniyor.
+                </div>
+            }
+        </div>
+
+    </div>
+</section>

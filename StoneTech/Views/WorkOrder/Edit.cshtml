@@ -1,0 +1,1131 @@
+﻿@model StoneTech.Models.WorkOrder.WorkOrderEditViewModel
+@using StoneTech.Enums
+
+@{
+    ViewData["Title"] = "İş Emri Düzenle";
+
+    var customers = ViewBag.Customers;
+    var stones = ViewBag.Stones;
+}
+
+<div class="section__content section__content--p30">
+    <div class="container-fluid">
+
+        <!-- Sayfa başlığı -->
+        <div class="page-header">
+
+            <div>
+                <h1>İş Emri #@Model.WorkOrderId Düzenle</h1>
+
+                <p class="subtitle">
+                    İş emri, kullanılacak taşlar, kesim işçiliği ve KDV bilgilerini düzenleyin.
+                </p>
+            </div>
+
+            <div class="page-header__actions">
+
+                <a asp-controller="WorkOrder"
+                   asp-action="Details"
+                   asp-route-id="@Model.WorkOrderId"
+                   class="m-btn m-btn--ghost">
+
+                    <i class="fa-solid fa-arrow-left"></i>
+                    İş Emrine Dön
+
+                </a>
+
+            </div>
+
+        </div>
+
+        <form asp-controller="WorkOrder"
+              asp-action="Edit"
+              asp-route-id="@Model.WorkOrderId"
+              method="post"
+              id="workOrderForm">
+
+            @Html.AntiForgeryToken()
+
+            <!-- Düzenlenen iş emrinin Id bilgisini taşır -->
+            <input asp-for="WorkOrderId"
+                   type="hidden" />
+
+            <!-- Durum formdan değiştirilemez -->
+            <input asp-for="Status"
+                   type="hidden" />
+
+            <div asp-validation-summary="ModelOnly"
+                 class="text-danger mb-3">
+            </div>
+
+            <!-- İş emri temel bilgileri -->
+            <div class="card mb-4">
+
+                <div class="card-header">
+                    <strong>İş Emri Bilgileri</strong>
+                </div>
+
+                <div class="card-body">
+
+                    <div class="row g-3">
+
+                        <!-- Müşteri -->
+                        <div class="col-lg-4">
+
+                            <label asp-for="CustomerId"
+                                   class="form-label">
+                                Müşteri
+                            </label>
+
+                            <select asp-for="CustomerId"
+                                    class="form-select">
+
+                                <option value="">
+                                    Müşteri seçiniz
+                                </option>
+
+                                @if (customers != null)
+                                {
+                                    foreach (var customer in customers)
+                                    {
+                                        if (Model.CustomerId == customer.CustomerId)
+                                        {
+                                            <option value="@customer.CustomerId"
+                                                    selected>
+                                                @customer.CustomerName - @customer.Phone
+                                            </option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@customer.CustomerId">
+                                                @customer.CustomerName - @customer.Phone
+                                            </option>
+                                        }
+                                    }
+                                }
+
+                            </select>
+
+                            <span asp-validation-for="CustomerId"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+                        <!-- İş emri tarihi -->
+                        <div class="col-md-6 col-lg-4">
+
+                            <label asp-for="CreatedDate"
+                                   class="form-label">
+                                İş Emri Tarihi
+                            </label>
+
+                            <input asp-for="CreatedDate"
+                                   type="date"
+                                   class="form-control" />
+
+                            <span asp-validation-for="CreatedDate"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+                        <!-- İş emri durumu -->
+                        <div class="col-md-6 col-lg-4">
+
+                            <label class="form-label">
+                                Durum
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   value="Onay Bekliyor"
+                                   readonly />
+
+                            <small class="text-muted">
+                                İş emri durumu bu ekrandan değiştirilemez.
+                            </small>
+
+                        </div>
+
+                        <!-- Açıklama -->
+                        <div class="col-12">
+
+                            <label asp-for="Description"
+                                   class="form-label">
+                                Açıklama
+                            </label>
+
+                            <textarea asp-for="Description"
+                                      class="form-control"
+                                      rows="3"
+                                      placeholder="İş emriyle ilgili genel açıklama..."></textarea>
+
+                            <span asp-validation-for="Description"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Kullanılacak taşlar -->
+            <div class="card mb-4">
+
+                <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+
+                    <div>
+
+                        <strong>Kullanılacak Taşlar</strong>
+
+                        <div class="text-muted small mt-1">
+                            İş emrinde kullanılacak taşları ve plaka adetlerini belirleyin.
+                            Stok, iş emri atölyede işleme alındığında düşer.
+                        </div>
+
+                    </div>
+
+                    <button type="button"
+                            class="m-btn m-btn--ghost"
+                            id="addStoneButton">
+
+                        <i class="fa-solid fa-plus"></i>
+                        Taş Ekle
+
+                    </button>
+
+                </div>
+
+                <div class="card-body">
+
+                    <div asp-validation-for="Details"
+                         class="text-danger mb-3">
+                    </div>
+
+                    <div class="table-responsive">
+
+                        <table class="table table-hover align-middle mb-0">
+
+                            <thead>
+
+                                <tr>
+
+                                    <th scope="col"
+                                        class="w-25 pe-3">
+                                        Taş
+                                    </th>
+
+                                    <th scope="col"
+                                        class="text-nowrap pe-3">
+                                        Mevcut Stok
+                                    </th>
+
+                                    <th scope="col"
+                                        class="text-nowrap pe-3">
+                                        Plaka Adedi
+                                    </th>
+
+                                    <th scope="col"
+                                        class="text-nowrap pe-3">
+                                        Birim Fiyat
+                                    </th>
+
+                                    <th scope="col"
+                                        class="text-nowrap pe-3">
+                                        Satır Toplamı
+                                    </th>
+
+                                    <th scope="col"
+                                        class="text-center">
+
+                                        <span class="visually-hidden">
+                                            İşlem
+                                        </span>
+
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+                            <tbody id="stoneRows">
+
+                                @for (int i = 0; i < Model.Details.Count; i++)
+                                {
+                                    <tr class="stone-row">
+
+                                        <!-- Taş -->
+                                        <td class="pe-3">
+
+                                            <input type="hidden"
+                                                   name="Details[@i].WorkOrderDetailId"
+                                                   value="@Model.Details[i].WorkOrderDetailId"
+                                                   class="detail-id" />
+
+                                            <select name="Details[@i].StoneId"
+                                                    class="form-select stone-select">
+
+                                                <option value="">
+                                                    Taş seçiniz
+                                                </option>
+
+                                                @if (stones != null)
+                                                {
+                                                    foreach (var stone in stones)
+                                                    {
+                                                        if (Model.Details[i].StoneId == stone.StoneId)
+                                                        {
+                                                            <option value="@stone.StoneId"
+                                                                    data-price="@stone.SalePrice.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+                                                                    data-stock="@stone.CurrentStock"
+                                                                    selected>
+                                                                @stone.StoneName
+                                                            </option>
+                                                        }
+                                                        else
+                                                        {
+                                                            <option value="@stone.StoneId"
+                                                                    data-price="@stone.SalePrice.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+                                                                    data-stock="@stone.CurrentStock">
+                                                                @stone.StoneName
+                                                            </option>
+                                                        }
+                                                    }
+                                                }
+
+                                            </select>
+
+                                        </td>
+
+                                        <!-- Mevcut stok -->
+                                        <td class="text-nowrap pe-3">
+
+                                            <strong class="stock-text">
+                                                -
+                                            </strong>
+
+                                        </td>
+
+                                        <!-- Plaka adedi -->
+                                        <td class="pe-3">
+
+                                            <div class="input-group">
+
+                                                <input name="Details[@i].Quantity"
+                                                       type="number"
+                                                       min="1"
+                                                       step="1"
+                                                       value="@Model.Details[i].Quantity"
+                                                       class="form-control quantity-input" />
+
+                                                <span class="input-group-text">
+                                                    plaka
+                                                </span>
+
+                                            </div>
+
+                                        </td>
+
+                                        <!-- Birim fiyat -->
+                                        <td class="pe-3">
+
+                                            <div class="input-group">
+
+                                                <input name="Details[@i].UnitPrice"
+                                                       type="number"
+                                                       min="0.01"
+                                                       step="0.01"
+                                                       value="@Model.Details[i].UnitPrice.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+                                                       class="form-control price-input" />
+
+                                                <span class="input-group-text">
+                                                    ₺
+                                                </span>
+
+                                            </div>
+
+                                        </td>
+
+                                        <!-- Satır toplamı -->
+                                        <td class="text-nowrap pe-3">
+
+                                            <strong class="line-total">
+                                                0,00 ₺
+                                            </strong>
+
+                                        </td>
+
+                                        <!-- Satır silme -->
+                                        <td class="text-center">
+
+                                            <button type="button"
+                                                    class="btn btn-link text-danger p-0 remove-row"
+                                                    title="Satırı Sil"
+                                                    aria-label="Taş satırını sil">
+
+                                                <i class="fa-solid fa-trash"></i>
+
+                                            </button>
+
+                                        </td>
+
+                                    </tr>
+                                }
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Kesim işçiliği -->
+            <div class="card mb-4">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <strong>Kesim İşçiliği</strong>
+
+                        <div class="text-muted small mt-1">
+                            Yapılacak toplam kesim metresini ve KDV hariç metre başına işçilik fiyatını girin.
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="card-body">
+
+                    <div class="row g-3">
+
+                        <!-- Kesim metresi -->
+                        <div class="col-md-6">
+
+                            <label asp-for="CuttingMeter"
+                                   class="form-label">
+                                Kesim Metresi
+                            </label>
+
+                            <div class="input-group">
+
+                                <input asp-for="CuttingMeter"
+                                       type="number"
+                                       min="0"
+                                       step="0.01"
+                                       class="form-control"
+                                       id="cuttingMeter" />
+
+                                <span class="input-group-text">
+                                    metre
+                                </span>
+
+                            </div>
+
+                            <span asp-validation-for="CuttingMeter"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+                        <!-- Metre işçilik fiyatı -->
+                        <div class="col-md-6">
+
+                            <label asp-for="CuttingPricePerMeter"
+                                   class="form-label">
+                                Metre İşçilik Fiyatı
+                            </label>
+
+                            <div class="input-group">
+
+                                <input asp-for="CuttingPricePerMeter"
+                                       type="number"
+                                       min="0"
+                                       step="0.01"
+                                       class="form-control"
+                                       id="cuttingPrice" />
+
+                                <span class="input-group-text">
+                                    ₺ / metre
+                                </span>
+
+                            </div>
+
+                            <span asp-validation-for="CuttingPricePerMeter"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- KDV bilgisi -->
+            <div class="card mb-4">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <strong>KDV Bilgisi</strong>
+
+                        <div class="text-muted small mt-1">
+                            KDV oranı taş ve kesim işçiliğinin KDV hariç toplamına uygulanır.
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="card-body">
+
+                    <div class="row g-3">
+
+                        <div class="col-md-4">
+
+                            <label asp-for="VatRate"
+                                   class="form-label">
+                                KDV Oranı
+                            </label>
+
+                            <div class="input-group">
+
+                                <input asp-for="VatRate"
+                                       type="number"
+                                       min="0"
+                                       max="100"
+                                       step="0.01"
+                                       class="form-control"
+                                       id="vatRate" />
+
+                                <span class="input-group-text">
+                                    %
+                                </span>
+
+                            </div>
+
+                            <span asp-validation-for="VatRate"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Tutar özeti -->
+            <div class="card mb-4">
+
+                <div class="card-header">
+                    <strong>Tutar Özeti</strong>
+                </div>
+
+                <div class="card-body">
+
+                    <div class="row g-3">
+
+                        <!-- Taş toplamı -->
+                        <div class="col-md-4">
+
+                            <div class="text-muted small mb-1">
+                                Taş Toplamı
+                            </div>
+
+                            <strong id="stoneTotal"
+                                    class="fs-5">
+                                0,00 ₺
+                            </strong>
+
+                        </div>
+
+                        <!-- Kesim işçiliği -->
+                        <div class="col-md-4">
+
+                            <div class="text-muted small mb-1">
+                                Kesim İşçiliği
+                            </div>
+
+                            <strong id="cuttingTotal"
+                                    class="fs-5">
+                                0,00 ₺
+                            </strong>
+
+                        </div>
+
+                        <!-- KDV hariç ara toplam -->
+                        <div class="col-md-4">
+
+                            <div class="text-muted small mb-1">
+                                KDV Hariç Ara Toplam
+                            </div>
+
+                            <strong id="subTotal"
+                                    class="fs-5">
+                                0,00 ₺
+                            </strong>
+
+                        </div>
+
+                        <!-- KDV -->
+                        <div class="col-md-6">
+
+                            <div class="text-muted small mb-1">
+                                KDV
+                                (<span id="vatRateText">0</span>%)
+                            </div>
+
+                            <strong id="vatAmount"
+                                    class="fs-5">
+                                0,00 ₺
+                            </strong>
+
+                        </div>
+
+                        <!-- KDV dahil genel toplam -->
+                        <div class="col-md-6">
+
+                            <div class="text-muted small mb-1">
+                                KDV Dahil Genel Toplam
+                            </div>
+
+                            <strong id="generalTotal"
+                                    class="fs-4 text-primary">
+                                0,00 ₺
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Form işlemleri -->
+            <div class="d-flex justify-content-end gap-2">
+
+                <a asp-controller="WorkOrder"
+                   asp-action="Details"
+                   asp-route-id="@Model.WorkOrderId"
+                   class="m-btn m-btn--ghost">
+                    Vazgeç
+                </a>
+
+                <button type="submit"
+                        class="m-btn m-btn--primary">
+
+                    <i class="fa-solid fa-floppy-disk"></i>
+                    Değişiklikleri Kaydet
+
+                </button>
+
+            </div>
+
+        </form>
+
+        <!-- Yeni taş satırı şablonu -->
+        <template id="stoneRowTemplate">
+
+            <tr class="stone-row">
+
+                <!-- Taş -->
+                <td class="pe-3">
+
+                    <input type="hidden"
+                           class="detail-id"
+                           value="0" />
+
+                    <select class="form-select stone-select">
+
+                        <option value="">
+                            Taş seçiniz
+                        </option>
+
+                        @if (stones != null)
+                        {
+                            foreach (var stone in stones)
+                            {
+                                <option value="@stone.StoneId"
+                                        data-price="@stone.SalePrice.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+                                        data-stock="@stone.CurrentStock">
+                                    @stone.StoneName
+                                </option>
+                            }
+                        }
+
+                    </select>
+
+                </td>
+
+                <!-- Mevcut stok -->
+                <td class="text-nowrap pe-3">
+
+                    <strong class="stock-text">
+                        -
+                    </strong>
+
+                </td>
+
+                <!-- Plaka adedi -->
+                <td class="pe-3">
+
+                    <div class="input-group">
+
+                        <input type="number"
+                               min="1"
+                               step="1"
+                               value="1"
+                               class="form-control quantity-input" />
+
+                        <span class="input-group-text">
+                            plaka
+                        </span>
+
+                    </div>
+
+                </td>
+
+                <!-- Birim fiyat -->
+                <td class="pe-3">
+
+                    <div class="input-group">
+
+                        <input type="number"
+                               min="0.01"
+                               step="0.01"
+                               value="0"
+                               class="form-control price-input" />
+
+                        <span class="input-group-text">
+                            ₺
+                        </span>
+
+                    </div>
+
+                </td>
+
+                <!-- Satır toplamı -->
+                <td class="text-nowrap pe-3">
+
+                    <strong class="line-total">
+                        0,00 ₺
+                    </strong>
+
+                </td>
+
+                <!-- Satır silme -->
+                <td class="text-center">
+
+                    <button type="button"
+                            class="btn btn-link text-danger p-0 remove-row"
+                            title="Satırı Sil"
+                            aria-label="Taş satırını sil">
+
+                        <i class="fa-solid fa-trash"></i>
+
+                    </button>
+
+                </td>
+
+            </tr>
+
+        </template>
+
+    </div>
+</div>
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const stoneRows =
+                document.getElementById("stoneRows");
+
+            const addStoneButton =
+                document.getElementById("addStoneButton");
+
+            const stoneRowTemplate =
+                document.getElementById("stoneRowTemplate");
+
+            const cuttingMeter =
+                document.getElementById("cuttingMeter");
+
+            const cuttingPrice =
+                document.getElementById("cuttingPrice");
+
+            const vatRate =
+                document.getElementById("vatRate");
+
+            const stoneTotalElement =
+                document.getElementById("stoneTotal");
+
+            const cuttingTotalElement =
+                document.getElementById("cuttingTotal");
+
+            const subTotalElement =
+                document.getElementById("subTotal");
+
+            const vatAmountElement =
+                document.getElementById("vatAmount");
+
+            const vatRateText =
+                document.getElementById("vatRateText");
+
+            const generalTotalElement =
+                document.getElementById("generalTotal");
+
+            // Sayısal input değerini JavaScript sayısına çevirir
+            function parseNumber(value) {
+
+                if (!value) {
+                    return 0;
+                }
+
+                const normalizedValue =
+                    value.toString().replace(",", ".");
+
+                const number =
+                    parseFloat(normalizedValue);
+
+                return Number.isNaN(number)
+                    ? 0
+                    : number;
+            }
+
+            // Para değerlerini Türkçe para görünümünde gösterir
+            function formatMoney(value) {
+
+                return value.toLocaleString("tr-TR", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }) + " ₺";
+            }
+
+            // Dinamik taş satırlarının model binding indexlerini düzenler
+            function updateIndexes() {
+
+                const rows =
+                    stoneRows.querySelectorAll(".stone-row");
+
+                rows.forEach(function (row, index) {
+
+                    const detailId =
+                        row.querySelector(".detail-id");
+
+                    const stoneSelect =
+                        row.querySelector(".stone-select");
+
+                    const quantityInput =
+                        row.querySelector(".quantity-input");
+
+                    const priceInput =
+                        row.querySelector(".price-input");
+
+                    if (detailId) {
+                        detailId.name =
+                            `Details[${index}].WorkOrderDetailId`;
+                    }
+
+                    stoneSelect.name =
+                        `Details[${index}].StoneId`;
+
+                    quantityInput.name =
+                        `Details[${index}].Quantity`;
+
+                    priceInput.name =
+                        `Details[${index}].UnitPrice`;
+                });
+            }
+
+            // Taş satırının stok ve satır toplamı bilgisini günceller
+            function updateRow(row) {
+
+                const stoneSelect =
+                    row.querySelector(".stone-select");
+
+                const quantityInput =
+                    row.querySelector(".quantity-input");
+
+                const priceInput =
+                    row.querySelector(".price-input");
+
+                const stockText =
+                    row.querySelector(".stock-text");
+
+                const lineTotalElement =
+                    row.querySelector(".line-total");
+
+                const selectedOption =
+                    stoneSelect.options[
+                        stoneSelect.selectedIndex
+                    ];
+
+                if (selectedOption &&
+                    selectedOption.value) {
+
+                    const stock =
+                        selectedOption.dataset.stock || "0";
+
+                    stockText.textContent =
+                        stock + " plaka";
+                }
+                else {
+                    stockText.textContent = "-";
+                }
+
+                const quantity =
+                    parseNumber(quantityInput.value);
+
+                const price =
+                    parseNumber(priceInput.value);
+
+                const lineTotal =
+                    quantity * price;
+
+                lineTotalElement.textContent =
+                    formatMoney(lineTotal);
+            }
+
+            // Taş, işçilik, KDV ve genel toplamı ekranda hesaplar
+            function calculateTotals() {
+
+                let stoneTotal = 0;
+
+                const rows =
+                    stoneRows.querySelectorAll(".stone-row");
+
+                rows.forEach(function (row) {
+
+                    const quantity =
+                        parseNumber(
+                            row.querySelector(
+                                ".quantity-input"
+                            ).value
+                        );
+
+                    const price =
+                        parseNumber(
+                            row.querySelector(
+                                ".price-input"
+                            ).value
+                        );
+
+                    stoneTotal +=
+                        quantity * price;
+                });
+
+                const meter =
+                    parseNumber(cuttingMeter.value);
+
+                const meterPrice =
+                    parseNumber(cuttingPrice.value);
+
+                const currentVatRate =
+                    parseNumber(vatRate.value);
+
+                const cuttingTotal =
+                    meter * meterPrice;
+
+                const subTotal =
+                    stoneTotal + cuttingTotal;
+
+                const vatAmount =
+                    subTotal * currentVatRate / 100;
+
+                const generalTotal =
+                    subTotal + vatAmount;
+
+                stoneTotalElement.textContent =
+                    formatMoney(stoneTotal);
+
+                cuttingTotalElement.textContent =
+                    formatMoney(cuttingTotal);
+
+                subTotalElement.textContent =
+                    formatMoney(subTotal);
+
+                vatAmountElement.textContent =
+                    formatMoney(vatAmount);
+
+                vatRateText.textContent =
+                    currentVatRate.toLocaleString("tr-TR", {
+                        maximumFractionDigits: 2
+                    });
+
+                generalTotalElement.textContent =
+                    formatMoney(generalTotal);
+            }
+
+            // Taş satırındaki olayları hazırlar
+            function initializeRow(row) {
+
+                const stoneSelect =
+                    row.querySelector(".stone-select");
+
+                const quantityInput =
+                    row.querySelector(".quantity-input");
+
+                const priceInput =
+                    row.querySelector(".price-input");
+
+                const removeButton =
+                    row.querySelector(".remove-row");
+
+                stoneSelect.addEventListener(
+                    "change",
+                    function () {
+
+                        const selectedOption =
+                            stoneSelect.options[
+                                stoneSelect.selectedIndex
+                            ];
+
+                        if (selectedOption &&
+                            selectedOption.value) {
+
+                            const price =
+                                selectedOption.dataset.price || "0";
+
+                            priceInput.value = price;
+                        }
+                        else {
+                            priceInput.value = "0";
+                        }
+
+                        updateRow(row);
+                        calculateTotals();
+                    }
+                );
+
+                quantityInput.addEventListener(
+                    "input",
+                    function () {
+
+                        updateRow(row);
+                        calculateTotals();
+                    }
+                );
+
+                priceInput.addEventListener(
+                    "input",
+                    function () {
+
+                        updateRow(row);
+                        calculateTotals();
+                    }
+                );
+
+                removeButton.addEventListener(
+                    "click",
+                    function () {
+
+                        const rows =
+                            stoneRows.querySelectorAll(
+                                ".stone-row"
+                            );
+
+                        // Ekranda en az bir taş satırı bırakır
+                        if (rows.length <= 1) {
+
+                            const detailId =
+                                row.querySelector(".detail-id");
+
+                            if (detailId) {
+                                detailId.value = "0";
+                            }
+
+                            stoneSelect.value = "";
+                            quantityInput.value = "1";
+                            priceInput.value = "0";
+
+                            updateRow(row);
+                            calculateTotals();
+
+                            return;
+                        }
+
+                        row.remove();
+
+                        updateIndexes();
+                        calculateTotals();
+                    }
+                );
+
+                updateRow(row);
+            }
+
+            // Yeni taş satırı ekler
+            addStoneButton.addEventListener(
+                "click",
+                function () {
+
+                    const fragment =
+                        stoneRowTemplate.content.cloneNode(true);
+
+                    stoneRows.appendChild(fragment);
+
+                    const rows =
+                        stoneRows.querySelectorAll(
+                            ".stone-row"
+                        );
+
+                    const newRow =
+                        rows[rows.length - 1];
+
+                    initializeRow(newRow);
+
+                    updateIndexes();
+                    calculateTotals();
+                }
+            );
+
+            // Sayfa ilk açıldığında mevcut taş satırlarını hazırlar
+            stoneRows
+                .querySelectorAll(".stone-row")
+                .forEach(function (row) {
+                    initializeRow(row);
+                });
+
+            cuttingMeter.addEventListener(
+                "input",
+                function () {
+                    calculateTotals();
+                }
+            );
+
+            cuttingPrice.addEventListener(
+                "input",
+                function () {
+                    calculateTotals();
+                }
+            );
+
+            vatRate.addEventListener(
+                "input",
+                function () {
+                    calculateTotals();
+                }
+            );
+
+            updateIndexes();
+            calculateTotals();
+        });
+    </script>
+}

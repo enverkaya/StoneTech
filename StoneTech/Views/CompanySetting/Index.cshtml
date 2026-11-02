@@ -1,0 +1,511 @@
+﻿@model StoneTech.Models.CompanySetting.CompanySettingViewModel
+
+@{
+    ViewData["Title"] = "Firma Ayarları";
+}
+
+<div class="section__content section__content--p30">
+    <div class="container-fluid">
+
+        <!-- Sayfa başlığı -->
+        <div class="page-header">
+            <div>
+                <h1>Firma Ayarları</h1>
+
+                <p class="subtitle">
+                    Fatura, kurumsal belgeler ve web sitesinde kullanılacak işletme bilgilerini yönetin.
+                </p>
+            </div>
+        </div>
+
+        <!-- Başarı mesajı -->
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success">
+                <i class="fa-solid fa-circle-check"></i>
+                @TempData["SuccessMessage"]
+            </div>
+        }
+
+        <!-- Firma bilgileri formu -->
+        <form asp-controller="CompanySetting"
+              asp-action="Index"
+              method="post"
+              enctype="multipart/form-data">
+
+            @Html.AntiForgeryToken()
+
+            <input asp-for="CompanySettingId" type="hidden" />
+            <input asp-for="ExistingLogoUrl" type="hidden" />
+            <input asp-for="ExistingSecondLogoUrl" type="hidden" />
+
+            <!-- Genel doğrulama hataları -->
+            <div asp-validation-summary="ModelOnly"
+                 class="text-danger mb-3">
+            </div>
+
+            <div class="row">
+
+                <!-- Sol bölüm -->
+                <div class="col-lg-8">
+
+                    <!-- Resmi firma bilgileri -->
+                    <div class="m-card mb-4">
+
+                        <div class="card-header">
+                            <strong>Resmi Firma Bilgileri</strong>
+                        </div>
+
+                        <div class="card-body">
+
+                            <div class="row">
+
+                                <!-- Firma unvanı -->
+                                <div class="col-12 mb-3">
+
+                                    <label asp-for="CompanyName"
+                                           class="form-label">
+                                        Firma Unvanı
+                                    </label>
+
+                                    <input asp-for="CompanyName"
+                                           class="form-control"
+                                           placeholder="Örn: Kaya Mermer Sanayi ve Ticaret Ltd. Şti." />
+
+                                    <span asp-validation-for="CompanyName"
+                                          class="text-danger">
+                                    </span>
+
+                                </div>
+
+                                <!-- Vergi dairesi -->
+                                <div class="col-md-6 mb-3">
+
+                                    <label asp-for="TaxOffice"
+                                           class="form-label">
+                                        Vergi Dairesi
+                                    </label>
+
+                                    <input asp-for="TaxOffice"
+                                           class="form-control"
+                                           placeholder="Vergi dairesi" />
+
+                                    <span asp-validation-for="TaxOffice"
+                                          class="text-danger">
+                                    </span>
+
+                                </div>
+
+                                <!-- Vergi numarası -->
+                                <div class="col-md-6 mb-3">
+
+                                    <label asp-for="TaxNumber"
+                                           class="form-label">
+                                        Vergi Numarası
+                                    </label>
+
+                                    <input asp-for="TaxNumber"
+                                           class="form-control"
+                                           maxlength="10"
+                                           inputmode="numeric"
+                                           placeholder="10 haneli vergi numarası" />
+
+                                    <span asp-validation-for="TaxNumber"
+                                          class="text-danger">
+                                    </span>
+
+                                </div>
+
+                                <!-- Firma adresi -->
+                                <div class="col-12 mb-3">
+
+                                    <label asp-for="Address"
+                                           class="form-label">
+                                        Firma Adresi
+                                    </label>
+
+                                    <textarea asp-for="Address"
+                                              class="form-control"
+                                              rows="4"
+                                              placeholder="Firmanın açık adresi"></textarea>
+
+                                    <span asp-validation-for="Address"
+                                          class="text-danger">
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- İletişim bilgileri -->
+                    <div class="m-card mb-4">
+
+                        <div class="card-header">
+                            <strong>İletişim Bilgileri</strong>
+                        </div>
+
+                        <div class="card-body">
+
+                            <div class="row">
+
+                                <!-- Telefon -->
+                                <div class="col-md-6 mb-3">
+
+                                    <label asp-for="Phone"
+                                           class="form-label">
+                                        Telefon
+                                    </label>
+
+                                    <input asp-for="Phone"
+                                           class="form-control"
+                                           placeholder="Örn: 0258 000 00 00" />
+
+                                    <span asp-validation-for="Phone"
+                                          class="text-danger">
+                                    </span>
+
+                                </div>
+
+                                <!-- E-posta -->
+                                <div class="col-md-6 mb-3">
+
+                                    <label asp-for="Email"
+                                           class="form-label">
+                                        E-posta
+                                    </label>
+
+                                    <input asp-for="Email"
+                                           type="email"
+                                           class="form-control"
+                                           placeholder="Örn: info@firmam.com" />
+
+                                    <span asp-validation-for="Email"
+                                          class="text-danger">
+                                    </span>
+
+                                </div>
+
+                                <!-- İnternet sitesi -->
+                                <div class="col-12 mb-3">
+
+                                    <label asp-for="Website"
+                                           class="form-label">
+                                        İnternet Sitesi
+                                    </label>
+
+                                    <input asp-for="Website"
+                                           class="form-control"
+                                           placeholder="Örn: www.firmam.com" />
+
+                                    <span asp-validation-for="Website"
+                                          class="text-danger">
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- Sosyal medya bağlantıları -->
+                    <div class="m-card mb-4">
+
+                        <div class="card-header">
+                            <strong>Sosyal Medya Bağlantıları</strong>
+                        </div>
+
+                        <div class="card-body">
+
+                            <div class="row">
+
+                                <!-- Instagram -->
+                                <div class="col-12 mb-3">
+
+                                    <label asp-for="InstagramUrl"
+                                           class="form-label">
+                                        <i class="fa-brands fa-instagram me-1"></i>
+                                        Instagram
+                                    </label>
+
+                                    <input asp-for="InstagramUrl"
+                                           type="url"
+                                           class="form-control"
+                                           placeholder="https://www.instagram.com/firmaadi/" />
+
+                                    <span asp-validation-for="InstagramUrl"
+                                          class="text-danger">
+                                    </span>
+
+                                    <small class="text-muted">
+                                        Firmanın Instagram profil bağlantısını girin.
+                                    </small>
+
+                                </div>
+
+                                <!-- Facebook -->
+                                <div class="col-12 mb-3">
+
+                                    <label asp-for="FacebookUrl"
+                                           class="form-label">
+                                        <i class="fa-brands fa-facebook me-1"></i>
+                                        Facebook
+                                    </label>
+
+                                    <input asp-for="FacebookUrl"
+                                           type="url"
+                                           class="form-control"
+                                           placeholder="https://www.facebook.com/firmaadi" />
+
+                                    <span asp-validation-for="FacebookUrl"
+                                          class="text-danger">
+                                    </span>
+
+                                    <small class="text-muted">
+                                        Firmanın Facebook sayfasının bağlantısını girin.
+                                    </small>
+
+                                </div>
+
+                                <!-- WhatsApp -->
+                                <div class="col-12 mb-3">
+
+                                    <label asp-for="WhatsAppUrl"
+                                           class="form-label">
+                                        <i class="fa-brands fa-whatsapp me-1"></i>
+                                        WhatsApp
+                                    </label>
+
+                                    <input asp-for="WhatsAppUrl"
+                                           type="url"
+                                           class="form-control"
+                                           placeholder="https://wa.me/905XXXXXXXXX" />
+
+                                    <span asp-validation-for="WhatsAppUrl"
+                                          class="text-danger">
+                                    </span>
+
+                                    <small class="text-muted">
+                                        WhatsApp iletişim bağlantısını ülke koduyla birlikte girin.
+                                        Örnek: https://wa.me/905XXXXXXXXX
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+                            <div class="alert alert-info mb-0">
+
+                                <i class="fa-solid fa-circle-info"></i>
+
+                                Bu bağlantılar web sitesinin iletişim ve alt bilgi
+                                bölümlerinde kullanılacaktır. Kullanmadığınız
+                                sosyal medya alanlarını boş bırakabilirsiniz.
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- Sağ bölüm -->
+                <div class="col-lg-4">
+
+                    <!-- Birinci firma logosu -->
+                    <div class="m-card mb-4">
+
+                        <div class="card-header">
+                            <strong>Firma Logosu (Beyaz)</strong>
+                        </div>
+
+                        <div class="card-body">
+
+                            <!-- Mevcut birinci logo -->
+                            @if (!string.IsNullOrWhiteSpace(Model.ExistingLogoUrl))
+                            {
+                                <div class="text-center mb-4">
+
+                                    <img src="@Url.Content(Model.ExistingLogoUrl)"
+                                         alt="Firma Logosu"
+                                         class="img-fluid"
+                                         style="max-height: 180px;" />
+
+                                </div>
+
+                                <div class="alert alert-info">
+                                    <i class="fa-solid fa-circle-info"></i>
+                                    Yeni bir logo seçerseniz mevcut logo değiştirilecektir.
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="alert alert-secondary">
+                                    <i class="fa-solid fa-image"></i>
+                                    Henüz firma logosu yüklenmemiş.
+                                </div>
+                            }
+
+                            <!-- Yeni birinci logo -->
+                            <div class="mb-3">
+
+                                <label asp-for="LogoFile"
+                                       class="form-label">
+                                    Beyaz Logo Seç
+                                </label>
+
+                                <input asp-for="LogoFile"
+                                       type="file"
+                                       class="form-control"
+                                       accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" />
+
+                                <span asp-validation-for="LogoFile"
+                                      class="text-danger">
+                                </span>
+
+                            </div>
+
+                            <small class="text-muted">
+                                JPG, JPEG, PNG veya WEBP formatında,
+                                en fazla 5 MB logo yükleyebilirsiniz.
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                    <!-- İkinci firma logosu -->
+                    <div class="m-card mb-4">
+
+                        <div class="card-header">
+                            <strong>İkinci Firma Logosu (Siyah)</strong>
+                        </div>
+
+                        <div class="card-body">
+
+                            <!-- Mevcut ikinci logo -->
+                            @if (!string.IsNullOrWhiteSpace(Model.ExistingSecondLogoUrl))
+                            {
+                                <div class="text-center mb-4">
+
+                                    <img src="@Url.Content(Model.ExistingSecondLogoUrl)"
+                                         alt="İkinci Firma Logosu"
+                                         class="img-fluid"
+                                         style="max-height: 180px;" />
+
+                                </div>
+
+                                <div class="alert alert-info">
+                                    <i class="fa-solid fa-circle-info"></i>
+                                    Yeni bir logo seçerseniz mevcut ikinci logo değiştirilecektir.
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="alert alert-secondary">
+                                    <i class="fa-solid fa-image"></i>
+                                    Henüz ikinci firma logosu yüklenmemiş.
+                                </div>
+                            }
+
+                            <!-- Yeni ikinci logo -->
+                            <div class="mb-3">
+
+                                <label asp-for="SecondLogoFile"
+                                       class="form-label">
+                                    Siyah Logo Seç
+                                </label>
+
+                                <input asp-for="SecondLogoFile"
+                                       type="file"
+                                       class="form-control"
+                                       accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" />
+
+                                <span asp-validation-for="SecondLogoFile"
+                                      class="text-danger">
+                                </span>
+
+                            </div>
+
+                            <small class="text-muted">
+                                JPG, JPEG, PNG veya WEBP formatında,
+                                en fazla 5 MB logo yükleyebilirsiniz.
+                            </small>
+
+                            <div class="alert alert-info mt-3 mb-0">
+                                <i class="fa-solid fa-circle-info"></i>
+                                Bu logo, web sitesinde sayfa aşağı kaydırıldığında
+                                beyaz navigasyon çubuğunda gösterilecektir.
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- Belge bilgileri -->
+                    <div class="m-card mb-4">
+
+                        <div class="card-header">
+                            <strong>Belge Bilgileri</strong>
+                        </div>
+
+                        <div class="card-body">
+
+                            <div class="alert alert-info mb-0">
+
+                                <i class="fa-solid fa-file-invoice"></i>
+
+                                Bu ekrandaki firma bilgileri ve logo,
+                                fatura gibi kurumsal belgelerde işletmenin
+                                satıcı bilgileri olarak kullanılacaktır.
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- Kaydetme alanı -->
+                    <div class="m-card">
+
+                        <div class="card-body">
+
+                            <button type="submit"
+                                    class="m-btn m-btn--primary w-100">
+
+                                <i class="fa-solid fa-floppy-disk"></i>
+
+                                @if (Model.CompanySettingId > 0)
+                                {
+                                    <span>Değişiklikleri Kaydet</span>
+                                }
+                                else
+                                {
+                                    <span>Firma Bilgilerini Kaydet</span>
+                                }
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+}

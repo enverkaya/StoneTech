@@ -1,0 +1,393 @@
+﻿@using StoneTech.Models.Customer
+@using StoneTech.Enums
+@model CustomerCreateViewModel
+
+@{
+    ViewData["Title"] = "Yeni Müşteri";
+}
+
+<div class="section__content section__content--p30">
+    <div class="container-fluid">
+
+        <!-- Sayfa başlığı -->
+        <div class="page-header">
+
+            <div>
+                <h1>Yeni Müşteri</h1>
+
+                <p class="subtitle">
+                    Sisteme bireysel veya kurumsal yeni müşteri kaydı oluşturun.
+                </p>
+            </div>
+
+            <div class="page-header__actions">
+
+                <a asp-controller="Customer"
+                   asp-action="Index"
+                   class="m-btn m-btn--ghost">
+
+                    <i class="fa-solid fa-arrow-left"></i>
+                    Müşteri Listesi
+
+                </a>
+
+            </div>
+
+        </div>
+
+        <!-- Müşteri ekleme formu -->
+        <form asp-controller="Customer"
+              asp-action="Create"
+              method="post">
+
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="ModelOnly"
+                 class="text-danger mb-3">
+            </div>
+
+            <!-- Müşteri bilgileri -->
+            <div class="card mb-4">
+
+                <div class="card-header">
+                    <strong>Müşteri Bilgileri</strong>
+                </div>
+
+                <div class="card-body">
+
+                    <div class="row">
+
+                        <!-- Müşteri tipi -->
+                        <div class="col-md-6">
+
+                            <div class="mb-3">
+
+                                <label asp-for="CustomerType"
+                                       class="form-control-label">
+                                    Müşteri Tipi
+                                </label>
+
+                                <select asp-for="CustomerType"
+                                        class="form-select"
+                                        id="customerType">
+
+                                    <option value="@((int)CustomerType.Individual)">
+                                        Bireysel
+                                    </option>
+
+                                    <option value="@((int)CustomerType.Corporate)">
+                                        Kurumsal
+                                    </option>
+
+                                </select>
+
+                                <span asp-validation-for="CustomerType"
+                                      class="text-danger">
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                        <!-- Müşteri adı / firma unvanı -->
+                        <div class="col-md-6">
+
+                            <div class="mb-3">
+
+                                <label asp-for="CustomerName"
+                                       class="form-control-label"
+                                       id="customerNameLabel">
+                                    Ad Soyad
+                                </label>
+
+                                <input asp-for="CustomerName"
+                                       type="text"
+                                       class="form-control"
+                                       id="customerName"
+                                       placeholder="Müşterinin adı ve soyadı" />
+
+                                <span asp-validation-for="CustomerName"
+                                      class="text-danger">
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- Bireysel müşteri bilgileri -->
+                    <div id="individualFields">
+
+                        <div class="row">
+
+                            <div class="col-md-6">
+
+                                <div class="mb-3">
+
+                                    <label asp-for="IdentityNumber"
+                                           class="form-control-label">
+                                        T.C. Kimlik Numarası
+                                    </label>
+
+                                    <input asp-for="IdentityNumber"
+                                           type="text"
+                                           inputmode="numeric"
+                                           maxlength="11"
+                                           class="form-control"
+                                           placeholder="11 haneli T.C. kimlik numarası" />
+
+                                    <span asp-validation-for="IdentityNumber"
+                                          class="text-danger">
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- Kurumsal müşteri bilgileri -->
+                    <div id="corporateFields"
+                         style="display: none;">
+
+                        <div class="row">
+
+                            <div class="col-md-6">
+
+                                <div class="mb-3">
+
+                                    <label asp-for="TaxNumber"
+                                           class="form-control-label">
+                                        Vergi Numarası
+                                    </label>
+
+                                    <input asp-for="TaxNumber"
+                                           type="text"
+                                           inputmode="numeric"
+                                           maxlength="10"
+                                           class="form-control"
+                                           placeholder="10 haneli vergi numarası" />
+
+                                    <span asp-validation-for="TaxNumber"
+                                          class="text-danger">
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                            <div class="col-md-6">
+
+                                <div class="mb-3">
+
+                                    <label asp-for="TaxOffice"
+                                           class="form-control-label">
+                                        Vergi Dairesi
+                                    </label>
+
+                                    <input asp-for="TaxOffice"
+                                           type="text"
+                                           class="form-control"
+                                           placeholder="Vergi dairesi" />
+
+                                    <span asp-validation-for="TaxOffice"
+                                          class="text-danger">
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- İletişim bilgileri -->
+                    <div class="row">
+
+                        <div class="col-md-6">
+
+                            <div class="mb-3">
+
+                                <label asp-for="Phone"
+                                       class="form-control-label">
+                                    Telefon
+                                </label>
+
+                                <input asp-for="Phone"
+                                       type="tel"
+                                       class="form-control"
+                                       placeholder="05xx xxx xx xx" />
+
+                                <span asp-validation-for="Phone"
+                                      class="text-danger">
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <div class="mb-3">
+
+                                <label asp-for="Email"
+                                       class="form-control-label">
+                                    E-posta
+                                </label>
+
+                                <input asp-for="Email"
+                                       type="email"
+                                       class="form-control"
+                                       placeholder="ornek@firma.com" />
+
+                                <span asp-validation-for="Email"
+                                      class="text-danger">
+                                </span>
+
+                                <small class="form-text text-muted">
+                                    Bu alan zorunlu değildir.
+                                </small>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- Adres -->
+                    <div class="mb-3">
+
+                        <label asp-for="Address"
+                               class="form-control-label">
+                            Adres
+                        </label>
+
+                        <textarea asp-for="Address"
+                                  class="form-control"
+                                  rows="3"
+                                  placeholder="Fatura ve iletişim adresi"></textarea>
+
+                        <span asp-validation-for="Address"
+                              class="text-danger">
+                        </span>
+
+                    </div>
+
+                    <!-- Not -->
+                    <div class="mb-3">
+
+                        <label asp-for="Note"
+                               class="form-control-label">
+                            Not
+                        </label>
+
+                        <textarea asp-for="Note"
+                                  class="form-control"
+                                  rows="3"
+                                  placeholder="Müşteriyle ilgili özel not veya açıklama"></textarea>
+
+                        <span asp-validation-for="Note"
+                              class="text-danger">
+                        </span>
+
+                        <small class="form-text text-muted">
+                            Bu alan zorunlu değildir.
+                        </small>
+
+                    </div>
+
+                </div>
+
+                <!-- Form butonları -->
+                <div class="card-footer">
+
+                    <button type="submit"
+                            class="btn btn-primary">
+
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        Müşteriyi Kaydet
+
+                    </button>
+
+                    <a asp-controller="Customer"
+                       asp-action="Index"
+                       class="btn btn-secondary">
+
+                        İptal
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const customerType =
+                document.getElementById("customerType");
+
+            const individualFields =
+                document.getElementById("individualFields");
+
+            const corporateFields =
+                document.getElementById("corporateFields");
+
+            const customerNameLabel =
+                document.getElementById("customerNameLabel");
+
+            const customerName =
+                document.getElementById("customerName");
+
+            function updateCustomerTypeFields() {
+
+                const selectedType =
+                    customerType.value;
+
+                if (selectedType === "2") {
+
+                    individualFields.style.display = "none";
+                    corporateFields.style.display = "";
+
+                    customerNameLabel.textContent =
+                        "Firma Unvanı";
+
+                    customerName.placeholder =
+                        "Firma unvanı";
+
+                }
+                else {
+
+                    individualFields.style.display = "";
+                    corporateFields.style.display = "none";
+
+                    customerNameLabel.textContent =
+                        "Ad Soyad";
+
+                    customerName.placeholder =
+                        "Müşterinin adı ve soyadı";
+                }
+            }
+
+            customerType.addEventListener(
+                "change",
+                updateCustomerTypeFields
+            );
+
+            updateCustomerTypeFields();
+        });
+    </script>
+}

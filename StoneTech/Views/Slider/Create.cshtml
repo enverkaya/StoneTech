@@ -1,0 +1,343 @@
+﻿@using StoneTech.Models.Slider
+@model SliderCreateViewModel
+
+@{
+    ViewData["Title"] = "Slider Ekle";
+}
+
+<div class="section__content section__content--p30">
+    <div class="container-fluid">
+
+        <!-- Sayfa başlığı -->
+        <div class="page-header">
+
+            <div>
+                <h1>Yeni Slider</h1>
+
+                <p class="subtitle">
+                    Web sitesinin ana sayfasına yeni bir slider görseli ekleyin.
+                </p>
+            </div>
+
+            <div class="page-header__actions">
+
+                <a asp-controller="Slider"
+                   asp-action="Index"
+                   class="m-btn m-btn--ghost">
+
+                    <i class="fa-solid fa-arrow-left"></i>
+                    Sliderlara Dön
+
+                </a>
+
+            </div>
+
+        </div>
+
+        <!-- Form -->
+        <section class="m-card" style="padding: 24px;">
+
+            <form asp-controller="Slider"
+                  asp-action="Create"
+                  method="post"
+                  enctype="multipart/form-data"
+                  id="sliderCreateForm">
+
+                @Html.AntiForgeryToken()
+
+                <!-- Genel validation hataları -->
+                <div asp-validation-summary="ModelOnly"
+                     class="text-danger mb-3">
+                </div>
+
+                <div class="row">
+
+                    <!-- Sol taraf -->
+                    <div class="col-lg-8">
+
+                        <div class="row">
+
+                            <!-- Slider Başlığı -->
+                            <div class="col-md-12 mb-4">
+
+                                <label asp-for="Title"
+                                       class="form-label">
+                                    Slider Başlığı
+                                </label>
+
+                                <input asp-for="Title"
+                                       class="form-control"
+                                       placeholder="Örn: Doğal Taşın Zarafeti"
+                                       maxlength="150" />
+
+                                <span asp-validation-for="Title"
+                                      class="text-danger">
+                                </span>
+
+                            </div>
+
+                            <!-- Slider Açıklaması -->
+                            <div class="col-md-12 mb-4">
+
+                                <label asp-for="Description"
+                                       class="form-label">
+                                    Slider Açıklaması
+                                </label>
+
+                                <textarea asp-for="Description"
+                                          class="form-control"
+                                          rows="5"
+                                          maxlength="500"
+                                          placeholder="Slider üzerinde gösterilecek açıklamayı yazın..."></textarea>
+
+                                <span asp-validation-for="Description"
+                                      class="text-danger">
+                                </span>
+
+                            </div>
+
+                            <!-- Görüntülenme Sırası -->
+                            <div class="col-md-6 mb-4">
+
+                                <label asp-for="DisplayOrder"
+                                       class="form-label">
+                                    Görüntülenme Sırası
+                                </label>
+
+                                <input asp-for="DisplayOrder"
+                                       type="number"
+                                       min="0"
+                                       class="form-control"
+                                       placeholder="Örn: 1" />
+
+                                <span asp-validation-for="DisplayOrder"
+                                      class="text-danger">
+                                </span>
+
+                                <small class="text-muted">
+                                    Küçük numaralı slider önce gösterilir.
+                                </small>
+
+                            </div>
+
+                            <!-- Aktiflik Durumu -->
+                            <div class="col-md-6 mb-4">
+
+                                <label class="form-label">
+                                    Slider Durumu
+                                </label>
+
+                                <div class="form-check mt-2">
+
+                                    <input asp-for="IsActive"
+                                           class="form-check-input"
+                                           type="checkbox" />
+
+                                    <label asp-for="IsActive"
+                                           class="form-check-label">
+                                        Aktif
+                                    </label>
+
+                                </div>
+
+                                <span asp-validation-for="IsActive"
+                                      class="text-danger">
+                                </span>
+
+                                <small class="text-muted d-block mt-2">
+                                    Aktif sliderlar web sitesinde gösterilir.
+                                </small>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- Sağ taraf - Görsel -->
+                    <div class="col-lg-4">
+
+                        <div class="mb-4">
+
+                            <label asp-for="ImageFile"
+                                   class="form-label">
+                                Slider Görseli
+                            </label>
+
+                            <!-- Görsel önizleme -->
+                            <div id="imagePreviewContainer"
+                                 style="width: 100%;
+                                height: 220px;
+                                border: 1px dashed #d8dde6;
+                                border-radius: 10px;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                overflow: hidden;
+                                margin-bottom: 12px;
+                                background: #f8f9fb;">
+
+                                <div id="imagePlaceholder"
+                                     style="text-align: center;
+                                    color: #8b95a7;">
+
+                                    <i class="fa-regular fa-image"
+                                       style="font-size: 32px;
+                                        margin-bottom: 10px;">
+                                    </i>
+
+                                    <div>
+                                        Görsel seçilmedi
+                                    </div>
+
+                                </div>
+
+                                <img id="imagePreview"
+                                     src=""
+                                     alt="Slider görseli önizleme"
+                                     style="width: 100%;
+                                height: 100%;
+                                object-fit: cover;
+                                display: none;" />
+
+                            </div>
+
+                            <input asp-for="ImageFile"
+                                   id="imageFile"
+                                   type="file"
+                                   class="form-control"
+                                   accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" />
+
+                            <span asp-validation-for="ImageFile"
+                                  class="text-danger">
+                            </span>
+
+                            <small class="text-muted d-block mt-2">
+                                JPG, JPEG, PNG veya WEBP. Maksimum 5 MB.
+                            </small>
+
+                            <small class="text-muted d-block mt-2">
+                                Yatay ve yüksek çözünürlüklü bir görsel kullanmanız önerilir.
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- Butonlar -->
+                <div style="display: flex;
+                    justify-content: flex-end;
+                    gap: 10px;
+                    margin-top: 10px;">
+
+                    <a asp-controller="Slider"
+                       asp-action="Index"
+                       class="m-btn m-btn--ghost">
+
+                        İptal
+
+                    </a>
+
+                    <button type="submit"
+                            class="m-btn m-btn--primary">
+
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        Sliderı Kaydet
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </section>
+
+    </div>
+</div>
+
+@section Scripts {
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+
+            const imageFile =
+                document.getElementById("imageFile");
+
+            const imagePreview =
+                document.getElementById("imagePreview");
+
+            const imagePlaceholder =
+                document.getElementById("imagePlaceholder");
+
+            // Görsel seçildiğinde önizleme gösterir
+            if (imageFile) {
+
+                imageFile.addEventListener(
+                    "change",
+                    function() {
+
+                        const file = this.files[0];
+
+                        // Görsel seçimi kaldırılırsa önizlemeyi temizler
+                        if (!file) {
+
+                            imagePreview.src = "";
+                            imagePreview.style.display = "none";
+                            imagePlaceholder.style.display = "block";
+
+                            return;
+                        }
+
+                        // Görsel dosyasını kontrol eder
+                        const allowedExtensions = [
+                            ".jpg",
+                            ".jpeg",
+                            ".png",
+                            ".webp"
+                        ];
+
+                        const extension =
+                            file.name.substring(
+                                file.name.lastIndexOf(".")
+                            ).toLowerCase();
+
+                        if (
+                            !allowedExtensions.includes(extension) ||
+                            file.size > 5 * 1024 * 1024
+                        ) {
+
+                            alert(
+                                "JPG, JPEG, PNG veya WEBP formatında, en fazla 5 MB görsel seçiniz."
+                            );
+
+                            imageFile.value = "";
+                            imagePreview.src = "";
+                            imagePreview.style.display = "none";
+                            imagePlaceholder.style.display = "block";
+
+                            return;
+                        }
+
+                        // Seçilen görseli önizleme alanında gösterir
+                        const reader = new FileReader();
+
+                        reader.onload = function(event) {
+
+                            imagePreview.src = event.target.result;
+                            imagePreview.style.display = "block";
+                            imagePlaceholder.style.display = "none";
+
+                        };
+
+                        reader.readAsDataURL(file);
+
+                    }
+                );
+            }
+
+        });
+    </script>
+
+}

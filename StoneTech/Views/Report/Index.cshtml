@@ -1,0 +1,536 @@
+﻿@using StoneTech.Models.Report
+@model ReportIndexViewModel
+
+@{
+    ViewData["Title"] = "Raporlama Merkezi";
+}
+
+<div class="section__content section__content--p30">
+    <div class="container-fluid">
+
+        <!-- Sayfa başlığı -->
+        <div class="page-header">
+
+            <div>
+                <h1>Raporlama Merkezi</h1>
+
+                <p class="subtitle">
+                    İşletmenin finansal, operasyonel ve stok verilerini tek merkezden analiz edin.
+                </p>
+            </div>
+
+        </div>
+
+        <!-- Hata mesajı -->
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger">
+                @TempData["ErrorMessage"]
+            </div>
+        }
+
+        <!-- Tarih filtresi -->
+        <section class="m-card mb-4" style="padding: 20px;">
+
+            <form asp-controller="Report"
+                  asp-action="Index"
+                  method="get">
+
+                <div class="row align-items-end">
+
+                    <!-- Başlangıç tarihi -->
+                    <div class="col-md-4 mb-3 mb-md-0">
+
+                        <label class="form-control-label">
+                            Başlangıç Tarihi
+                        </label>
+
+                        <input type="date"
+                               name="startDate"
+                               class="form-control"
+                               value="@(Model.StartDate?.ToString("yyyy-MM-dd"))" />
+
+                    </div>
+
+                    <!-- Bitiş tarihi -->
+                    <div class="col-md-4 mb-3 mb-md-0">
+
+                        <label class="form-control-label">
+                            Bitiş Tarihi
+                        </label>
+
+                        <input type="date"
+                               name="endDate"
+                               class="form-control"
+                               value="@(Model.EndDate?.ToString("yyyy-MM-dd"))" />
+
+                    </div>
+
+                    <!-- Filtre işlemleri -->
+                    <div class="col-md-4">
+
+                        <div class="d-flex gap-2">
+
+                            <button type="submit"
+                                    class="m-btn m-btn--primary">
+
+                                <i class="fa-solid fa-filter"></i>
+                                Uygula
+
+                            </button>
+
+                            <a asp-controller="Report"
+                               asp-action="Index"
+                               class="m-btn m-btn--ghost">
+
+                                <i class="fa-solid fa-rotate-left"></i>
+                                Temizle
+
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </section>
+
+        <!-- Genel özet -->
+        <div class="mb-3">
+
+            <h5 class="section-eyebrow">
+                GENEL ÖZET
+            </h5>
+
+        </div>
+
+        <!-- KPI kartları -->
+        <div class="row row-tight">
+
+            <!-- Toplam iş tutarı -->
+            <div class="col-sm-6 col-xl-3">
+
+                <article class="stat-card">
+
+                    <div class="stat-card__head">
+
+                        <p class="stat-card__label">
+                            Toplam İş Tutarı
+                        </p>
+
+                        <span class="stat-card__icon stat-card__icon--c1">
+                            <i class="fa-solid fa-file-invoice-dollar"></i>
+                        </span>
+
+                    </div>
+
+                    <p class="stat-card__value">
+                        @Model.TotalWorkOrderAmount.ToString("N2") ₺
+                    </p>
+
+                    <p class="stat-card__delta">
+
+                        <span class="stat-card__delta-period">
+                            @Model.WorkOrderCount geçerli iş emri
+                        </span>
+
+                    </p>
+
+                </article>
+
+            </div>
+
+            <!-- Toplam tahsilat -->
+            <div class="col-sm-6 col-xl-3">
+
+                <article class="stat-card">
+
+                    <div class="stat-card__head">
+
+                        <p class="stat-card__label">
+                            Toplam Tahsilat
+                        </p>
+
+                        <span class="stat-card__icon stat-card__icon--c2">
+                            <i class="fa-solid fa-money-bill-transfer"></i>
+                        </span>
+
+                    </div>
+
+                    <p class="stat-card__value">
+                        @Model.TotalPaymentAmount.ToString("N2") ₺
+                    </p>
+
+                    <p class="stat-card__delta">
+
+                        <span class="stat-card__delta-period">
+                            @Model.PaymentCount ödeme kaydı
+                        </span>
+
+                    </p>
+
+                </article>
+
+            </div>
+
+            <!-- Toplam alacak -->
+            <div class="col-sm-6 col-xl-3">
+
+                <article class="stat-card">
+
+                    <div class="stat-card__head">
+
+                        <p class="stat-card__label">
+                            Toplam Alacak
+                        </p>
+
+                        <span class="stat-card__icon stat-card__icon--c3">
+                            <i class="fa-solid fa-wallet"></i>
+                        </span>
+
+                    </div>
+
+                    <p class="stat-card__value">
+                        @Model.TotalReceivableAmount.ToString("N2") ₺
+                    </p>
+
+                    <p class="stat-card__delta">
+
+                        <span class="stat-card__delta-period">
+                            @Model.DebtorCustomerCount borçlu müşteri
+                        </span>
+
+                    </p>
+
+                </article>
+
+            </div>
+
+            <!-- Toplam alım -->
+            <div class="col-sm-6 col-xl-3">
+
+                <article class="stat-card">
+
+                    <div class="stat-card__head">
+
+                        <p class="stat-card__label">
+                            Toplam Alım
+                        </p>
+
+                        <span class="stat-card__icon stat-card__icon--c4">
+                            <i class="fa-solid fa-cart-shopping"></i>
+                        </span>
+
+                    </div>
+
+                    <p class="stat-card__value">
+                        @Model.TotalPurchaseAmount.ToString("N2") ₺
+                    </p>
+
+                    <p class="stat-card__delta">
+
+                        <span class="stat-card__delta-period">
+                            @Model.PurchaseCount alım kaydı
+                        </span>
+
+                    </p>
+
+                </article>
+
+            </div>
+
+        </div>
+
+        <!-- Rapor kategorileri başlığı -->
+        <div class="page-header"
+             style="margin-top: 28px; margin-bottom: 16px;">
+
+            <div>
+
+                <h2 style="font-size: 20px;">
+                    Rapor Kategorileri
+                </h2>
+
+                <p class="subtitle">
+                    Detaylı analiz için görüntülemek istediğiniz raporu seçin.
+                </p>
+
+            </div>
+
+        </div>
+
+        <!-- Rapor kategorileri -->
+        <div class="row row-tight">
+
+            <!-- İş emri raporları -->
+            <div class="col-md-6 col-xl-4 mb-3">
+
+                <section class="m-card h-100">
+
+                    <header class="m-card__header">
+
+                        <div>
+
+                            <h2 class="m-card__title">
+                                <i class="fa-solid fa-clipboard-list me-2"></i>
+                                İş Emri Raporları
+                            </h2>
+
+                            <p class="m-card__subtitle">
+                                İş emirlerini tarih, durum, müşteri ve tutar bazında analiz edin.
+                            </p>
+
+                        </div>
+
+                    </header>
+
+                    <div style="padding: 0 20px 20px 20px;">
+
+                        <div class="mb-3">
+
+                            <span class="text-muted">
+                                Seçili dönemde
+                            </span>
+
+                            <strong class="d-block mt-1">
+                                @Model.WorkOrderCount iş emri
+                            </strong>
+
+                        </div>
+
+                        <a asp-controller="Report"
+                           asp-action="WorkOrders"
+                           asp-route-startDate="@Model.StartDate?.ToString("yyyy-MM-dd")"
+                           asp-route-endDate="@Model.EndDate?.ToString("yyyy-MM-dd")"
+                           class="m-btn m-btn--primary">
+
+                            Rapora Git
+                            <i class="fa-solid fa-arrow-right"></i>
+
+                        </a>
+
+                    </div>
+
+                </section>
+
+            </div>
+
+            <!-- Finans raporları -->
+            <div class="col-md-6 col-xl-4 mb-3">
+
+                <section class="m-card h-100">
+
+                    <header class="m-card__header">
+
+                        <div>
+
+                            <h2 class="m-card__title">
+                                <i class="fa-solid fa-chart-line me-2"></i>
+                                Finans Raporları
+                            </h2>
+
+                            <p class="m-card__subtitle">
+                                Tahsilatları, müşteri alacaklarını ve ödeme hareketlerini inceleyin.
+                            </p>
+
+                        </div>
+
+                    </header>
+
+                    <div style="padding: 0 20px 20px 20px;">
+
+                        <div class="mb-3">
+
+                            <span class="text-muted">
+                                Seçili dönemde tahsilat
+                            </span>
+
+                            <strong class="d-block mt-1">
+                                @Model.TotalPaymentAmount.ToString("N2") ₺
+                            </strong>
+
+                        </div>
+
+                        <a asp-controller="Report"
+                           asp-action="Finance"
+                           asp-route-startDate="@Model.StartDate?.ToString("yyyy-MM-dd")"
+                           asp-route-endDate="@Model.EndDate?.ToString("yyyy-MM-dd")"
+                           class="m-btn m-btn--primary">
+
+                            Rapora Git
+                            <i class="fa-solid fa-arrow-right"></i>
+
+                        </a>
+
+                    </div>
+
+                </section>
+
+            </div>
+
+            <!-- Stok raporları -->
+            <div class="col-md-6 col-xl-4 mb-3">
+
+                <section class="m-card h-100">
+
+                    <header class="m-card__header">
+
+                        <div>
+
+                            <h2 class="m-card__title">
+                                <i class="fa-solid fa-boxes-stacked me-2"></i>
+                                Stok Raporları
+                            </h2>
+
+                            <p class="m-card__subtitle">
+                                Taş stoklarını, giriş-çıkışları ve stok hareketlerini analiz edin.
+                            </p>
+
+                        </div>
+
+                    </header>
+
+                    <div style="padding: 0 20px 20px 20px;">
+
+                        <div class="mb-3">
+
+                            <span class="text-muted">
+                                Plaka bazlı stok analizi
+                            </span>
+
+                            <strong class="d-block mt-1">
+                                Stok ve hareket raporları
+                            </strong>
+
+                        </div>
+
+                        <a asp-controller="Report"
+                           asp-action="Stock"
+                           asp-route-startDate="@Model.StartDate?.ToString("yyyy-MM-dd")"
+                           asp-route-endDate="@Model.EndDate?.ToString("yyyy-MM-dd")"
+                           class="m-btn m-btn--primary">
+
+                            Rapora Git
+                            <i class="fa-solid fa-arrow-right"></i>
+
+                        </a>
+
+                    </div>
+
+                </section>
+
+            </div>
+
+            <!-- Alım raporları -->
+            <div class="col-md-6 col-xl-4 mb-3">
+
+                <section class="m-card h-100">
+
+                    <header class="m-card__header">
+
+                        <div>
+
+                            <h2 class="m-card__title">
+                                <i class="fa-solid fa-truck-ramp-box me-2"></i>
+                                Alım Raporları
+                            </h2>
+
+                            <p class="m-card__subtitle">
+                                Tedarikçi, taş, miktar ve maliyet bazında yapılan alımları inceleyin.
+                            </p>
+
+                        </div>
+
+                    </header>
+
+                    <div style="padding: 0 20px 20px 20px;">
+
+                        <div class="mb-3">
+
+                            <span class="text-muted">
+                                Seçili dönemde
+                            </span>
+
+                            <strong class="d-block mt-1">
+                                @Model.PurchaseCount alım kaydı
+                            </strong>
+
+                        </div>
+
+                        <a asp-controller="Report"
+                           asp-action="Purchases"
+                           asp-route-startDate="@Model.StartDate?.ToString("yyyy-MM-dd")"
+                           asp-route-endDate="@Model.EndDate?.ToString("yyyy-MM-dd")"
+                           class="m-btn m-btn--primary">
+
+                            Rapora Git
+                            <i class="fa-solid fa-arrow-right"></i>
+
+                        </a>
+
+                    </div>
+
+                </section>
+
+            </div>
+
+            <!-- Müşteri raporları -->
+            <div class="col-md-6 col-xl-4 mb-3">
+
+                <section class="m-card h-100">
+
+                    <header class="m-card__header">
+
+                        <div>
+
+                            <h2 class="m-card__title">
+                                <i class="fa-solid fa-users me-2"></i>
+                                Müşteri Raporları
+                            </h2>
+
+                            <p class="m-card__subtitle">
+                                Müşterilerin iş hacmini, tahsilatlarını ve borç durumlarını inceleyin.
+                            </p>
+
+                        </div>
+
+                    </header>
+
+                    <div style="padding: 0 20px 20px 20px;">
+
+                        <div class="mb-3">
+
+                            <span class="text-muted">
+                                Borcu bulunan
+                            </span>
+
+                            <strong class="d-block mt-1">
+                                @Model.DebtorCustomerCount müşteri
+                            </strong>
+
+                        </div>
+
+                        <a asp-controller="Report"
+                           asp-action="Customers"
+                           asp-route-startDate="@Model.StartDate?.ToString("yyyy-MM-dd")"
+                           asp-route-endDate="@Model.EndDate?.ToString("yyyy-MM-dd")"
+                           class="m-btn m-btn--primary">
+
+                            Rapora Git
+                            <i class="fa-solid fa-arrow-right"></i>
+
+                        </a>
+
+                    </div>
+
+                </section>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>

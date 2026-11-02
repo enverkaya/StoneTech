@@ -1,0 +1,394 @@
+﻿@using StoneTech.Models.Purchase
+@model IEnumerable<PurchaseListViewModel>
+
+@{
+    ViewData["Title"] = "Alımlar";
+
+    string search = ViewBag.Search ?? "";
+    int page = ViewBag.Page ?? 1;
+    int pageSize = ViewBag.PageSize ?? 10;
+    int totalPages = ViewBag.TotalPages ?? 0;
+    int totalCount = ViewBag.TotalCount ?? 0;
+
+    int firstItem = totalCount == 0
+        ? 0
+        : ((page - 1) * pageSize) + 1;
+
+    int lastItem = Math.Min(page * pageSize, totalCount);
+}
+
+<div class="section__content section__content--p30">
+    <div class="container-fluid">
+
+        <div class="page-header">
+            <div>
+                <h1>Alımlar</h1>
+
+                <p class="subtitle">
+                    Tedarikçilerden yapılan taş alımlarını ve stok girişlerini görüntüleyin.
+                </p>
+            </div>
+
+            <div class="page-header__actions">
+
+                @if (!User.IsInRole("Accountant"))
+                {
+                    <a asp-controller="Purchase"
+                       asp-action="Create"
+                       class="m-btn m-btn--primary">
+
+                        <i class="fa-solid fa-plus"></i>
+                        Yeni Alım
+
+                    </a>
+                }
+
+            </div>
+        </div>
+
+        <section class="m-card" style="padding: 20px;">
+
+            <form asp-controller="Purchase"
+                  asp-action="Index"
+                  method="get">
+
+                <div class="dt-toolbar">
+
+                    <div class="dt-search">
+
+                        <i class="fa-solid fa-magnifying-glass"
+                           aria-hidden="true">
+                        </i>
+
+                        <input type="search"
+                               name="search"
+                               value="@search"
+                               placeholder="Alım no, tedarikçi veya açıklama ara..."
+                               aria-label="Alım ara">
+
+                    </div>
+
+                    <div style="display: flex;
+                                gap: 8px;
+                                align-items: center;">
+
+                        <label style="font-size: 12.5px;
+                                      color: var(--m-text-muted);
+                                      display: inline-flex;
+                                      align-items: center;
+                                      gap: 8px;">
+
+                            Göster
+
+                            <select name="pageSize"
+                                    class="form-select"
+                                    style="width: 80px;
+                                           height: 32px;
+                                           padding: 0 24px 0 10px;
+                                           font-size: 12.5px;"
+                                    onchange="this.form.submit()">
+
+                                <option value="5"
+                                        selected="@(pageSize == 5)">
+                                    5
+                                </option>
+
+                                <option value="10"
+                                        selected="@(pageSize == 10)">
+                                    10
+                                </option>
+
+                                <option value="20"
+                                        selected="@(pageSize == 20)">
+                                    20
+                                </option>
+
+                                <option value="50"
+                                        selected="@(pageSize == 50)">
+                                    50
+                                </option>
+
+                            </select>
+
+                            kayıt
+
+                        </label>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+            <div class="table-responsive">
+
+                <table class="m-table dt-table"
+                       id="dt-table">
+
+                    <thead>
+                        <tr>
+                            <th>Alım No</th>
+                            <th>Tedarikçi</th>
+                            <th>Tarih</th>
+                            <th>Taş Çeşidi</th>
+                            <th>Toplam Plaka</th>
+                            <th>Toplam Tutar</th>
+                            <th>Açıklama</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        @if (!Model.Any())
+                        {
+                            <tr>
+                                <td colspan="8">
+
+                                    <div class="empty-state">
+
+                                        <span class="empty-state__icon">
+                                            <i class="fa-solid fa-boxes-stacked"></i>
+                                        </span>
+
+                                        <h3 class="empty-state__title">
+                                            Alım bulunamadı
+                                        </h3>
+
+                                        <p class="empty-state__text">
+
+                                            @if (!string.IsNullOrWhiteSpace(search))
+                                            {
+                                                @:Aramanızla eşleşen bir alım bulunamadı.
+                                            }
+                                            else
+                                            {
+                                                @:Henüz sisteme bir alım kaydedilmemiş.
+                                            }
+
+                                        </p>
+
+                                        @if (!string.IsNullOrWhiteSpace(search))
+                                        {
+                                            <div class="empty-state__actions">
+
+                                                <a asp-controller="Purchase"
+                                                   asp-action="Index"
+                                                   class="m-btn m-btn--ghost">
+
+                                                    Aramayı temizle
+
+                                                </a>
+
+                                            </div>
+                                        }
+
+                                    </div>
+
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var purchase in Model)
+                            {
+                                <tr>
+
+                                    <!-- Alım Numarası -->
+                                    <td>
+                                        <span class="name">
+                                            @purchase.PurchaseNumber
+                                        </span>
+                                    </td>
+
+                                    <!-- Tedarikçi -->
+                                    <td>
+                                        <span class="name">
+                                            @purchase.SupplierName
+                                        </span>
+                                    </td>
+
+                                    <!-- Alım Tarihi -->
+                                    <td>
+                                        @purchase.PurchaseDate.ToString("dd.MM.yyyy")
+                                    </td>
+
+                                    <!-- Kaç farklı taş alındı -->
+                                    <td>
+                                        @purchase.DetailCount
+                                        <span class="text-muted">
+                                            çeşit
+                                        </span>
+                                    </td>
+
+                                    <!-- Toplam Plaka -->
+                                    <td>
+                                        <strong>
+                                            @purchase.TotalQuantity
+                                        </strong>
+
+                                        <span class="text-muted">
+                                            plaka
+                                        </span>
+                                    </td>
+
+                                    <!-- Toplam Tutar -->
+                                    <td>
+                                        <strong>
+                                            @purchase.TotalAmount.ToString("N2") ₺
+                                        </strong>
+                                    </td>
+
+                                    <!-- Açıklama -->
+                                    <td>
+                                        @if (!string.IsNullOrWhiteSpace(purchase.Description))
+                                        {
+                                            @purchase.Description
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">
+                                                -
+                                            </span>
+                                        }
+                                    </td>
+
+                                    <!-- İşlemler -->
+                                    <td>
+
+                                        <div class="table-data-feature">
+
+                                            <!-- Detay -->
+                                            <a asp-controller="Purchase"
+                                               asp-action="Details"
+                                               asp-route-id="@purchase.PurchaseId"
+                                               class="item"
+                                               data-bs-toggle="tooltip"
+                                               title="Detay">
+
+                                                <i class="fa-solid fa-eye"></i>
+
+                                            </a>
+
+                                            @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
+                                            {
+                                                <!-- Düzenle -->
+                                                <a asp-controller="Purchase"
+                                                   asp-action="Edit"
+                                                   asp-route-id="@purchase.PurchaseId"
+                                                   class="item"
+                                                   data-bs-toggle="tooltip"
+                                                   title="Düzenle">
+
+                                                    <i class="fa-solid fa-pen-to-square"></i>
+
+                                                </a>
+                                            }
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+                            }
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <div class="dt-pagination">
+
+                <span class="dt-pagination__info">
+
+                    @if (totalCount == 0)
+                    {
+                        @:Sonuç yok
+                    }
+                    else
+                    {
+                        @:@firstItem–@lastItem / @totalCount kayıt
+                    }
+
+                </span>
+
+                <div class="dt-pagination__nav">
+
+                    <!-- Önceki Sayfa -->
+                    @if (page > 1)
+                    {
+                        <a asp-controller="Purchase"
+                           asp-action="Index"
+                           asp-route-search="@search"
+                           asp-route-page="@(page - 1)"
+                           asp-route-pageSize="@pageSize">
+
+                            <i class="fa-solid fa-chevron-left"></i>
+
+                        </a>
+                    }
+                    else
+                    {
+                        <button type="button" disabled>
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </button>
+                    }
+
+                    <!-- Sayfa Numaraları -->
+                    @if (totalPages > 0)
+                    {
+                        @for (int i = 1; i <= totalPages; i++)
+                        {
+                            @if (i == page)
+                            {
+                                <button type="button"
+                                        class="is-active"
+                                        disabled>
+                                    @i
+                                </button>
+                            }
+                            else
+                            {
+                                <a asp-controller="Purchase"
+                                   asp-action="Index"
+                                   asp-route-search="@search"
+                                   asp-route-page="@i"
+                                   asp-route-pageSize="@pageSize">
+
+                                    @i
+
+                                </a>
+                            }
+                        }
+                    }
+
+                    <!-- Sonraki Sayfa -->
+                    @if (totalPages > 0 && page < totalPages)
+                    {
+                        <a asp-controller="Purchase"
+                           asp-action="Index"
+                           asp-route-search="@search"
+                           asp-route-page="@(page + 1)"
+                           asp-route-pageSize="@pageSize">
+
+                            <i class="fa-solid fa-chevron-right"></i>
+
+                        </a>
+                    }
+                    else
+                    {
+                        <button type="button" disabled>
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </button>
+                    }
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </div>
+</div>

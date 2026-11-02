@@ -1,0 +1,469 @@
+﻿@using StoneTech.Models.About
+@model AboutEditViewModel
+
+@{
+    ViewData["Title"] = "Hakkımızda Düzenle";
+}
+
+<div class="section__content section__content--p30">
+    <div class="container-fluid">
+
+        <!-- Sayfa başlığı -->
+        <div class="page-header">
+
+            <div>
+                <h1>Hakkımızda Düzenle</h1>
+
+                <p class="subtitle">
+                    Web sitesinin hakkımızda bilgilerini ve görsellerini güncelleyin.
+                </p>
+            </div>
+
+            <div class="page-header__actions">
+
+                <a asp-controller="About"
+                   asp-action="Index"
+                   class="m-btn m-btn--ghost">
+
+                    <i class="fa-solid fa-arrow-left"></i>
+                    Hakkımızda Sayfasına Dön
+
+                </a>
+
+            </div>
+
+        </div>
+
+        <!-- Düzenleme formu -->
+        <section class="m-card" style="padding: 24px;">
+
+            <form asp-controller="About"
+                  asp-action="Edit"
+                  asp-route-id="@Model.Id"
+                  method="post"
+                  enctype="multipart/form-data"
+                  id="aboutEditForm">
+
+                @Html.AntiForgeryToken()
+
+                <input asp-for="Id" type="hidden" />
+
+                <input asp-for="CurrentImageUrl1" type="hidden" />
+                <input asp-for="CurrentImageUrl2" type="hidden" />
+                <input asp-for="CurrentImageUrl3" type="hidden" />
+
+                <!-- Genel doğrulama hataları -->
+                <div asp-validation-summary="ModelOnly"
+                     class="text-danger mb-3">
+                </div>
+
+                <div class="row">
+
+                    <!-- Sol taraf -->
+                    <div class="col-lg-8">
+
+                        <div class="row">
+
+                            <!-- Hakkımızda başlığı -->
+                            <div class="col-md-12 mb-4">
+
+                                <label asp-for="Title"
+                                       class="form-label">
+                                    Hakkımızda Başlığı
+                                </label>
+
+                                <input asp-for="Title"
+                                       class="form-control"
+                                       placeholder="Örn: Doğal Taşta Kalite ve Güven"
+                                       maxlength="150" />
+
+                                <span asp-validation-for="Title"
+                                      class="text-danger">
+                                </span>
+
+                            </div>
+
+                            <!-- Birinci açıklama -->
+                            <div class="col-md-12 mb-4">
+
+                                <label asp-for="Description1"
+                                       class="form-label">
+                                    Birinci Açıklama
+                                </label>
+
+                                <textarea asp-for="Description1"
+                                          class="form-control"
+                                          rows="7"
+                                          placeholder="Firmamızın kuruluşu, faaliyet alanı ve deneyimi hakkında bilgi yazın..."></textarea>
+
+                                <span asp-validation-for="Description1"
+                                      class="text-danger">
+                                </span>
+
+                                <small class="text-muted">
+                                    Firmanın genel tanıtımını bu alana yazabilirsiniz.
+                                </small>
+
+                            </div>
+
+                            <!-- İkinci açıklama -->
+                            <div class="col-md-12 mb-4">
+
+                                <label asp-for="Description2"
+                                       class="form-label">
+                                    İkinci Açıklama
+                                </label>
+
+                                <textarea asp-for="Description2"
+                                          class="form-control"
+                                          rows="7"
+                                          placeholder="Kalite anlayışımız, hizmetlerimiz ve müşteri memnuniyetine verdiğimiz önemi yazın..."></textarea>
+
+                                <span asp-validation-for="Description2"
+                                      class="text-danger">
+                                </span>
+
+                                <small class="text-muted">
+                                    Firmanın vizyonunu ve çalışma anlayışını anlatabilirsiniz.
+                                </small>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- Sağ taraf -->
+                    <div class="col-lg-4">
+
+                        <!-- Birinci görsel -->
+                        <div class="mb-4">
+
+                            <label asp-for="ImageFile1"
+                                   class="form-label">
+                                Birinci Görsel
+                            </label>
+
+                            <div style="width: 100%;
+                                height: 190px;
+                                border: 1px dashed #d8dde6;
+                                border-radius: 10px;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                overflow: hidden;
+                                margin-bottom: 12px;
+                                background: #f8f9fb;">
+
+                                <div id="imagePlaceholder1"
+                                     style="text-align: center;
+                                    color: #8b95a7;
+                                    display: @(string.IsNullOrWhiteSpace(Model.CurrentImageUrl1) ? "block" : "none");">
+
+                                    <i class="fa-regular fa-image"
+                                       style="font-size: 32px;
+                                    margin-bottom: 10px;"></i>
+
+                                    <div>Görsel bulunamadı</div>
+
+                                </div>
+
+                                <img id="imagePreview1"
+                                     src="@(Model.CurrentImageUrl1 ?? "")"
+                                     alt="Birinci görsel önizleme"
+                                     style="width: 100%;
+                                height: 100%;
+                                object-fit: cover;
+                                display: @(string.IsNullOrWhiteSpace(Model.CurrentImageUrl1) ? "none" : "block");" />
+
+                            </div>
+
+                            <input asp-for="ImageFile1"
+                                   type="file"
+                                   class="form-control"
+                                   accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" />
+
+                            <span asp-validation-for="ImageFile1"
+                                  class="text-danger">
+                            </span>
+
+                            <small class="text-muted d-block mt-2">
+                                JPG, JPEG, PNG veya WEBP. Maksimum 5 MB.
+                            </small>
+
+                            <small class="text-muted d-block mt-2">
+                                Yeni görsel seçmezseniz mevcut görsel korunur.
+                            </small>
+
+                        </div>
+
+                        <!-- İkinci görsel -->
+                        <div class="mb-4">
+
+                            <label asp-for="ImageFile2"
+                                   class="form-label">
+                                İkinci Görsel
+                            </label>
+
+                            <div style="width: 100%;
+                                height: 190px;
+                                border: 1px dashed #d8dde6;
+                                border-radius: 10px;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                overflow: hidden;
+                                margin-bottom: 12px;
+                                background: #f8f9fb;">
+
+                                <div id="imagePlaceholder2"
+                                     style="text-align: center;
+                                    color: #8b95a7;
+                                    display: @(string.IsNullOrWhiteSpace(Model.CurrentImageUrl2) ? "block" : "none");">
+
+                                    <i class="fa-regular fa-image"
+                                       style="font-size: 32px;
+                                    margin-bottom: 10px;"></i>
+
+                                    <div>Görsel bulunamadı</div>
+
+                                </div>
+
+                                <img id="imagePreview2"
+                                     src="@(Model.CurrentImageUrl2 ?? "")"
+                                     alt="İkinci görsel önizleme"
+                                     style="width: 100%;
+                                height: 100%;
+                                object-fit: cover;
+                                display: @(string.IsNullOrWhiteSpace(Model.CurrentImageUrl2) ? "none" : "block");" />
+
+                            </div>
+
+                            <input asp-for="ImageFile2"
+                                   type="file"
+                                   class="form-control"
+                                   accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" />
+
+                            <span asp-validation-for="ImageFile2"
+                                  class="text-danger">
+                            </span>
+
+                            <small class="text-muted d-block mt-2">
+                                JPG, JPEG, PNG veya WEBP. Maksimum 5 MB.
+                            </small>
+
+                            <small class="text-muted d-block mt-2">
+                                Yeni görsel seçmezseniz mevcut görsel korunur.
+                            </small>
+
+                        </div>
+
+                        <!-- Üçüncü görsel -->
+                        <div class="mb-4">
+
+                            <label asp-for="ImageFile3"
+                                   class="form-label">
+                                Üçüncü Görsel
+                            </label>
+
+                            <div style="width: 100%;
+                                height: 190px;
+                                border: 1px dashed #d8dde6;
+                                border-radius: 10px;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                overflow: hidden;
+                                margin-bottom: 12px;
+                                background: #f8f9fb;">
+
+                                <div id="imagePlaceholder3"
+                                     style="text-align: center;
+                                    color: #8b95a7;
+                                    display: @(string.IsNullOrWhiteSpace(Model.CurrentImageUrl3) ? "block" : "none");">
+
+                                    <i class="fa-regular fa-image"
+                                       style="font-size: 32px;
+                                    margin-bottom: 10px;"></i>
+
+                                    <div>Görsel bulunamadı</div>
+
+                                </div>
+
+                                <img id="imagePreview3"
+                                     src="@(Model.CurrentImageUrl3 ?? "")"
+                                     alt="Üçüncü görsel önizleme"
+                                     style="width: 100%;
+                                height: 100%;
+                                object-fit: cover;
+                                display: @(string.IsNullOrWhiteSpace(Model.CurrentImageUrl3) ? "none" : "block");" />
+
+                            </div>
+
+                            <input asp-for="ImageFile3"
+                                   type="file"
+                                   class="form-control"
+                                   accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" />
+
+                            <span asp-validation-for="ImageFile3"
+                                  class="text-danger">
+                            </span>
+
+                            <small class="text-muted d-block mt-2">
+                                JPG, JPEG, PNG veya WEBP. Maksimum 5 MB.
+                            </small>
+
+                            <small class="text-muted d-block mt-2">
+                                Yeni görsel seçmezseniz mevcut görsel korunur.
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- Butonlar -->
+                <div style="display: flex;
+                    justify-content: flex-end;
+                    gap: 10px;
+                    margin-top: 10px;">
+
+                    <a asp-controller="About"
+                       asp-action="Index"
+                       class="m-btn m-btn--ghost">
+
+                        İptal
+
+                    </a>
+
+                    <button type="submit"
+                            class="m-btn m-btn--primary">
+
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        Değişiklikleri Kaydet
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </section>
+
+    </div>
+</div>
+
+@section Scripts {
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+
+            const allowedExtensions = [
+                ".jpg",
+                ".jpeg",
+                ".png",
+                ".webp"
+            ];
+
+            const maxFileSize = 5 * 1024 * 1024;
+
+            // Görsel önizleme alanını hazırlar
+            function setupImagePreview(number) {
+
+                const imageFile =
+                    document.getElementById("ImageFile" + number);
+
+                const imagePreview =
+                    document.getElementById("imagePreview" + number);
+
+                const imagePlaceholder =
+                    document.getElementById("imagePlaceholder" + number);
+
+                const currentImageInput =
+                    document.getElementById("CurrentImageUrl" + number);
+
+                if (!imageFile || !imagePreview || !imagePlaceholder) {
+                    return;
+                }
+
+                const currentImageUrl = currentImageInput
+                    ? currentImageInput.value
+                    : "";
+
+                // Mevcut görselin önizlemesini geri yükler
+                function restoreCurrentImage() {
+
+                    imagePreview.src = currentImageUrl;
+
+                    imagePreview.style.display =
+                        currentImageUrl ? "block" : "none";
+
+                    imagePlaceholder.style.display =
+                        currentImageUrl ? "none" : "block";
+                }
+
+                // Yeni görsel seçildiğinde önizlemeyi günceller
+                imageFile.addEventListener("change", function() {
+
+                    const file = this.files[0];
+
+                    // Yeni görsel seçilmediyse mevcut görseli gösterir
+                    if (!file) {
+                        restoreCurrentImage();
+                        return;
+                    }
+
+                    // Dosya uzantısını belirler
+                    const extension = file.name.substring(
+                        file.name.lastIndexOf(".")
+                    ).toLowerCase();
+
+                    // Dosya uzantısını ve boyutunu kontrol eder
+                    if (
+                        !allowedExtensions.includes(extension) ||
+                        file.size === 0 ||
+                        file.size > maxFileSize
+                    ) {
+
+                        alert(
+                            "JPG, JPEG, PNG veya WEBP formatında, en fazla 5 MB görsel seçiniz."
+                        );
+
+                        imageFile.value = "";
+
+                        restoreCurrentImage();
+
+                        return;
+                    }
+
+                    // Seçilen görseli önizleme alanında gösterir
+                    const reader = new FileReader();
+
+                    reader.onload = function(event) {
+
+                        imagePreview.src = event.target.result;
+                        imagePreview.style.display = "block";
+                        imagePlaceholder.style.display = "none";
+
+                    };
+
+                    reader.readAsDataURL(file);
+
+                });
+
+            }
+
+            // Birinci görselin önizlemesini hazırlar
+            setupImagePreview(1);
+
+            // İkinci görselin önizlemesini hazırlar
+            setupImagePreview(2);
+
+            // Üçüncü görselin önizlemesini hazırlar
+            setupImagePreview(3);
+
+        });
+    </script>
+
+}

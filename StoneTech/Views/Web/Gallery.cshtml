@@ -1,0 +1,185 @@
+﻿@using StoneTech.Entities
+
+@{
+    ViewData["Title"] = "Galeri";
+    Layout = "_WebLayout";
+
+    var galleries = ViewBag.Galleries as List<Gallery> ?? new List<Gallery>();
+
+    var whyChooseUs = ViewBag.WhyChooseUs as List<WhyChooseUs>
+        ?? new List<WhyChooseUs>();
+
+    var leftFeatures = whyChooseUs
+        .Where((item, index) => index % 2 == 0)
+        .ToList();
+
+    var rightFeatures = whyChooseUs
+        .Where((item, index) => index % 2 == 1)
+        .ToList();
+}
+
+<section class="flexslider">
+    <ul class="slides">
+        <li style="background-image: url('@Url.Content("~/Web/img/slider_1.jpg")')" class="overlay">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-8 offset-md-2">
+                        <div class="probootstrap-slider-text text-center">
+                            <h1 class="probootstrap-heading">Galeri</h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </li>
+    </ul>
+</section>
+
+<section class="probootstrap-section probootstrap-bg-white">
+    <div class="container">
+
+        <div class="row">
+            <div class="col-md-6 offset-md-3 text-center section-heading probootstrap-animate"
+                 data-animate-effect="fadeIn">
+                <h2>Fotoğraf Galerimiz</h2>
+            </div>
+        </div>
+
+        @if (galleries.Any())
+        {
+            <div class="row">
+                <div class="col-md-12">
+
+                    <div class="portfolio-feed three-cols">
+
+                        <div class="grid-sizer"></div>
+                        <div class="gutter-sizer"></div>
+
+                        <div class="probootstrap-gallery pb-masonry">
+
+                            @foreach (var gallery in galleries)
+                            {
+                                if (string.IsNullOrWhiteSpace(gallery.ImageUrl))
+                                {
+                                    continue;
+                                }
+
+                                var imageUrl = Url.Content(gallery.ImageUrl);
+
+                                <figure itemprop="associatedMedia"
+                                        itemscope
+                                        itemtype="https://schema.org/ImageObject"
+                                        class="grid-item probootstrap-animate">
+
+                                    <a href="@imageUrl"
+                                       itemprop="contentUrl"
+                                       data-size="1200x800">
+
+                                        <img src="@imageUrl"
+                                             itemprop="thumbnail"
+                                             alt="@(gallery.Title ?? "KAYA Ceramic & Tile Galeri")" />
+
+                                    </a>
+
+                                    @if (!string.IsNullOrWhiteSpace(gallery.Title))
+                                    {
+                                        <figcaption itemprop="caption description">
+                                            @gallery.Title
+                                        </figcaption>
+                                    }
+
+                                </figure>
+                            }
+
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <p>Şu anda görüntülenecek galeri fotoğrafı bulunmamaktadır.</p>
+                </div>
+            </div>
+        }
+
+    </div>
+</section>
+
+@if (whyChooseUs.Any())
+{
+    <section class="probootstrap-section">
+        <div class="container">
+
+            <div class="row">
+                <div class="col-md-6 offset-md-3 text-center section-heading probootstrap-animate">
+                    <h2>Neden Bizi Tercih Etmelisiniz?</h2>
+                </div>
+            </div>
+
+            <div class="row">
+
+                <div class="col-md-6">
+
+                    @foreach (var item in leftFeatures)
+                    {
+                        <div class="service left-icon probootstrap-animate"
+                             data-animate-effect="fadeInLeft">
+
+                            <div class="icon">
+                                @if (!string.IsNullOrWhiteSpace(item.IconClass))
+                                {
+                                    <i class="@item.IconClass"></i>
+                                }
+                            </div>
+
+                            <div class="text">
+                                <h3>@item.Title</h3>
+
+                                @if (!string.IsNullOrWhiteSpace(item.Description))
+                                {
+                                    <p>@item.Description</p>
+                                }
+                            </div>
+
+                        </div>
+                    }
+
+                </div>
+
+                <div class="col-md-6">
+
+                    @foreach (var item in rightFeatures)
+                    {
+                        <div class="service left-icon probootstrap-animate"
+                             data-animate-effect="fadeInLeft">
+
+                            <div class="icon">
+                                @if (!string.IsNullOrWhiteSpace(item.IconClass))
+                                {
+                                    <i class="@item.IconClass"></i>
+                                }
+                            </div>
+
+                            <div class="text">
+                                <h3>@item.Title</h3>
+
+                                @if (!string.IsNullOrWhiteSpace(item.Description))
+                                {
+                                    <p>@item.Description</p>
+                                }
+                            </div>
+
+                        </div>
+                    }
+
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+}

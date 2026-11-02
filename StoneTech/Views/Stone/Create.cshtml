@@ -1,0 +1,557 @@
+﻿@using StoneTech.Models.Stone
+@model StoneCreateViewModel
+
+@{
+    ViewData["Title"] = "Taş Ekle";
+}
+
+<div class="section__content section__content--p30">
+    <div class="container-fluid">
+
+        <!-- Sayfa başlığı -->
+        <div class="page-header">
+
+            <div>
+                <h1>Yeni Taş</h1>
+
+                <p class="subtitle">
+                    Sisteme yeni bir taş ekleyin.
+                </p>
+            </div>
+
+            <div class="page-header__actions">
+
+                <a asp-controller="Stone"
+                   asp-action="Index"
+                   class="m-btn m-btn--ghost">
+
+                    <i class="fa-solid fa-arrow-left"></i>
+                    Taşlara Dön
+
+                </a>
+
+            </div>
+
+        </div>
+
+        <!-- Form -->
+        <section class="m-card" style="padding: 24px;">
+
+            <form asp-controller="Stone"
+                  asp-action="Create"
+                  method="post"
+                  enctype="multipart/form-data"
+                  id="stoneCreateForm">
+
+                @Html.AntiForgeryToken()
+
+                <!-- Genel validation hataları -->
+                <div asp-validation-summary="ModelOnly"
+                     class="text-danger mb-3">
+                </div>
+
+                <div class="row">
+
+                    <!-- Sol taraf -->
+                    <div class="col-lg-8">
+
+                        <div class="row">
+
+                            <!-- Taş adı -->
+                            <div class="col-md-6 mb-4">
+
+                                <label asp-for="StoneName"
+                                       class="form-label">
+                                    Taş Adı
+                                </label>
+
+                                <input asp-for="StoneName"
+                                       class="form-control"
+                                       placeholder="Örn: Calacatta Gold" />
+
+                                <span asp-validation-for="StoneName"
+                                      class="text-danger">
+                                </span>
+
+                            </div>
+
+                            <!-- Renk -->
+                            <div class="col-md-6 mb-4">
+
+                                <label asp-for="Color"
+                                       class="form-label">
+                                    Renk
+                                </label>
+
+                                <input asp-for="Color"
+                                       class="form-control"
+                                       placeholder="Örn: Beyaz / Gri" />
+
+                                <span asp-validation-for="Color"
+                                      class="text-danger">
+                                </span>
+
+                            </div>
+
+                            <!-- Alış fiyatı -->
+                            <div class="col-md-6 mb-4">
+
+                                <label asp-for="PurchasePrice"
+                                       class="form-label">
+                                    Alış Fiyatı
+                                </label>
+
+                                <div class="input-group">
+
+                                    <input name="PurchasePrice"
+                                           id="PurchasePrice"
+                                           type="text"
+                                           inputmode="decimal"
+                                           autocomplete="off"
+                                           class="form-control money-input"
+                                           value="@(ViewData.ModelState.TryGetValue("PurchasePrice", out var purchaseState) && purchaseState.AttemptedValue != null ? purchaseState.AttemptedValue : "")"
+                                           placeholder="Örn: 15.000,00" />
+
+                                    <span class="input-group-text">
+                                        ₺
+                                    </span>
+
+                                </div>
+
+                                <span asp-validation-for="PurchasePrice"
+                                      class="text-danger">
+                                </span>
+
+                                <small class="text-muted">
+                                    Örnek: 15000 veya 15.000,00
+                                </small>
+
+                            </div>
+
+                            <!-- Satış fiyatı -->
+                            <div class="col-md-6 mb-4">
+
+                                <label asp-for="SalePrice"
+                                       class="form-label">
+                                    Satış Fiyatı
+                                </label>
+
+                                <div class="input-group">
+
+                                    <input name="SalePrice"
+                                           id="SalePrice"
+                                           type="text"
+                                           inputmode="decimal"
+                                           autocomplete="off"
+                                           class="form-control money-input"
+                                           value="@(ViewData.ModelState.TryGetValue("SalePrice", out var saleState) && saleState.AttemptedValue != null ? saleState.AttemptedValue : "")"
+                                           placeholder="Örn: 16.000,00" />
+
+                                    <span class="input-group-text">
+                                        ₺
+                                    </span>
+
+                                </div>
+
+                                <span asp-validation-for="SalePrice"
+                                      class="text-danger">
+                                </span>
+
+                                <small class="text-muted">
+                                    Örnek: 16000 veya 16.000,00
+                                </small>
+
+                            </div>
+
+                            <!-- Web açıklaması -->
+                            <div class="col-md-12 mb-4">
+
+                                <label asp-for="WebDescription"
+                                       class="form-label">
+                                    Web Sitesi Açıklaması
+                                </label>
+
+                                <textarea asp-for="WebDescription"
+                                          class="form-control"
+                                          rows="5"
+                                          placeholder="Taşın özelliklerini, görünümünü ve kullanım alanlarını açıklayın..."></textarea>
+
+                                <span asp-validation-for="WebDescription"
+                                      class="text-danger">
+                                </span>
+
+                                <small class="text-muted">
+                                    Bu açıklama taşın web sitesindeki tanıtımında kullanılacaktır.
+                                </small>
+
+                            </div>
+
+                            <!-- Web sitesinde göster -->
+                            <div class="col-md-12 mb-4">
+
+                                <label class="form-label">
+                                    Web Sitesi Görünürlüğü
+                                </label>
+
+                                <div class="form-check mt-2">
+
+                                    <input asp-for="ShowOnWeb"
+                                           class="form-check-input"
+                                           type="checkbox" />
+
+                                    <label asp-for="ShowOnWeb"
+                                           class="form-check-label">
+                                        Web Sitesinde Göster
+                                    </label>
+
+                                </div>
+
+                                <span asp-validation-for="ShowOnWeb"
+                                      class="text-danger">
+                                </span>
+
+                                <small class="text-muted d-block mt-2">
+                                    İşaretlenirse taş web sitesindeki taşlar bölümünde gösterilebilir.
+                                    Fiyat ve stok bilgileri web sitesinde yayınlanmayacaktır.
+                                </small>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- Sağ taraf - Görsel -->
+                    <div class="col-lg-4">
+
+                        <div class="mb-4">
+
+                            <label asp-for="ImageFile"
+                                   class="form-label">
+                                Taş Görseli
+                            </label>
+
+                            <!-- Görsel önizleme -->
+                            <div id="imagePreviewContainer"
+                                 style="width: 100%;
+                                height: 220px;
+                                border: 1px dashed #d8dde6;
+                                border-radius: 10px;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                overflow: hidden;
+                                margin-bottom: 12px;
+                                background: #f8f9fb;">
+
+                                <div id="imagePlaceholder"
+                                     style="text-align: center;
+                                    color: #8b95a7;">
+
+                                    <i class="fa-regular fa-image"
+                                       style="font-size: 32px;
+                                        margin-bottom: 10px;">
+                                    </i>
+
+                                    <div>
+                                        Görsel seçilmedi
+                                    </div>
+
+                                </div>
+
+                                <img id="imagePreview"
+                                     src=""
+                                     alt="Taş görseli önizleme"
+                                     style="width: 100%;
+                                height: 100%;
+                                object-fit: cover;
+                                display: none;" />
+
+                            </div>
+
+                            <input asp-for="ImageFile"
+                                   id="imageFile"
+                                   type="file"
+                                   class="form-control"
+                                   accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" />
+
+                            <span asp-validation-for="ImageFile"
+                                  class="text-danger">
+                            </span>
+
+                            <small class="text-muted d-block mt-2">
+                                JPG, JPEG, PNG veya WEBP. Maksimum 5 MB.
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- Butonlar -->
+                <div style="display: flex;
+                    justify-content: flex-end;
+                    gap: 10px;
+                    margin-top: 10px;">
+
+                    <a asp-controller="Stone"
+                       asp-action="Index"
+                       class="m-btn m-btn--ghost">
+
+                        İptal
+
+                    </a>
+
+                    <button type="submit"
+                            class="m-btn m-btn--primary">
+
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        Taşı Kaydet
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </section>
+
+    </div>
+</div>
+
+@section Scripts {
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+
+            const form =
+                document.getElementById("stoneCreateForm");
+
+            const purchasePrice =
+                document.getElementById("PurchasePrice");
+
+            const salePrice =
+                document.getElementById("SalePrice");
+
+            const imageFile =
+                document.getElementById("imageFile");
+
+            const imagePreview =
+                document.getElementById("imagePreview");
+
+            const imagePlaceholder =
+                document.getElementById("imagePlaceholder");
+
+                    // Para girişini ekranda Türkçe para biçimine dönüştürür
+            function formatMoneyInput(input) {
+
+                        if (!input) {
+                    return;
+                        }
+
+                        const parsedValue =
+                    parseTurkishMoney(input.value);
+
+                        if (parsedValue === null) {
+                    return;
+                        }
+
+                        input.value =
+                    new Intl.NumberFormat("tr-TR", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                        }).format(parsedValue);
+                    }
+
+                    // Türkçe yazılmış para değerini sayıya dönüştürür
+                    function parseTurkishMoney(value) {
+
+                if (!value) {
+                            return null;
+                }
+
+                let text =
+                            value
+                        .trim()
+                        .replace(/\s/g, "")
+                        .replace(/₺/g, "");
+
+                       if (!text) {
+                            return null;
+                }
+
+                const hasComma =
+                            text.includes(",");
+
+                    const hasDot =
+                            text.includes(".");
+
+                    // 15.000,50 biçimi
+                        if (hasComma && hasDot) {
+
+                    text =
+                                text
+                            .replace(/\./g, "")
+                            .replace(",", ".");
+                        }
+
+                // 15000,50 biçimi
+                        else if (hasComma) {
+
+                    text =
+                                text.replace(",", ".");
+                        }
+
+                // Sadece nokta varsa iki farklı ihtimal vardır
+                        else if (hasDot) {
+
+                    const parts =
+                                text.split(".");
+
+                        // 15.000 gibi değerlerde nokta binlik ayracıdır
+                            if (
+                        parts.length > 1 &&
+                        parts.slice(1).every(function (part) {
+                            return part.length === 3;
+                            })
+                        ) {
+
+                        text =
+                                    parts.join("");
+                            }
+
+                    // 15000.50 gibi değerler ondalık olarak bırakılır
+                        }
+
+                const number =
+                            Number(text);
+
+                    if (!Number.isFinite(number) || number < 0) {
+                            return null;
+                }
+
+                return number;
+                    }
+
+            // Backend'e gönderilecek decimal değeri standart biçime çevirir
+                    function normalizeMoneyForSubmit(input) {
+
+                if (!input) {
+                    return false;
+                        }
+
+                    const parsedValue =
+                    parseTurkishMoney(input.value);
+
+                if (parsedValue === null) {
+                    return false;
+                        }
+
+                    // ASP.NET tarafına noktalı ondalık biçimde gönderilir
+                input.value =
+                            parsedValue.toFixed(2);
+
+                return true;
+                    }
+
+                // Kullanıcı fiyat alanından çıktığında okunabilir biçime getirir
+            if (purchasePrice) {
+
+                        purchasePrice.addEventListener(
+                    "blur",
+                    function () {
+
+                        formatMoneyInput(
+                            purchasePrice
+                            );
+                        }
+                        );
+                    }
+
+                  if (salePrice) {
+
+                salePrice.addEventListener(
+                            "blur",
+                            function () {
+
+                                formatMoneyInput(
+                            salePrice
+                        );
+                        }
+                    );
+                    }
+
+                     // Form gönderilmeden önce para alanlarını normalize eder
+                 if (form) {
+
+                form.addEventListener(
+                            "submit",
+                            function (event) {
+
+                        const purchaseValid =
+                                    normalizeMoneyForSubmit(
+                                purchasePrice
+                            );
+
+                                const saleValid =
+                            normalizeMoneyForSubmit(
+                                salePrice
+                                    );
+
+                                if (!purchaseValid || !saleValid) {
+
+                            event.preventDefault();
+
+                            alert(
+                                        "Alış ve satış fiyatlarını geçerli bir şekilde giriniz."
+                                );
+                            }
+                            }
+                        );
+                    }
+
+                     // Görsel seçildiğinde kaydetmeden önce önizleme gösterir
+                    if (imageFile) {
+
+                imageFile.addEventListener(
+                    "change",
+                            function () {
+
+                        const file =
+                            this.files[0];
+
+                        if (!file) {
+
+                             imagePreview.src = "";
+                                    imagePreview.style.display = "none";
+                            imagePlaceholder.style.display = "block";
+
+                                    return;
+                        }
+
+                            const reader =
+                            new FileReader();
+
+                                reader.onload =
+                            function (event) {
+
+                                        imagePreview.src =
+                                    event.target.result;
+
+                                        imagePreview.style.display =
+                                    "block";
+
+                                        imagePlaceholder.style.display =
+                                    "none";
+                                    };
+
+                               reader.readAsDataURL(file);
+                            }
+                        );
+                    }
+
+                });
+    </script>
+
+}

@@ -1,0 +1,1016 @@
+﻿@using System.Security.Claims
+@using StoneTech.Enums
+
+@{
+    // Giriş yapan kullanıcının kimlik ve rol bilgilerini hazırlar
+    var fullName = User.Identity?.Name ?? "Kullanıcı";
+    var role = User.FindFirst(ClaimTypes.Role)?.Value ?? string.Empty;
+    var employeeId = User.FindFirst("EmployeeId")?.Value;
+    var isAdmin = User.IsInRole(nameof(UserRole.Admin));
+    var isManager = User.IsInRole(nameof(UserRole.Manager));
+    var isSales = User.IsInRole(nameof(UserRole.Sales));
+    var isAccountant = User.IsInRole(nameof(UserRole.Accountant));
+    var isWorkshop = User.IsInRole(nameof(UserRole.Workshop));
+
+    // Rol adını Türkçe olarak ekranda gösterir
+    var roleDisplayName = role switch
+    {
+        nameof(UserRole.Admin) => "Admin",
+        nameof(UserRole.Manager) => "Yönetici",
+        nameof(UserRole.Sales) => "Satış",
+        nameof(UserRole.Accountant) => "Muhasebe",
+        nameof(UserRole.Workshop) => "Atölye",
+        _ => role
+    };
+}
+
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+
+    <title>@ViewData["Title"] | TechStone</title>
+
+    <!-- CoolAdmin CSS -->
+    <link href="~/Admin/css/font-face.css" rel="stylesheet" media="all" />
+
+    <link rel="preconnect" href="https://rsms.me/" />
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
+
+    <link href="~/Admin/vendor/fontawesome-7.3.1/css/all.min.css"
+          rel="stylesheet"
+          media="all" />
+
+    <link href="~/Admin/vendor/bootstrap-5.3.8.min.css"
+          rel="stylesheet"
+          media="all" />
+
+    <link href="~/Admin/vendor/css-hamburgers/hamburgers.min.css"
+          rel="stylesheet"
+          media="all" />
+
+    <link href="~/Admin/css/theme.css"
+          rel="stylesheet"
+          media="all" />
+
+    <link href="~/Admin/css/app.css"
+          rel="stylesheet"
+          media="all" />
+
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+
+<body class="app">
+
+    <a class="visually-hidden-focusable skip-link"
+       href="#main-content">
+        İçeriğe geç
+    </a>
+
+    <div class="page-wrapper">
+
+        <!-- =====================================================
+             MOBILE HEADER
+             ===================================================== -->
+
+        <header class="header-mobile d-block d-lg-none">
+
+            <div class="header-mobile__bar">
+                <div class="container-fluid">
+
+                    <div class="header-mobile-inner">
+
+                        <a class="logo"
+                           asp-controller="Home"
+                           asp-action="Index">
+
+                            <strong style="font-size:22px;">
+                                TechStone
+                            </strong>
+
+                        </a>
+
+                        <button class="hamburger hamburger--slider"
+                                type="button"
+                                aria-label="Menüyü aç/kapat">
+
+                            <span class="hamburger-box">
+                                <span class="hamburger-inner"></span>
+                            </span>
+
+                        </button>
+
+                    </div>
+
+                </div>
+            </div>
+
+
+            <!-- MOBILE MENU -->
+            <nav class="navbar-mobile">
+                <div class="container-fluid">
+
+                    <ul class="navbar-mobile__list list-unstyled">
+
+                        <!-- ANA SAYFA -->
+                        <li>
+                            <a asp-controller="Home"
+                               asp-action="Index">
+                                <i class="fa-solid fa-gauge-high"></i>
+                                Ana Sayfa
+                            </a>
+                        </li>
+
+                        @if (isAdmin || isManager || isSales || isWorkshop)
+                        {
+                            <!-- DEPO YÖNETİMİ -->
+                            <li class="has-sub">
+
+                                <a class="js-arrow" href="#">
+                                    <i class="fa-solid fa-warehouse"></i>
+                                    Depo Yönetimi
+                                </a>
+
+                                <ul class="navbar-mobile-sub__list list-unstyled js-sub-list">
+
+                                    <li>
+                                        <a asp-controller="Stone"
+                                           asp-action="Index">
+                                            Taşlar
+                                        </a>
+                                    </li>
+
+                                    <li>
+                                        <a asp-controller="Stock"
+                                           asp-action="Index">
+                                            Stok Durumu
+                                        </a>
+                                    </li>
+
+                                    <li>
+                                        <a asp-controller="Stock"
+                                           asp-action="Movements">
+                                            Stok Hareketleri
+                                        </a>
+                                    </li>
+
+                                </ul>
+                            </li>
+                        }
+
+                        @if (isAdmin || isManager || isSales || isWorkshop)
+                        {
+                            <!-- MÜŞTERİ & İŞ EMİRLERİ -->
+                            <li class="has-sub">
+
+                                <a class="js-arrow" href="#">
+                                    <i class="fa-solid fa-clipboard-list"></i>
+                                    Müşteri & İş Emirleri
+                                </a>
+
+                                <ul class="navbar-mobile-sub__list list-unstyled js-sub-list">
+
+                                    @if (isAdmin || isManager || isSales)
+                                    {
+                                        <li>
+                                            <a asp-controller="Customer"
+                                               asp-action="Index">
+                                                Müşteriler
+                                            </a>
+                                        </li>
+                                    }
+
+                                    <li>
+                                        <a asp-controller="WorkOrder"
+                                           asp-action="Index">
+                                            İş Emirleri
+                                        </a>
+                                    </li>
+
+                                    @if (isAdmin || isManager || isSales)
+                                    {
+                                        <li>
+                                            <a asp-controller="WorkOrder"
+                                               asp-action="Create">
+                                                Yeni İş Emri
+                                            </a>
+                                        </li>
+                                    }
+
+                                </ul>
+                            </li>
+                        }
+
+                        @if (isAdmin || isManager || isSales || isAccountant)
+                        {
+                            <!-- FİNANS -->
+                            <li class="has-sub">
+
+                                <a class="js-arrow" href="#">
+                                    <i class="fa-solid fa-wallet"></i>
+                                    Finans
+                                </a>
+
+                                <ul class="navbar-mobile-sub__list list-unstyled js-sub-list">
+
+                                    <li>
+                                        <a asp-controller="Payment"
+                                           asp-action="Index">
+                                            Ödemeler
+                                        </a>
+                                    </li>
+
+                                    <li>
+                                        <a asp-controller="Customer"
+                                           asp-action="Debtors">
+                                            Borçlu Müşteriler
+                                        </a>
+                                    </li>
+
+                                    <li>
+                                        <a asp-controller="Invoice"
+                                           asp-action="Index">
+                                            Faturalar
+                                        </a>
+                                    </li>
+
+                                </ul>
+                            </li>
+                        }
+
+                        @if (isAdmin || isManager || isSales || isAccountant)
+                        {
+                            <!-- TEDARİK -->
+                            <li class="has-sub">
+
+                                <a class="js-arrow" href="#">
+                                    <i class="fa-solid fa-truck"></i>
+                                    Tedarik
+                                </a>
+
+                                <ul class="navbar-mobile-sub__list list-unstyled js-sub-list">
+
+                                    <li>
+                                        <a asp-controller="Supplier"
+                                           asp-action="Index">
+                                            Tedarikçiler
+                                        </a>
+                                    </li>
+
+                                    <li>
+                                        <a asp-controller="Purchase"
+                                           asp-action="Index">
+                                            Alımlar
+                                        </a>
+                                    </li>
+
+                                    @if (isAdmin || isManager || isSales)
+                                    {
+                                        <li>
+                                            <a asp-controller="Purchase"
+                                               asp-action="Create">
+                                                Yeni Alım
+                                            </a>
+                                        </li>
+                                    }
+
+                                </ul>
+                            </li>
+                        }
+
+                        @if (isAdmin || isManager || isAccountant)
+                        {
+                            <!-- RAPORLAMA -->
+                            <li>
+                                <a asp-controller="Report"
+                                   asp-action="Index">
+                                    <i class="fa-solid fa-chart-column"></i>
+                                    Rapor Merkezi
+                                </a>
+                            </li>
+                        }
+
+                        @if (isAdmin || isManager)
+                        {
+                            <!-- WEB SİTESİ YÖNETİMİ -->
+                            <li class="has-sub">
+
+                                <a class="js-arrow" href="#">
+                                    <i class="fa-solid fa-globe"></i>
+                                    Web Sitesi Yönetimi
+                                </a>
+
+                                <ul class="navbar-mobile-sub__list list-unstyled js-sub-list">
+
+                                    <!-- Slider -->
+                                    <li>
+                                        <a asp-controller="Slider"
+                                           asp-action="Index">
+                                            Slider Yönetimi
+                                        </a>
+                                    </li>
+
+                                    <!-- Hizmetler -->
+                                    <li>
+                                        <a asp-controller="Service"
+                                           asp-action="Index">
+                                            Hizmetler
+                                        </a>
+                                    </li>
+
+                                    <!-- Galeri -->
+                                    <li>
+                                        <a asp-controller="Gallery"
+                                           asp-action="Index">
+                                            Galeri
+                                        </a>
+                                    </li>
+
+                                    <!-- Hakkımızda -->
+                                    <li>
+                                        <a asp-controller="About"
+                                           asp-action="Index">
+                                            Hakkımızda
+                                        </a>
+                                    </li>
+
+                                    <!-- Neden Biz -->
+                                    <li>
+                                        <a asp-controller="WhyChooseUs"
+                                           asp-action="Index">
+                                            Neden Biz?
+                                        </a>
+                                    </li>
+
+                                    <!-- İletişim -->
+                                    <li>
+                                        <a asp-controller="Contact"
+                                           asp-action="Index">
+                                            İletişim
+                                        </a>
+                                    </li>
+
+                                    
+                                    <li>
+                                        <a asp-controller="Web"
+                                           asp-action="Index"
+                                           target="_blank">
+                                            Web Sitesine Git
+                                        </a>
+                                    </li>
+
+
+                                </ul>
+                            </li>
+                        }
+
+                        @if (isAdmin)
+                        {
+                            <!-- PERSONEL & SİSTEM -->
+                            <li class="has-sub">
+
+                                <a class="js-arrow" href="#">
+                                    <i class="fa-solid fa-gears"></i>
+                                    Personel & Sistem
+                                </a>
+
+                                <ul class="navbar-mobile-sub__list list-unstyled js-sub-list">
+
+                                    <!-- Personeller -->
+                                    <li>
+                                        <a asp-controller="Employee"
+                                           asp-action="Index">
+                                            Personeller
+                                        </a>
+                                    </li>
+
+                                    <!-- Kullanıcılar -->
+                                    <li>
+                                        <a asp-controller="User"
+                                           asp-action="Index">
+                                            Kullanıcılar
+                                        </a>
+                                    </li>
+
+                                    <!-- Firma Ayarları -->
+                                    <li>
+                                        <a asp-controller="CompanySetting"
+                                           asp-action="Index">
+                                            Firma Ayarları
+                                        </a>
+                                    </li>
+
+                                    <!-- İşlem Kayıtları -->
+                                    <li>
+                                        <a asp-controller="ActivityLog"
+                                           asp-action="Index">
+                                            İşlem Kayıtları
+                                        </a>
+                                    </li>
+
+                                </ul>
+                            </li>
+                        }
+
+                    </ul>
+
+                </div>
+            </nav>
+
+
+        </header>
+
+
+        <!-- DESKTOP SIDEBAR -->
+
+        <aside class="menu-sidebar"
+               id="main-sidebar">
+
+            <!-- LOGO -->
+
+            <div class="logo">
+
+                <a class="logo-link"
+                   asp-controller="Home"
+                   asp-action="Index">
+
+                    <span class="logo-mark"
+                          aria-hidden="true">
+                        T
+                    </span>
+
+                    <span class="logo-text">
+                        TechStone
+                    </span>
+
+                </a>
+
+                <button class="sidebar-close js-sidebar-toggle"
+                        type="button"
+                        aria-label="Menüyü kapat">
+
+                    <i class="fa-solid fa-xmark"
+                       aria-hidden="true"></i>
+
+                </button>
+
+            </div>
+
+
+            
+            <!-- MENU -->
+            <div class="menu-sidebar__content js-scrollbar1">
+                <nav class="navbar-sidebar">
+                    <ul class="list-unstyled navbar__list">
+
+                        <!-- ANA SAYFA -->
+                        <li>
+                            <a asp-controller="Home"
+                               asp-action="Index">
+                                <i class="fa-solid fa-gauge-high"></i>
+                                Ana Sayfa
+                            </a>
+                        </li>
+
+                        @if (isAdmin || isManager || isSales || isWorkshop)
+                        {
+                            <!-- DEPO YÖNETİMİ -->
+                            <li class="has-sub">
+                                <a class="js-arrow"
+                                   href="#">
+                                    <i class="fa-solid fa-warehouse"></i>
+                                    Depo Yönetimi
+                                </a>
+
+                                <ul class="list-unstyled navbar__sub-list js-sub-list">
+
+                                    <li>
+                                        <a asp-controller="Stone"
+                                           asp-action="Index">
+                                            Taşlar
+                                        </a>
+                                    </li>
+
+                                    <li>
+                                        <a asp-controller="Stock"
+                                           asp-action="Index">
+                                            Stok Durumu
+                                        </a>
+                                    </li>
+
+                                    <li>
+                                        <a asp-controller="Stock"
+                                           asp-action="Movements">
+                                            Stok Hareketleri
+                                        </a>
+                                    </li>
+
+                                </ul>
+                            </li>
+                        }
+
+                        @if (isAdmin || isManager || isSales || isWorkshop)
+                        {
+                            <!-- MÜŞTERİ & İŞ EMİRLERİ -->
+                            <li class="has-sub">
+                                <a class="js-arrow"
+                                   href="#">
+                                    <i class="fa-solid fa-clipboard-list"></i>
+                                    Müşteri & İş Emirleri
+                                </a>
+
+                                <ul class="list-unstyled navbar__sub-list js-sub-list">
+
+                                    @if (isAdmin || isManager || isSales)
+                                    {
+                                        <li>
+                                            <a asp-controller="Customer"
+                                               asp-action="Index">
+                                                Müşteriler
+                                            </a>
+                                        </li>
+                                    }
+
+                                    <li>
+                                        <a asp-controller="WorkOrder"
+                                           asp-action="Index">
+                                            İş Emirleri
+                                        </a>
+                                    </li>
+
+                                    @if (isAdmin || isManager || isSales)
+                                    {
+                                        <li>
+                                            <a asp-controller="WorkOrder"
+                                               asp-action="Create">
+                                                Yeni İş Emri
+                                            </a>
+                                        </li>
+                                    }
+
+                                </ul>
+                            </li>
+                        }
+
+                        @if (isAdmin || isManager || isSales || isAccountant)
+                        {
+                            <!-- FİNANS -->
+                            <li class="has-sub">
+                                <a class="js-arrow"
+                                   href="#">
+                                    <i class="fa-solid fa-wallet"></i>
+                                    Finans
+                                </a>
+
+                                <ul class="list-unstyled navbar__sub-list js-sub-list">
+
+                                    <li>
+                                        <a asp-controller="Payment"
+                                           asp-action="Index">
+                                            Ödemeler
+                                        </a>
+                                    </li>
+
+                                    <li>
+                                        <a asp-controller="Customer"
+                                           asp-action="Debtors">
+                                            Borçlu Müşteriler
+                                        </a>
+                                    </li>
+
+                                    <!-- Fatura modülü -->
+                                    <li>
+                                        <a asp-controller="Invoice"
+                                           asp-action="Index">
+                                            Faturalar
+                                        </a>
+                                    </li>
+
+                                </ul>
+                            </li>
+                        }
+
+                        @if (isAdmin || isManager || isSales || isAccountant)
+                        {
+                            <!-- TEDARİK -->
+                            <li class="has-sub">
+                                <a class="js-arrow"
+                                   href="#">
+                                    <i class="fa-solid fa-truck"></i>
+                                    Tedarik
+                                </a>
+
+                                <ul class="list-unstyled navbar__sub-list js-sub-list">
+
+                                    <li>
+                                        <a asp-controller="Supplier"
+                                           asp-action="Index">
+                                            Tedarikçiler
+                                        </a>
+                                    </li>
+
+                                    <li>
+                                        <a asp-controller="Purchase"
+                                           asp-action="Index">
+                                            Alımlar
+                                        </a>
+                                    </li>
+
+                                    @if (isAdmin || isManager || isSales)
+                                    {
+                                        <li>
+                                            <a asp-controller="Purchase"
+                                               asp-action="Create">
+                                                Yeni Alım
+                                            </a>
+                                        </li>
+                                    }
+
+                                </ul>
+                            </li>
+                        }
+
+                        @if (isAdmin || isManager || isAccountant)
+                        {
+                            <!-- RAPORLAMA -->
+                            <li>
+                                <a asp-controller="Report"
+                                   asp-action="Index">
+                                    <i class="fa-solid fa-chart-column"></i>
+                                    Rapor Merkezi
+                                </a>
+                            </li>
+                        }
+
+                        @if (isAdmin || isManager)
+                        {
+                            <!-- WEB SİTESİ YÖNETİMİ -->
+                            <li class="has-sub">
+                                <a class="js-arrow"
+                                   href="#">
+                                    <i class="fa-solid fa-globe"></i>
+                                    Web Sitesi Yönetimi
+                                </a>
+
+                                <ul class="list-unstyled navbar__sub-list js-sub-list">
+
+                                    <!-- Slider -->
+                                    <li>
+                                        <a asp-controller="Slider"
+                                           asp-action="Index">
+                                            Slider Yönetimi
+                                        </a>
+                                    </li>
+
+                                    <!-- Hizmetler -->
+                                    <li>
+                                        <a asp-controller="Service"
+                                           asp-action="Index">
+                                            Hizmetler
+                                        </a>
+                                    </li>
+
+                                    <!-- Galeri -->
+                                    <li>
+                                        <a asp-controller="Gallery"
+                                           asp-action="Index">
+                                            Galeri
+                                        </a>
+                                    </li>
+
+                                    <!-- Hakkımızda -->
+                                    <li>
+                                        <a asp-controller="About"
+                                           asp-action="Index">
+                                            Hakkımızda
+                                        </a>
+                                    </li>
+
+                                    <!-- Neden Biz -->
+                                    <li>
+                                        <a asp-controller="WhyChooseUs"
+                                           asp-action="Index">
+                                            Neden Biz?
+                                        </a>
+                                    </li>
+
+                                    <!-- İletişim -->
+                                    <li>
+                                        <a asp-controller="Contact"
+                                           asp-action="Index">
+                                            İletişim
+                                        </a>
+                                    </li>
+
+                                    <!-- Web Sayfası -->
+                                    <li>
+                                        <a asp-controller="Web"
+                                           asp-action="Index"
+                                           target="_blank">
+                                            Web Sitesine Git
+                                        </a>
+                                    </li>
+
+                                </ul>
+                            </li>
+                        }
+
+                        @if (isAdmin)
+                        {
+                            <!-- PERSONEL & SİSTEM -->
+                            <li class="has-sub">
+                                <a class="js-arrow"
+                                   href="#">
+                                    <i class="fa-solid fa-gears"></i>
+                                    Personel & Sistem
+                                </a>
+
+                                <ul class="list-unstyled navbar__sub-list js-sub-list">
+
+                                    <li>
+                                        <a asp-controller="Employee"
+                                           asp-action="Index">
+                                            Personeller
+                                        </a>
+                                    </li>
+
+                                    <li>
+                                        <a asp-controller="User"
+                                           asp-action="Index">
+                                            Kullanıcılar
+                                        </a>
+                                    </li>
+
+                                    <li>
+                                        <a asp-controller="CompanySetting"
+                                           asp-action="Index">
+                                            Firma Ayarları
+                                        </a>
+                                    </li>
+
+                                    <li>
+                                        <a asp-controller="ActivityLog"
+                                           asp-action="Index">
+                                            İşlem Kayıtları
+                                        </a>
+                                    </li>
+
+                                    
+                                    
+
+
+                                </ul>
+                            </li>
+                        }
+
+                    </ul>
+                </nav>
+            </div>
+
+
+        </aside>
+
+
+        <!-- =====================================================
+             PAGE CONTAINER
+             ===================================================== -->
+
+        <div class="page-container">
+
+
+            <!-- =================================================
+                 DESKTOP HEADER
+                 ================================================= -->
+
+            <header class="header-desktop">
+
+                <div class="section__content section__content--p30">
+
+                    <div class="container-fluid">
+
+                        <div class="header-wrap">
+
+                            <!-- Sidebar Toggle -->
+                            <button class="sidebar-toggle js-sidebar-toggle"
+                                    type="button"
+                                    aria-label="Menüyü aç/kapat"
+                                    aria-expanded="false"
+                                    aria-controls="main-sidebar">
+
+                                <i class="fa-solid fa-bars"
+                                   aria-hidden="true"></i>
+
+                            </button>
+
+
+                            <!-- HEADER RIGHT -->
+                            <div class="header-button">
+
+                               
+
+
+                                <!-- ACCOUNT -->
+                                <div class="account-wrap">
+
+                                    <div class="account-item clearfix js-item-menu"
+                                         role="button"
+                                         tabindex="0"
+                                         aria-haspopup="true"
+                                         aria-label="Hesap menüsü">
+
+                                        <!-- Kullanıcı adı -->
+                                        <div class="content">
+
+                                            <a class="js-acc-btn"
+                                               href="#">
+                                                @fullName
+                                            </a>
+
+                                        </div>
+
+
+                                        <!-- Hesap menüsü -->
+                                        <div class="account-dropdown js-dropdown">
+
+                                            <!-- Kullanıcı bilgileri -->
+                                            <div class="info clearfix">
+
+                                                <div class="content">
+
+                                                    <h5 class="name">
+                                                        @fullName
+                                                    </h5>
+
+                                                    <span class="email">
+                                                        @roleDisplayName
+                                                    </span>
+
+                                                </div>
+
+                                            </div>
+
+
+                                            <!-- Menü -->
+                                            <div class="account-dropdown__body">
+
+                                                <!-- Profil -->
+                                                @if (int.TryParse(employeeId, out var profileEmployeeId))
+                                                {
+                                                    <div class="account-dropdown__item">
+
+                                                        <a asp-controller="Employee"
+                                                           asp-action="Details"
+                                                           asp-route-id="@profileEmployeeId">
+
+                                                            <i class="fa-solid fa-user"></i>
+                                                            Profilim
+
+                                                        </a>
+
+                                                    </div>
+                                                }
+
+
+                                                <!-- Kullanıcı yönetimi -->
+                                                @if (isAdmin)
+                                                {
+                                                    <div class="account-dropdown__item">
+
+                                                        <a asp-controller="User"
+                                                           asp-action="Index">
+
+                                                            <i class="fa-solid fa-user-shield"></i>
+                                                            Kullanıcı Yönetimi
+
+                                                        </a>
+
+                                                    </div>
+                                                }
+
+
+                                                <!-- Çıkış -->
+                                                <div class="account-dropdown__item">
+
+                                                    <a href="#"
+                                                       class="text-danger"
+                                                       id="logoutButton">
+
+                                                        <i class="fa-solid fa-power-off"></i>
+                                                        Çıkış Yap
+
+                                                    </a>
+
+                                                </div>
+
+                                            </div>
+
+
+                                            <!-- Gizli çıkış formu -->
+                                            <form id="logoutForm"
+                                                  asp-controller="Account"
+                                                  asp-action="Logout"
+                                                  method="post">
+
+                                                @Html.AntiForgeryToken()
+
+                                            </form>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+                            <!-- HEADER RIGHT SONU -->
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </header>
+
+
+            <!-- =====================================================
+                 PAGE CONTENT
+                 ===================================================== -->
+
+            <main class="main-content"
+                  id="main-content">
+
+                <div class="section__content
+                            section__content--p30">
+
+                    <div class="container-fluid">
+
+                        @RenderBody()
+
+                        <!-- Footer -->
+
+                        <div class="row"
+                             style="margin-top: 28px;">
+
+                            <div class="col-md-12">
+
+                                <div class="copyright">
+
+                                    <p>
+                                        © @DateTime.Now.Year TechStone
+                                        - Mermer Atölyesi Yönetim Sistemi
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </main>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         JAVASCRIPT
+         ===================================================== -->
+
+    <script src="~/Admin/js/vanilla-utils.js"></script>
+
+    <script src="~/Admin/vendor/bootstrap-5.3.8.bundle.min.js"></script>
+
+    <script src="~/Admin/vendor/chartjs/chart.umd.js-4.5.1.min.js"></script>
+
+    <script src="~/Admin/js/bootstrap5-init.js"></script>
+
+    <script src="~/Admin/js/main-vanilla.js"></script>
+
+    <script src="~/Admin/js/modern-plugins.js"></script>
+
+    <script>
+        const logoutButton = document.getElementById('logoutButton');
+        const logoutForm = document.getElementById('logoutForm');
+
+        if (logoutButton && logoutForm) {
+            logoutButton.addEventListener('click', function (e) {
+                e.preventDefault();
+                logoutForm.submit();
+            });
+        }
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+
+</body>
+
+</html>

@@ -1,0 +1,193 @@
+﻿@using StoneTech.Entities
+
+@{
+    ViewData["Title"] = "Hakkımızda";
+
+    Layout = "_WebLayout";
+
+    var about = ViewBag.About as About;
+
+    var whyChooseUs = ViewBag.WhyChooseUs as List<WhyChooseUs>
+                      ?? new List<WhyChooseUs>();
+}
+
+<!-- Hakkımızda üst görsel alanı -->
+<section class="flexslider">
+    <ul class="slides">
+
+        <li style="background-image: url('@Url.Content("~/Web/img/slider_1.jpg")')"
+            class="overlay">
+
+            <div class="container">
+                <div class="row">
+
+                    <div class="col-md-8 offset-md-2">
+
+                        <div class="probootstrap-slider-text text-center">
+
+                            <h1 class="probootstrap-heading">
+                                Hakkımızda
+                            </h1>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </li>
+
+    </ul>
+</section>
+
+<!-- Hakkımızda açıklama ve görseller -->
+<section class="probootstrap-section probootstrap-bg-white">
+
+    <div class="container">
+
+        <div class="row">
+
+            <div class="col-md-6 offset-md-3 text-center section-heading probootstrap-animate">
+
+                <h2>
+                    @(about?.Title ?? "Hakkımızda")
+                </h2>
+
+            </div>
+
+        </div>
+
+        <!-- Hakkımızda açıklamaları -->
+        <div class="row mb40">
+
+            <div class="col-md-6 probootstrap-animate">
+
+                @if (!string.IsNullOrWhiteSpace(about?.Description1))
+                {
+                    <p style="white-space: pre-line;">@about.Description1</p>
+                }
+
+            </div>
+
+            <div class="col-md-6 probootstrap-animate">
+
+                @if (!string.IsNullOrWhiteSpace(about?.Description2))
+                {
+                    <p style="white-space: pre-line;">@about.Description2</p>
+                }
+
+            </div>
+
+        </div>
+
+        <!-- Hakkımızda görselleri -->
+        <div class="row">
+
+            @if (!string.IsNullOrWhiteSpace(about?.ImageUrl1))
+            {
+                <div class="col-md-4 probootstrap-animate">
+
+                    <div class="ratio ratio-4x3">
+
+                        <img src="@Url.Content(about.ImageUrl1)"
+                             alt="KAYA Ceramic & Tile - Hakkımızda"
+                             class="img-fluid w-100 h-100 object-fit-cover" />
+
+                    </div>
+
+                </div>
+            }
+
+            @if (!string.IsNullOrWhiteSpace(about?.ImageUrl2))
+            {
+                <div class="col-md-4 probootstrap-animate">
+
+                    <div class="ratio ratio-4x3">
+
+                        <img src="@Url.Content(about.ImageUrl2)"
+                             alt="KAYA Ceramic & Tile - Çalışmalarımız"
+                             class="img-fluid w-100 h-100 object-fit-cover" />
+
+                    </div>
+
+                </div>
+            }
+
+            @if (!string.IsNullOrWhiteSpace(about?.ImageUrl3))
+            {
+                <div class="col-md-4 probootstrap-animate">
+
+                    <div class="ratio ratio-4x3">
+
+                        <img src="@Url.Content(about.ImageUrl3)"
+                             alt="KAYA Ceramic & Tile - Projelerimiz"
+                             class="img-fluid w-100 h-100 object-fit-cover" />
+
+                    </div>
+
+                </div>
+            }
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- Neden bizi tercih etmelisiniz -->
+@if (whyChooseUs.Any())
+{
+    <section class="probootstrap-section">
+
+        <div class="container">
+
+            <div class="row">
+
+                <div class="col-md-6 offset-md-3 text-center section-heading probootstrap-animate">
+
+                    <h2>Neden Bizi Tercih Etmelisiniz?</h2>
+
+                </div>
+
+            </div>
+
+            <div class="row">
+
+                @foreach (var item in whyChooseUs)
+                {
+                    <div class="col-md-6">
+
+                        <div class="service left-icon probootstrap-animate">
+
+                            <div class="icon">
+
+                                @if (!string.IsNullOrWhiteSpace(item.IconClass))
+                                {
+                                    <i class="@item.IconClass"></i>
+                                }
+
+                            </div>
+
+                            <div class="text">
+
+                                <h3>@item.Title</h3>
+
+                                @if (!string.IsNullOrWhiteSpace(item.Description))
+                                {
+                                    <p>@item.Description</p>
+                                }
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                }
+
+            </div>
+
+        </div>
+
+    </section>
+}

@@ -1,0 +1,399 @@
+﻿@using StoneTech.Models.Supplier
+@model IEnumerable<SupplierListViewModel>
+
+@{
+    ViewData["Title"] = "Tedarikçiler";
+
+    string search = ViewBag.Search ?? "";
+    int page = ViewBag.Page ?? 1;
+    int pageSize = ViewBag.PageSize ?? 10;
+    int totalPages = ViewBag.TotalPages ?? 0;
+    int totalCount = ViewBag.TotalCount ?? 0;
+
+    int firstItem = totalCount == 0
+        ? 0
+        : ((page - 1) * pageSize) + 1;
+
+    int lastItem = Math.Min(page * pageSize, totalCount);
+}
+
+<div class="section__content section__content--p30">
+    <div class="container-fluid">
+
+        <div class="page-header">
+            <div>
+                <h1>Tedarikçiler</h1>
+                <p class="subtitle">
+                    Sistemde kayıtlı tedarikçileri görüntüleyin ve yönetin.
+                </p>
+            </div>
+
+            <div class="page-header__actions">
+                @if (!User.IsInRole("Accountant"))
+                {
+                    <a asp-controller="Supplier"
+                       asp-action="Create"
+                       class="m-btn m-btn--primary">
+                        <i class="fa-solid fa-plus"></i>
+                        Tedarikçi Ekle
+                    </a>
+                }
+            </div>
+        </div>
+
+        <section class="m-card" style="padding: 20px;">
+
+            <form asp-controller="Supplier"
+                  asp-action="Index"
+                  method="get">
+
+                <div class="dt-toolbar">
+
+                    <div class="dt-search">
+                        <i class="fa-solid fa-magnifying-glass"
+                           aria-hidden="true">
+                        </i>
+
+                        <input type="search"
+                               name="search"
+                               value="@search"
+                               placeholder="Tedarikçi, telefon veya adres ara..."
+                               aria-label="Tedarikçi ara">
+                    </div>
+
+                    <div style="display: flex;
+                                gap: 8px;
+                                align-items: center;">
+
+                        <label style="font-size: 12.5px;
+                                      color: var(--m-text-muted);
+                                      display: inline-flex;
+                                      align-items: center;
+                                      gap: 8px;">
+
+                            Göster
+
+                            <select name="pageSize"
+                                    class="form-select"
+                                    style="width: 80px;
+                                           height: 32px;
+                                           padding: 0 24px 0 10px;
+                                           font-size: 12.5px;"
+                                    onchange="this.form.submit()">
+
+                                <option value="5"
+                                        selected="@(pageSize == 5)">
+                                    5
+                                </option>
+
+                                <option value="10"
+                                        selected="@(pageSize == 10)">
+                                    10
+                                </option>
+
+                                <option value="20"
+                                        selected="@(pageSize == 20)">
+                                    20
+                                </option>
+
+                                <option value="50"
+                                        selected="@(pageSize == 50)">
+                                    50
+                                </option>
+
+                            </select>
+
+                            kayıt
+                        </label>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+            <div class="table-responsive">
+
+                <table class="m-table dt-table"
+                       id="dt-table">
+
+                    <thead>
+                        <tr>
+                            <th>Tedarikçi</th>
+                            <th>Telefon</th>
+                            <th>Adres</th>
+                            <th>Not</th>
+                            <th>Durum</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        @if (!Model.Any())
+                        {
+                            <tr>
+                                <td colspan="6">
+
+                                    <div class="empty-state">
+
+                                        <span class="empty-state__icon">
+                                            <i class="fa-solid fa-truck"></i>
+                                        </span>
+
+                                        <h3 class="empty-state__title">
+                                            Tedarikçi bulunamadı
+                                        </h3>
+
+                                        <p class="empty-state__text">
+
+                                            @if (!string.IsNullOrWhiteSpace(search))
+                                            {
+                                                @:Aramanızla eşleşen tedarikçi bulunamadı.
+                                            }
+                                            else
+                                            {
+                                                @:Henüz sisteme tedarikçi eklenmemiş.
+                                            }
+
+                                        </p>
+
+                                        @if (!string.IsNullOrWhiteSpace(search))
+                                        {
+                                            <div class="empty-state__actions">
+
+                                                <a asp-controller="Supplier"
+                                                   asp-action="Index"
+                                                   class="m-btn m-btn--ghost">
+                                                    Aramayı temizle
+                                                </a>
+
+                                            </div>
+                                        }
+
+                                    </div>
+
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var supplier in Model)
+                            {
+                                <tr>
+
+                                    <td>
+                                        <span class="name">
+                                            @supplier.SupplierName
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        @if (!string.IsNullOrWhiteSpace(supplier.Phone))
+                                        {
+                                            @supplier.Phone
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </td>
+
+                                    <td>
+                                        @if (!string.IsNullOrWhiteSpace(supplier.Address))
+                                        {
+                                            @supplier.Address
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </td>
+
+                                    <td>
+                                        @if (!string.IsNullOrWhiteSpace(supplier.Note))
+                                        {
+                                            @supplier.Note
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </td>
+
+                                    <td>
+                                        @if (supplier.IsActive)
+                                        {
+                                            <span class="badge bg-success">
+                                                Aktif
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">
+                                                Pasif
+                                            </span>
+                                        }
+                                    </td>
+
+                                    <td>
+                                        <div class="table-data-feature">
+
+                                            @if (!User.IsInRole("Accountant"))
+                                            {
+                                                <a asp-controller="Supplier"
+                                                   asp-action="Edit"
+                                                   asp-route-id="@supplier.SupplierId"
+                                                   class="item"
+                                                   data-bs-toggle="tooltip"
+                                                   title="Düzenle">
+
+                                                    <i class="fa-solid fa-pen-to-square"></i>
+
+                                                </a>
+                                            }
+
+                                            @if ((User.IsInRole("Admin") || User.IsInRole("Manager")) && supplier.IsActive)
+                                            {
+                                                <form asp-controller="Supplier"
+                                                      asp-action="Deactivate"
+                                                      asp-route-id="@supplier.SupplierId"
+                                                      method="post"
+                                                      style="display:contents;">
+
+                                                    @Html.AntiForgeryToken()
+
+                                                    <button type="submit"
+                                                            class="item"
+                                                            title="Pasif Yap"
+                                                            onclick="return confirm('Bu tedarikçiyi pasif hale getirmek istediğinize emin misiniz?');">
+
+                                                        <i class="fa-solid fa-ban"></i>
+
+                                                    </button>
+
+                                                </form>
+                                            }
+                                            else if (User.IsInRole("Admin") || User.IsInRole("Manager"))
+                                            {
+                                                <form asp-controller="Supplier"
+                                                      asp-action="Activate"
+                                                      asp-route-id="@supplier.SupplierId"
+                                                      method="post"
+                                                      style="display:contents;">
+
+                                                    @Html.AntiForgeryToken()
+
+                                                    <button type="submit"
+                                                            class="item"
+                                                            title="Aktif Yap"
+                                                            onclick="return confirm('Bu tedarikçiyi tekrar aktif hale getirmek istediğinize emin misiniz?');">
+
+                                                        <i class="fa-solid fa-circle-check"></i>
+
+                                                    </button>
+
+                                                </form>
+                                            }
+
+                                        </div>
+                                    </td>
+
+                                </tr>
+                            }
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <div class="dt-pagination">
+
+                <span class="dt-pagination__info">
+
+                    @if (totalCount == 0)
+                    {
+                        @:Sonuç yok
+                    }
+                    else
+                    {
+                        @:@firstItem–@lastItem / @totalCount kayıt
+                    }
+
+                </span>
+
+                <div class="dt-pagination__nav">
+
+                    @if (page > 1)
+                    {
+                        <a asp-controller="Supplier"
+                           asp-action="Index"
+                           asp-route-search="@search"
+                           asp-route-page="@(page - 1)"
+                           asp-route-pageSize="@pageSize">
+
+                            <i class="fa-solid fa-chevron-left"></i>
+
+                        </a>
+                    }
+                    else
+                    {
+                        <button type="button" disabled>
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </button>
+                    }
+
+                    @if (totalPages > 0)
+                    {
+                        @for (int i = 1; i <= totalPages; i++)
+                        {
+                            @if (i == page)
+                            {
+                                <button type="button"
+                                        class="is-active"
+                                        disabled>
+                                    @i
+                                </button>
+                            }
+                            else
+                            {
+                                <a asp-controller="Supplier"
+                                   asp-action="Index"
+                                   asp-route-search="@search"
+                                   asp-route-page="@i"
+                                   asp-route-pageSize="@pageSize">
+                                    @i
+                                </a>
+                            }
+                        }
+                    }
+
+                    @if (totalPages > 0 && page < totalPages)
+                    {
+                        <a asp-controller="Supplier"
+                           asp-action="Index"
+                           asp-route-search="@search"
+                           asp-route-page="@(page + 1)"
+                           asp-route-pageSize="@pageSize">
+
+                            <i class="fa-solid fa-chevron-right"></i>
+
+                        </a>
+                    }
+                    else
+                    {
+                        <button type="button" disabled>
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </button>
+                    }
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </div>
+</div>

@@ -1,0 +1,515 @@
+﻿@using StoneTech.Models.User
+@using StoneTech.Enums
+@model UserDetailsViewModel
+
+@{
+    ViewData["Title"] = "Kullanıcı Detayı";
+
+    // Kullanıcının sistem rolünün Türkçe karşılığını belirler
+    string roleName = Model.Role switch
+    {
+        UserRole.Admin => "Admin",
+        UserRole.Manager => "Yönetici",
+        UserRole.Sales => "Satış",
+        UserRole.Accountant => "Muhasebe",
+        UserRole.Workshop => "Atölye",
+        _ => "Bilinmiyor"
+    };
+}
+
+<div class="section__content section__content--p30">
+    <div class="container-fluid">
+
+        <!-- Sayfa başlığı -->
+        <div class="page-header">
+
+            <div>
+
+                <h1>Kullanıcı Detayı</h1>
+
+                <p class="subtitle">
+                    Kullanıcı hesabı ve bağlı personel bilgilerini görüntüleyin.
+                </p>
+
+            </div>
+
+            <div class="page-header__actions">
+
+                <a asp-controller="User"
+                   asp-action="Index"
+                   class="m-btn m-btn--ghost">
+
+                    <i class="fa-solid fa-arrow-left"></i>
+                    Kullanıcılara Dön
+
+                </a>
+
+                <a asp-controller="User"
+                   asp-action="Edit"
+                   asp-route-id="@Model.UserId"
+                   class="m-btn m-btn--primary">
+
+                    <i class="fa-solid fa-pen-to-square"></i>
+                    Düzenle
+
+                </a>
+
+            </div>
+
+        </div>
+
+        <!-- Başarı mesajı -->
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success">
+                @TempData["SuccessMessage"]
+            </div>
+        }
+
+        <!-- Hata mesajı -->
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger">
+                @TempData["ErrorMessage"]
+            </div>
+        }
+
+        <div class="row">
+
+            <!-- Sol alan -->
+            <div class="col-lg-8">
+
+                <!-- Kullanıcı hesabı bilgileri -->
+                <section class="m-card"
+                         style="padding: 20px; margin-bottom: 20px;">
+
+                    <div style="margin-bottom: 20px;">
+
+                        <h4 style="margin-bottom: 5px;">
+                            Kullanıcı Hesabı
+                        </h4>
+
+                        <p class="text-muted"
+                           style="margin: 0;">
+                            Sisteme giriş ve yetkilendirme bilgileri.
+                        </p>
+
+                    </div>
+
+                    <div class="row">
+
+                        <!-- Kullanıcı adı -->
+                        <div class="col-md-6"
+                             style="margin-bottom: 20px;">
+
+                            <small class="text-muted">
+                                Kullanıcı Adı
+                            </small>
+
+                            <div style="margin-top: 5px;">
+                                <strong>@Model.Username</strong>
+                            </div>
+
+                        </div>
+
+                        <!-- Kullanıcı rolü -->
+                        <div class="col-md-6"
+                             style="margin-bottom: 20px;">
+
+                            <small class="text-muted">
+                                Kullanıcı Rolü
+                            </small>
+
+                            <div style="margin-top: 5px;">
+
+                                @switch (Model.Role)
+                                {
+                                    case UserRole.Admin:
+                                        <span class="badge bg-danger">
+                                            Admin
+                                        </span>
+                                        break;
+
+                                    case UserRole.Manager:
+                                        <span class="badge bg-primary">
+                                            Yönetici
+                                        </span>
+                                        break;
+
+                                    case UserRole.Sales:
+                                        <span class="badge bg-info">
+                                            Satış
+                                        </span>
+                                        break;
+
+                                    case UserRole.Accountant:
+                                        <span class="badge bg-warning">
+                                            Muhasebe
+                                        </span>
+                                        break;
+
+                                    case UserRole.Workshop:
+                                        <span class="badge bg-secondary">
+                                            Atölye
+                                        </span>
+                                        break;
+                                }
+
+                            </div>
+
+                        </div>
+
+                        <!-- Hesap durumu -->
+                        <div class="col-md-6"
+                             style="margin-bottom: 20px;">
+
+                            <small class="text-muted">
+                                Hesap Durumu
+                            </small>
+
+                            <div style="margin-top: 5px;">
+
+                                @if (Model.IsActive)
+                                {
+                                    <span class="badge bg-success">
+                                        Aktif
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">
+                                        Pasif
+                                    </span>
+                                }
+
+                            </div>
+
+                        </div>
+
+                        <!-- Son giriş -->
+                        <div class="col-md-6"
+                             style="margin-bottom: 20px;">
+
+                            <small class="text-muted">
+                                Son Başarılı Giriş
+                            </small>
+
+                            <div style="margin-top: 5px;">
+
+                                @if (Model.LastLoginDate.HasValue)
+                                {
+                                    <span>
+                                        @Model.LastLoginDate.Value.ToString("dd.MM.yyyy HH:mm")
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">
+                                        Henüz giriş yapmadı
+                                    </span>
+                                }
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+                <!-- Bağlı personel bilgileri -->
+                <section class="m-card"
+                         style="padding: 20px; margin-bottom: 20px;">
+
+                    <div style="margin-bottom: 20px;">
+
+                        <h4 style="margin-bottom: 5px;">
+                            Personel Bilgileri
+                        </h4>
+
+                        <p class="text-muted"
+                           style="margin: 0;">
+                            Kullanıcı hesabının bağlı olduğu personel kaydı.
+                        </p>
+
+                    </div>
+
+                    <div class="row">
+
+                        <!-- Ad soyad -->
+                        <div class="col-md-6"
+                             style="margin-bottom: 20px;">
+
+                            <small class="text-muted">
+                                Ad Soyad
+                            </small>
+
+                            <div style="margin-top: 5px;">
+                                <strong>@Model.FullName</strong>
+                            </div>
+
+                        </div>
+
+                        <!-- Görev -->
+                        <div class="col-md-6"
+                             style="margin-bottom: 20px;">
+
+                            <small class="text-muted">
+                                Görev
+                            </small>
+
+                            <div style="margin-top: 5px;">
+                                @Model.Position
+                            </div>
+
+                        </div>
+
+                        <!-- Telefon -->
+                        <div class="col-md-6"
+                             style="margin-bottom: 20px;">
+
+                            <small class="text-muted">
+                                Telefon
+                            </small>
+
+                            <div style="margin-top: 5px;">
+
+                                @if (!string.IsNullOrWhiteSpace(Model.Phone))
+                                {
+                                    @Model.Phone
+                                }
+                                else
+                                {
+                                    <span class="text-muted">
+                                        -
+                                    </span>
+                                }
+
+                            </div>
+
+                        </div>
+
+                        <!-- E-posta -->
+                        <div class="col-md-6"
+                             style="margin-bottom: 20px;">
+
+                            <small class="text-muted">
+                                E-posta
+                            </small>
+
+                            <div style="margin-top: 5px;">
+
+                                @if (!string.IsNullOrWhiteSpace(Model.Email))
+                                {
+                                    @Model.Email
+                                }
+                                else
+                                {
+                                    <span class="text-muted">
+                                        -
+                                    </span>
+                                }
+
+                            </div>
+
+                        </div>
+
+                        <!-- Personel durumu -->
+                        <div class="col-md-6">
+
+                            <small class="text-muted">
+                                Personel Durumu
+                            </small>
+
+                            <div style="margin-top: 5px;">
+
+                                @if (Model.IsEmployeeActive)
+                                {
+                                    <span class="badge bg-success">
+                                        Aktif
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">
+                                        Pasif
+                                    </span>
+                                }
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+            </div>
+
+            <!-- Sağ alan -->
+            <div class="col-lg-4">
+
+                <!-- Kullanıcı profil kartı -->
+                <section class="m-card"
+                         style="padding: 20px;
+                                margin-bottom: 20px;
+                                text-align: center;">
+
+                    <div style="margin-bottom: 20px;">
+
+                        @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
+                        {
+                            <img src="@Model.ImageUrl"
+                                 alt="@Model.FullName"
+                                 style="width: 110px;
+                                            height: 110px;
+                                            border-radius: 50%;
+                                            object-fit: cover;">
+                        }
+                        else
+                        {
+                            <div style="width: 110px;
+                                            height: 110px;
+                                            border-radius: 50%;
+                                            background: #f1f3f5;
+                                            display: flex;
+                                            align-items: center;
+                                            justify-content: center;
+                                            color: #8b95a1;
+                                            font-size: 40px;
+                                            margin: 0 auto;">
+
+                                <i class="fa-solid fa-user"></i>
+
+                            </div>
+                        }
+
+                    </div>
+
+                    <h4 style="margin-bottom: 5px;">
+                        @Model.FullName
+                    </h4>
+
+                    <p class="text-muted"
+                       style="margin-bottom: 15px;">
+                        @Model.Position
+                    </p>
+
+                    <div>
+
+                        @if (Model.IsActive && Model.IsEmployeeActive)
+                        {
+                            <span class="badge bg-success">
+                                Sistem Erişimi Aktif
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">
+                                Sistem Erişimi Kapalı
+                            </span>
+                        }
+
+                    </div>
+
+                </section>
+
+                <!-- Yetki bilgisi -->
+                <section class="m-card"
+                         style="padding: 20px; margin-bottom: 20px;">
+
+                    <h4 style="margin-bottom: 15px;">
+                        Yetki Bilgisi
+                    </h4>
+
+                    <div style="margin-bottom: 10px;">
+
+                        <small class="text-muted">
+                            Sistem Rolü
+                        </small>
+
+                        <div style="margin-top: 5px;">
+                            <strong>@roleName</strong>
+                        </div>
+
+                    </div>
+
+                    <p class="text-muted"
+                       style="font-size: 13px; margin: 0;">
+
+                        @switch (Model.Role)
+                        {
+                            case UserRole.Admin:
+                                @:Sistem yönetimi ve tüm yetkilere erişebilir.
+                                break;
+
+                            case UserRole.Manager:
+                                @:İşletme yönetimi ve iş emri onay işlemlerini gerçekleştirebilir.
+                                break;
+
+                            case UserRole.Sales:
+                                @:Müşteri ve iş emri oluşturma işlemlerini gerçekleştirebilir.
+                                break;
+
+                            case UserRole.Accountant:
+                                @:Ödeme, tahsilat ve finans işlemlerini gerçekleştirebilir.
+                                break;
+
+                            case UserRole.Workshop:
+                                @:Onaylanan işlerin atölye süreçlerini yönetebilir.
+                                break;
+                        }
+
+                    </p>
+
+                </section>
+
+            </div>
+
+        </div>
+
+        <!-- Sayfa işlemleri -->
+        <section class="m-card"
+                 style="padding: 20px;">
+
+            <div style="display: flex;
+                        justify-content: flex-end;
+                        align-items: center;
+                        gap: 10px;">
+
+                <a asp-controller="User"
+                   asp-action="Index"
+                   class="m-btn m-btn--ghost">
+
+                    <i class="fa-solid fa-arrow-left"></i>
+                    Listeye Dön
+
+                </a>
+
+                <!-- Admin kullanıcının şifresini buradan sıfırlar -->
+                <a asp-controller="User"
+                   asp-action="ResetPassword"
+                   asp-route-id="@Model.UserId"
+                   class="m-btn m-btn--ghost">
+
+                    <i class="fa-solid fa-key"></i>
+                    Şifreyi Sıfırla
+
+                </a>
+
+                <a asp-controller="User"
+                   asp-action="Edit"
+                   asp-route-id="@Model.UserId"
+                   class="m-btn m-btn--primary">
+
+                    <i class="fa-solid fa-pen-to-square"></i>
+                    Düzenle
+
+                </a>
+
+            </div>
+
+        </section>
+
+    </div>
+</div>

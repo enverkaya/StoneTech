@@ -1,0 +1,230 @@
+﻿@model StoneTech.Entities.Gallery
+
+@{
+    ViewData["Title"] = "Galeri Görsel Detayı";
+}
+
+<div class="section__content section__content--p30">
+    <div class="container-fluid">
+
+        <!-- Sayfa başlığı -->
+        <div class="page-header">
+
+            <div>
+                <h1>Galeri Görsel Detayı</h1>
+
+                <p class="subtitle">
+                    Galeri görselinin bilgilerini görüntüleyin.
+                </p>
+            </div>
+
+            <div class="page-header__actions">
+
+                <a asp-controller="Gallery"
+                   asp-action="Index"
+                   class="m-btn m-btn--ghost">
+
+                    <i class="fa-solid fa-arrow-left"></i>
+                    Galeriye Dön
+
+                </a>
+
+                @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
+                {
+                    <a asp-controller="Gallery"
+                       asp-action="Edit"
+                       asp-route-id="@Model.Id"
+                       class="m-btn m-btn--primary">
+
+                        <i class="fa-solid fa-pen-to-square"></i>
+                        Düzenle
+
+                    </a>
+                }
+
+            </div>
+
+        </div>
+
+        <!-- Görsel özet kartı -->
+        <section class="m-card mb-4" style="padding: 24px;">
+
+            <div class="row align-items-center">
+
+                <!-- Galeri görseli -->
+                <div class="col-lg-5 mb-3 mb-lg-0">
+
+                    @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
+                    {
+                        <img src="@Model.ImageUrl"
+                             alt="@(Model.Title ?? "Galeri görseli")"
+                             style="width: 100%;
+                        height: 280px;
+                        object-fit: cover;
+                        border-radius: 10px;" />
+                    }
+                    else
+                    {
+                        <div style="width: 100%;
+                            height: 280px;
+                            background: #f8f9fb;
+                            border: 1px dashed #d8dde6;
+                            border-radius: 10px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            color: #8b95a7;">
+
+                            <i class="fa-regular fa-image"
+                               style="font-size: 40px;">
+                            </i>
+
+                        </div>
+                    }
+
+                </div>
+
+                <!-- Görsel özeti -->
+                <div class="col-lg-7">
+
+                    <h2 class="mb-3">
+                        @(string.IsNullOrWhiteSpace(Model.Title)
+                            ? "Başlıksız Görsel"
+                            : Model.Title)
+                    </h2>
+
+                    <p class="text-muted mb-4">
+                        Web sitesi galeri bölümüne ait görsel kaydı.
+                    </p>
+
+                    <div class="row">
+
+                        <!-- Görsel durumu -->
+                        <div class="col-md-6 mb-3">
+
+                            <small class="text-muted d-block mb-2">
+                                Görsel Durumu
+                            </small>
+
+                            @if (Model.IsActive)
+                            {
+                                <span class="badge bg-success">
+                                    Aktif
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">
+                                    Pasif
+                                </span>
+                            }
+
+                        </div>
+
+                        <!-- Görüntülenme sırası -->
+                        <div class="col-md-6 mb-3">
+
+                            <small class="text-muted d-block mb-2">
+                                Görüntülenme Sırası
+                            </small>
+
+                            <strong>
+                                @Model.DisplayOrder
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- Görsel kayıt bilgileri -->
+        <section class="m-card" style="padding: 24px;">
+
+            <h3 class="mb-4">
+                <i class="fa-solid fa-circle-info me-2"></i>
+                Görsel Bilgileri
+            </h3>
+
+            <div class="row">
+
+                <!-- Görsel numarası -->
+                <div class="col-md-6 mb-4">
+
+                    <label class="form-label">
+                        Görsel Numarası
+                    </label>
+
+                    <input type="text"
+                           class="form-control"
+                           value="@Model.Id"
+                           readonly />
+
+                </div>
+
+                <!-- Görsel başlığı -->
+                <div class="col-md-6 mb-4">
+
+                    <label class="form-label">
+                        Görsel Başlığı
+                    </label>
+
+                    <input type="text"
+                           class="form-control"
+                           value="@(Model.Title ?? "-")"
+                           readonly />
+
+                </div>
+
+                <!-- Görüntülenme sırası -->
+                <div class="col-md-6 mb-4">
+
+                    <label class="form-label">
+                        Görüntülenme Sırası
+                    </label>
+
+                    <input type="text"
+                           class="form-control"
+                           value="@Model.DisplayOrder"
+                           readonly />
+
+                </div>
+
+                <!-- Aktiflik durumu -->
+                <div class="col-md-6 mb-4">
+
+                    <label class="form-label">
+                        Görsel Durumu
+                    </label>
+
+                    <input type="text"
+                           class="form-control"
+                           value="@(Model.IsActive ? "Aktif" : "Pasif")"
+                           readonly />
+
+                </div>
+
+                <!-- Görsel dosya yolu -->
+                <div class="col-md-12 mb-4">
+
+                    <label class="form-label">
+                        Görsel Dosya Yolu
+                    </label>
+
+                    <input type="text"
+                           class="form-control"
+                           value="@Model.ImageUrl"
+                           readonly />
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </div>
+</div>

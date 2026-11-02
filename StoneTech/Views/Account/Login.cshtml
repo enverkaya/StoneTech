@@ -1,0 +1,268 @@
+﻿@using StoneTech.Models.Account
+@model LoginViewModel
+
+@{
+    Layout = null;
+    ViewData["Title"] = "Giriş Yap";
+
+    // Yetki gerektiren bir sayfadan gelindiyse dönüş adresini korur
+    string? returnUrl = ViewData["ReturnUrl"] as string;
+}
+
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+
+    <meta name="description"
+          content="StoneTech yönetim sistemine giriş yapın." />
+
+    <meta name="robots"
+          content="noindex,nofollow" />
+
+    <meta name="theme-color"
+          content="#4272d7" />
+
+    <title>Giriş Yap | StoneTech</title>
+
+    <!-- CoolAdmin font dosyaları -->
+    <link href="~/Admin/css/font-face.css"
+          rel="stylesheet"
+          media="all" />
+
+    <!-- Inter yazı tipi -->
+    <link rel="preconnect"
+          href="https://rsms.me/" />
+
+    <link rel="stylesheet"
+          href="https://rsms.me/inter/inter.css" />
+
+    <!-- Font Awesome -->
+    <link href="~/Admin/vendor/fontawesome-7.3.1/css/all.min.css"
+          rel="stylesheet"
+          media="all" />
+
+    <!-- Bootstrap -->
+    <link href="~/Admin/vendor/bootstrap-5.3.8.min.css"
+          rel="stylesheet"
+          media="all" />
+
+    <!-- Hamburger stilleri -->
+    <link href="~/Admin/vendor/css-hamburgers/hamburgers.min.css"
+          rel="stylesheet"
+          media="all" />
+
+    <!-- CoolAdmin ana tema dosyası -->
+    <link href="~/Admin/css/theme.css"
+          rel="stylesheet"
+          media="all" />
+
+    <!-- StoneTech uygulama stilleri -->
+    <link href="~/Admin/css/app.css"
+          rel="stylesheet"
+          media="all" />
+</head>
+
+<body class="app auth-page">
+
+    <a class="visually-hidden-focusable skip-link"
+       href="#auth-form">
+        Giriş formuna geç
+    </a>
+
+    <main class="login-wrap"
+          id="auth-form">
+
+        <div class="login-content">
+
+            <!-- StoneTech marka alanı -->
+            <div class="auth-brand"
+                 aria-label="StoneTech">
+
+                <span class="logo-mark"
+                      aria-hidden="true">
+                    S
+                </span>
+
+                <span class="logo-text">
+                    StoneTech
+                </span>
+
+            </div>
+
+            <h1 class="auth-title">
+                Hoş Geldiniz
+            </h1>
+
+            <p class="auth-subtitle">
+                StoneTech yönetim sistemine devam etmek için giriş yapın.
+            </p>
+
+            <!-- Giriş formu -->
+            <form asp-controller="Account"
+                  asp-action="Login"
+                  asp-route-returnUrl="@returnUrl"
+                  method="post"
+                  class="login-form">
+
+                @Html.AntiForgeryToken()
+
+                <!-- Genel giriş hatalarını gösterir -->
+                <div asp-validation-summary="ModelOnly"
+                     class="text-danger"
+                     style="margin-bottom: 15px;">
+                </div>
+
+                <!-- Kullanıcı adı -->
+                <div class="form-group">
+
+                    <label asp-for="Username">
+                        Kullanıcı Adı
+                    </label>
+
+                    <input asp-for="Username"
+                           class="au-input"
+                           type="text"
+                           placeholder="Kullanıcı adınızı girin"
+                           autocomplete="username"
+                           autofocus />
+
+                    <span asp-validation-for="Username"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+                <!-- Şifre -->
+                <div class="form-group">
+
+                    <label asp-for="Password">
+                        Şifre
+                    </label>
+
+                    <div style="position: relative;">
+
+                        <input asp-for="Password"
+                               id="Password"
+                               class="au-input"
+                               type="password"
+                               placeholder="••••••••"
+                               autocomplete="current-password"
+                               style="padding-right: 45px;" />
+
+                        <!-- Şifreyi göster veya gizle -->
+                        <button type="button"
+                                id="togglePassword"
+                                tabindex="-1"
+                                aria-label="Şifreyi göster veya gizle"
+                                style="position: absolute;
+                                       right: 12px;
+                                       top: 50%;
+                                       transform: translateY(-50%);
+                                       border: 0;
+                                       background: transparent;
+                                       color: #8b95a1;
+                                       cursor: pointer;">
+
+                            <i class="fa-solid fa-eye"></i>
+
+                        </button>
+
+                    </div>
+
+                    <span asp-validation-for="Password"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+                <!-- Beni hatırla -->
+                <div class="login-checkbox">
+
+                    <label>
+
+                        <input asp-for="RememberMe"
+                               type="checkbox" />
+
+                        Beni Hatırla
+
+                    </label>
+
+                </div>
+
+                <!-- Giriş butonu -->
+                <button class="au-btn au-btn--green"
+                        type="submit">
+
+                    <i class="fa-solid fa-right-to-bracket"
+                       aria-hidden="true"></i>
+
+                    Giriş Yap
+
+                </button>
+
+            </form>
+
+        </div>
+
+    </main>
+
+    <!-- CoolAdmin JavaScript dosyaları -->
+    <script src="~/Admin/js/vanilla-utils.js"></script>
+
+    <script src="~/Admin/vendor/bootstrap-5.3.8.bundle.min.js"></script>
+
+    <script src="~/Admin/js/bootstrap5-init.js"></script>
+
+    <script src="~/Admin/js/main-vanilla.js"></script>
+
+    <script src="~/Admin/js/modern-plugins.js"></script>
+
+    <!-- Şifre gösterme ve gizleme işlemi -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const passwordInput =
+                document.getElementById("Password");
+
+            const togglePassword =
+                document.getElementById("togglePassword");
+
+            if (!passwordInput || !togglePassword) {
+                return;
+            }
+
+            togglePassword.addEventListener("click", function () {
+
+                const passwordHidden =
+                    passwordInput.type === "password";
+
+                passwordInput.type =
+                    passwordHidden
+                        ? "text"
+                        : "password";
+
+                const icon =
+                    togglePassword.querySelector("i");
+
+                if (icon) {
+                    icon.className =
+                        passwordHidden
+                            ? "fa-solid fa-eye-slash"
+                            : "fa-solid fa-eye";
+                }
+            });
+
+        });
+    </script>
+
+    <!-- ASP.NET Core client-side validasyonları -->
+    <partial name="_ValidationScriptsPartial" />
+
+</body>
+
+</html>

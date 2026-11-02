@@ -1,0 +1,291 @@
+﻿@using StoneTech.Models.Payment
+@using StoneTech.Enums
+@model PaymentDetailsViewModel
+
+@{
+    ViewData["Title"] = "Ödeme Detayı";
+}
+
+<div class="section__content section__content--p30">
+    <div class="container-fluid">
+
+        <!-- Sayfa başlığı -->
+        <div class="page-header">
+
+            <div>
+                <h1>Ödeme Detayı</h1>
+
+                <p class="subtitle">
+                    Ödeme #@Model.PaymentId kaydının detaylarını görüntüleyin.
+                </p>
+            </div>
+
+            <div class="page-header__actions">
+
+                <!-- Ödeme listesine dönüş -->
+                <a asp-controller="Payment"
+                   asp-action="Index"
+                   class="m-btn m-btn--ghost">
+
+                    <i class="fa-solid fa-arrow-left"></i>
+                    Ödemeler
+
+                </a>
+
+                @if (!User.IsInRole("Accountant"))
+                {
+                    <!-- İş emrine git -->
+                    <a asp-controller="WorkOrder"
+                       asp-action="Details"
+                       asp-route-id="@Model.WorkOrderId"
+                       class="m-btn m-btn--primary">
+                        <i class="fa-solid fa-file-lines"></i>
+                        İş Emrine Git
+                    </a>
+                }
+
+            </div>
+
+        </div>
+
+        <!-- Başarı mesajı -->
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success">
+                @TempData["SuccessMessage"]
+            </div>
+        }
+
+        <!-- Hata mesajı -->
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger">
+                @TempData["ErrorMessage"]
+            </div>
+        }
+
+        <div class="row">
+
+            <!-- Sol taraf -->
+            <div class="col-lg-8">
+
+                <!-- Ödeme bilgileri -->
+                <section class="m-card mb-4" style="padding: 20px;">
+
+                    <div class="mb-4">
+                        <strong>Ödeme Bilgileri</strong>
+                    </div>
+
+                    <div class="row">
+
+                        <!-- Ödeme numarası -->
+                        <div class="col-md-6 mb-4">
+
+                            <label class="form-control-label">
+                                Ödeme No
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   value="#@Model.PaymentId"
+                                   readonly />
+
+                        </div>
+
+                        <!-- İş emri numarası -->
+                        <div class="col-md-6 mb-4">
+
+                            <label class="form-control-label">
+                                İş Emri No
+                            </label>
+
+                            <div class="form-control">
+                                @if (User.IsInRole("Accountant"))
+                                {
+                                    @Model.WorkOrderNumber
+                                }
+                                else
+                                {
+                                    <a asp-controller="WorkOrder"
+                                       asp-action="Details"
+                                       asp-route-id="@Model.WorkOrderId">
+                                        @Model.WorkOrderNumber
+                                    </a>
+                                }
+                            </div>
+
+                        </div>
+
+                        <!-- Müşteri -->
+                        <div class="col-md-6 mb-4">
+
+                            <label class="form-control-label">
+                                Müşteri
+                            </label>
+
+                            <div class="form-control">
+                                @if (User.IsInRole("Accountant"))
+                                {
+                                    @Model.CustomerName
+                                }
+                                else
+                                {
+                                    <a asp-controller="Customer"
+                                       asp-action="Details"
+                                       asp-route-id="@Model.CustomerId">
+                                        @Model.CustomerName
+                                    </a>
+                                }
+                            </div>
+
+                        </div>
+
+                        <!-- Ödeme tarihi -->
+                        <div class="col-md-6 mb-4">
+
+                            <label class="form-control-label">
+                                Ödeme Tarihi
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   value="@Model.PaymentDate.ToString("dd.MM.yyyy")"
+                                   readonly />
+
+                        </div>
+
+                        <!-- Ödeme yöntemi -->
+                        <div class="col-md-6 mb-4">
+
+                            <label class="form-control-label">
+                                Ödeme Yöntemi
+                            </label>
+
+                            <div>
+
+                                @switch (Model.PaymentMethod)
+                                {
+                                    case PaymentMethod.Cash:
+                                        <span class="badge bg-success">
+                                            Nakit
+                                        </span>
+                                        break;
+
+                                    case PaymentMethod.CreditCard:
+                                        <span class="badge bg-primary">
+                                            Kredi / Banka Kartı
+                                        </span>
+                                        break;
+
+                                    case PaymentMethod.BankTransfer:
+                                        <span class="badge bg-info text-dark">
+                                            Havale / EFT
+                                        </span>
+                                        break;
+                                }
+
+                            </div>
+
+                        </div>
+
+                        <!-- Ödeme tutarı -->
+                        <div class="col-md-6 mb-4">
+
+                            <label class="form-control-label">
+                                Ödeme Tutarı
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   value="@($"{Model.Amount:N2} ₺")"
+                                   readonly />
+
+                        </div>
+
+                        <!-- Açıklama -->
+                        <div class="col-12">
+
+                            <label class="form-control-label">
+                                Açıklama
+                            </label>
+
+                            <textarea class="form-control"
+                                      rows="4"
+                                      readonly>@(string.IsNullOrWhiteSpace(Model.Description) ? "-" : Model.Description)</textarea>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+            </div>
+
+            <!-- Sağ taraf -->
+            <div class="col-lg-4">
+
+                <!-- İş emri ödeme özeti -->
+                <section class="m-card" style="padding: 20px;">
+
+                    <div class="mb-4">
+                        <strong>İş Emri Ödeme Özeti</strong>
+                    </div>
+
+                    <!-- Genel toplam -->
+                    <div class="d-flex justify-content-between mb-3">
+
+                        <span class="text-muted">
+                            Genel Toplam
+                        </span>
+
+                        <strong>
+                            @Model.WorkOrderTotal.ToString("N2") ₺
+                        </strong>
+
+                    </div>
+
+                    <!-- Toplam ödenen -->
+                    <div class="d-flex justify-content-between mb-3">
+
+                        <span class="text-muted">
+                            Toplam Ödenen
+                        </span>
+
+                        <strong class="text-success">
+                            @Model.TotalPaid.ToString("N2") ₺
+                        </strong>
+
+                    </div>
+
+                    <hr />
+
+                    <!-- Kalan borç -->
+                    <div class="d-flex justify-content-between">
+
+                        <span>
+                            Kalan Borç
+                        </span>
+
+                        @if (Model.RemainingAmount > 0)
+                        {
+                            <strong class="text-danger">
+                                @Model.RemainingAmount.ToString("N2") ₺
+                            </strong>
+                        }
+                        else
+                        {
+                            <strong class="text-success">
+                                Borç Kapandı
+                            </strong>
+                        }
+
+                    </div>
+
+                </section>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>

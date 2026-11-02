@@ -1,0 +1,329 @@
+﻿@model IEnumerable<StoneTech.Entities.About>
+
+@{
+    ViewData["Title"] = "Hakkımızda Yönetimi";
+
+    bool hasAbout = Model.Any();
+}
+
+<div class="section__content section__content--p30">
+    <div class="container-fluid">
+
+        <!-- Sayfa başlığı -->
+        <div class="page-header">
+
+            <div>
+                <h1>Hakkımızda Yönetimi</h1>
+
+                <p class="subtitle">
+                    Web sitesinin hakkımızda bölümündeki içerikleri ve görselleri yönetin.
+                </p>
+            </div>
+
+            <div class="page-header__actions">
+
+                @if (!hasAbout &&
+                     (User.IsInRole("Admin") || User.IsInRole("Manager")))
+                {
+                    <a asp-controller="About"
+                       asp-action="Create"
+                       class="m-btn m-btn--primary">
+
+                        <i class="fa-solid fa-plus"></i>
+                        Hakkımızda Ekle
+
+                    </a>
+                }
+
+            </div>
+
+        </div>
+
+        <!-- Hakkımızda tablosu -->
+        <section class="m-card" style="padding: 20px;">
+
+            <div class="table-responsive">
+
+                <table class="m-table dt-table"
+                       id="dt-table">
+
+                    <thead>
+                        <tr>
+                            <th>Görsel</th>
+                            <th>Başlık</th>
+                            <th>Birinci Açıklama</th>
+                            <th>İkinci Açıklama</th>
+                            <th>Görsel Sayısı</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        @if (!hasAbout)
+                        {
+                            <tr>
+                                <td colspan="6">
+
+                                    <div class="empty-state">
+
+                                        <span class="empty-state__icon">
+                                            <i class="fa-regular fa-building"></i>
+                                        </span>
+
+                                        <h3 class="empty-state__title">
+                                            Hakkımızda kaydı bulunamadı
+                                        </h3>
+
+                                        <p class="empty-state__text">
+                                            Henüz web sitesi için hakkımızda bilgileri eklenmemiş.
+                                        </p>
+
+                                        @if (User.IsInRole("Admin") ||
+                                             User.IsInRole("Manager"))
+                                        {
+                                            <div class="empty-state__actions">
+
+                                                <a asp-controller="About"
+                                                   asp-action="Create"
+                                                   class="m-btn m-btn--primary">
+
+                                                    <i class="fa-solid fa-plus"></i>
+                                                    Hakkımızda Ekle
+
+                                                </a>
+
+                                            </div>
+                                        }
+
+                                    </div>
+
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var about in Model)
+                            {
+                                int imageCount = 0;
+
+                                if (!string.IsNullOrWhiteSpace(about.ImageUrl1))
+                                {
+                                    imageCount++;
+                                }
+
+                                if (!string.IsNullOrWhiteSpace(about.ImageUrl2))
+                                {
+                                    imageCount++;
+                                }
+
+                                if (!string.IsNullOrWhiteSpace(about.ImageUrl3))
+                                {
+                                    imageCount++;
+                                }
+
+                                <tr>
+
+                                    <!-- Görsel -->
+                                    <td>
+
+                                        @if (!string.IsNullOrWhiteSpace(about.ImageUrl1))
+                                        {
+                                            <img src="@about.ImageUrl1"
+                                                 alt="@about.Title"
+                                                 style="width: 100px;
+                                            height: 64px;
+                                            object-fit: cover;
+                                            border-radius: 8px;
+                                            display: block;" />
+                                        }
+                                        else if (!string.IsNullOrWhiteSpace(about.ImageUrl2))
+                                        {
+                                            <img src="@about.ImageUrl2"
+                                                 alt="@about.Title"
+                                                 style="width: 100px;
+                                            height: 64px;
+                                            object-fit: cover;
+                                            border-radius: 8px;
+                                            display: block;" />
+                                        }
+                                        else if (!string.IsNullOrWhiteSpace(about.ImageUrl3))
+                                        {
+                                            <img src="@about.ImageUrl3"
+                                                 alt="@about.Title"
+                                                 style="width: 100px;
+                                            height: 64px;
+                                            object-fit: cover;
+                                            border-radius: 8px;
+                                            display: block;" />
+                                        }
+                                        else
+                                        {
+                                            <div style="width: 100px;
+                                                height: 64px;
+                                                border-radius: 8px;
+                                                display: flex;
+                                                align-items: center;
+                                                justify-content: center;
+                                                background: var(--m-bg-soft, #f3f4f6);
+                                                color: var(--m-text-muted);">
+
+                                                <i class="fa-regular fa-image"></i>
+
+                                            </div>
+                                        }
+
+                                    </td>
+
+                                    <!-- Başlık -->
+                                    <td>
+
+                                        <span class="name">
+                                            @about.Title
+                                        </span>
+
+                                    </td>
+
+                                    <!-- Birinci açıklama -->
+                                    <td>
+
+                                        @if (!string.IsNullOrWhiteSpace(about.Description1))
+                                        {
+                                            <span title="@about.Description1">
+
+                                                @(about.Description1.Length > 80
+                                                    ? about.Description1[..80] + "..."
+                                                    : about.Description1)
+
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">
+                                                -
+                                            </span>
+                                        }
+
+                                    </td>
+
+                                    <!-- İkinci açıklama -->
+                                    <td>
+
+                                        @if (!string.IsNullOrWhiteSpace(about.Description2))
+                                        {
+                                            <span title="@about.Description2">
+
+                                                @(about.Description2.Length > 80
+                                                    ? about.Description2[..80] + "..."
+                                                    : about.Description2)
+
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">
+                                                -
+                                            </span>
+                                        }
+
+                                    </td>
+
+                                    <!-- Görsel sayısı -->
+                                    <td>
+
+                                        <span class="badge bg-secondary">
+                                            @imageCount / 3 Görsel
+                                        </span>
+
+                                    </td>
+
+                                    <!-- İşlemler -->
+                                    <td>
+
+                                        <div class="table-data-feature">
+
+                                            <!-- Detay -->
+                                            <a asp-controller="About"
+                                               asp-action="Details"
+                                               asp-route-id="@about.Id"
+                                               class="item"
+                                               data-bs-toggle="tooltip"
+                                               title="Detay">
+
+                                                <i class="fa-solid fa-eye"></i>
+
+                                            </a>
+
+                                            @if (User.IsInRole("Admin") ||
+                                                 User.IsInRole("Manager"))
+                                            {
+                                                <!-- Düzenle -->
+                                                <a asp-controller="About"
+                                                   asp-action="Edit"
+                                                   asp-route-id="@about.Id"
+                                                   class="item"
+                                                   data-bs-toggle="tooltip"
+                                                   title="Düzenle">
+
+                                                    <i class="fa-solid fa-pen-to-square"></i>
+
+                                                </a>
+
+                                                <!-- Sil -->
+                                                <form asp-controller="About"
+                                                      asp-action="Delete"
+                                                      asp-route-id="@about.Id"
+                                                      method="post"
+                                                      style="display: inline;"
+                                                      onsubmit="return confirm('Hakkımızda kaydını ve görsellerini silmek istediğinize emin misiniz?');">
+
+                                                    @Html.AntiForgeryToken()
+
+                                                    <button type="submit"
+                                                            class="item"
+                                                            data-bs-toggle="tooltip"
+                                                            title="Sil">
+
+                                                        <i class="fa-solid fa-trash"></i>
+
+                                                    </button>
+
+                                                </form>
+                                            }
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+                            }
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <!-- Kayıt bilgisi -->
+            <div class="dt-pagination">
+
+                <span class="dt-pagination__info">
+
+                    @if (!hasAbout)
+                    {
+                        @:Sonuç yok
+                    }
+                    else
+                    {
+                        @:Toplam @Model.Count() kayıt
+                    }
+
+                </span>
+
+            </div>
+
+        </section>
+
+    </div>
+</div>

@@ -1,0 +1,1108 @@
+﻿@using StoneTech.Enums
+@model StoneTech.Models.Dashboard.SalesDashboardViewModel
+
+@{
+    ViewData["Title"] = "Satış Dashboard";
+}
+
+<div class="section__content section__content--p30">
+    <div class="container-fluid">
+
+        @* Sayfa başlığı *@
+        <div class="page-header">
+
+            <div>
+                <h1>
+                    Hoş Geldiniz, @Model.CurrentUserFullName
+                </h1>
+
+                <p class="subtitle">
+                    Müşteri, satış ve iş emri süreçlerinizi tek ekrandan takip edin.
+                </p>
+            </div>
+
+            <div class="page-header__actions">
+
+                <span class="date-chip">
+                    <i class="fa-regular fa-calendar"></i>
+                    <span id="dashboardDate"></span>
+                </span>
+
+                <span class="date-chip">
+                    <i class="fa-regular fa-clock"></i>
+                    <span id="dashboardClock"></span>
+                </span>
+
+            </div>
+
+        </div>
+
+
+        @* Satış personelinin sık kullandığı hızlı işlemler *@
+        <div class="m-card mb-3">
+
+            <header class="m-card__header">
+
+                <div>
+                    <h2 class="m-card__title">
+                        Hızlı İşlemler
+                    </h2>
+
+                    <p class="m-card__subtitle">
+                        Günlük işlemlere hızlı erişim sağlayın.
+                    </p>
+                </div>
+
+            </header>
+
+            <div class="p-3">
+
+                <div class="d-flex flex-wrap gap-2">
+
+                    <a asp-controller="Customer"
+                       asp-action="Create"
+                       class="m-btn m-btn--ghost">
+                        <i class="fa-solid fa-user-plus"></i>
+                        Yeni Müşteri
+                    </a>
+
+                    <a asp-controller="WorkOrder"
+                       asp-action="Create"
+                       class="m-btn m-btn--ghost">
+                        <i class="fa-solid fa-file-circle-plus"></i>
+                        Yeni İş Emri
+                    </a>
+
+                    <a asp-controller="Stone"
+                       asp-action="Create"
+                       class="m-btn m-btn--ghost">
+                        <i class="fa-solid fa-gem"></i>
+                        Yeni Taş
+                    </a>
+
+                    <a asp-controller="Supplier"
+                       asp-action="Create"
+                       class="m-btn m-btn--ghost">
+                        <i class="fa-solid fa-truck-field"></i>
+                        Yeni Tedarikçi
+                    </a>
+
+                    <a asp-controller="Purchase"
+                       asp-action="Create"
+                       class="m-btn m-btn--ghost">
+                        <i class="fa-solid fa-cart-plus"></i>
+                        Yeni Satın Alma
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        @* Birinci sıra - Satış özeti *@
+        <div class="row row-tight">
+
+            <div class="col-sm-6 col-lg-3">
+
+                <article class="stat-card">
+
+                    <div class="stat-card__head">
+
+                        <p class="stat-card__label">
+                            Aktif Müşteri
+                        </p>
+
+                        <span class="stat-card__icon stat-card__icon--c1">
+                            <i class="fa-solid fa-users"></i>
+                        </span>
+
+                    </div>
+
+                    <p class="stat-card__value">
+                        @Model.ActiveCustomerCount
+                    </p>
+
+                    <p class="stat-card__delta">
+
+                        <i class="fa-solid fa-user-check"></i>
+
+                        <span class="stat-card__delta-period">
+                            Aktif müşteri
+                        </span>
+
+                    </p>
+
+                </article>
+
+            </div>
+
+
+            <div class="col-sm-6 col-lg-3">
+
+                <article class="stat-card">
+
+                    <div class="stat-card__head">
+
+                        <p class="stat-card__label">
+                            Bu Ay Yeni Müşteri
+                        </p>
+
+                        <span class="stat-card__icon stat-card__icon--c2">
+                            <i class="fa-solid fa-user-plus"></i>
+                        </span>
+
+                    </div>
+
+                    <p class="stat-card__value">
+                        @Model.MonthlyNewCustomerCount
+                    </p>
+
+                    <p class="stat-card__delta">
+
+                        <i class="fa-regular fa-calendar"></i>
+
+                        <span class="stat-card__delta-period">
+                            Yeni müşteri
+                        </span>
+
+                    </p>
+
+                </article>
+
+            </div>
+
+
+            <div class="col-sm-6 col-lg-3">
+
+                <article class="stat-card">
+
+                    <div class="stat-card__head">
+
+                        <p class="stat-card__label">
+                            Bu Ay İş Emri
+                        </p>
+
+                        <span class="stat-card__icon stat-card__icon--c3">
+                            <i class="fa-solid fa-file-lines"></i>
+                        </span>
+
+                    </div>
+
+                    <p class="stat-card__value">
+                        @Model.MonthlyWorkOrderCount
+                    </p>
+
+                    <p class="stat-card__delta">
+
+                        <i class="fa-solid fa-clipboard-list"></i>
+
+                        <span class="stat-card__delta-period">
+                            Oluşturulan iş emri
+                        </span>
+
+                    </p>
+
+                </article>
+
+            </div>
+
+
+            <div class="col-sm-6 col-lg-3">
+
+                <article class="stat-card">
+
+                    <div class="stat-card__head">
+
+                        <p class="stat-card__label">
+                            İş Emri Tutarı
+                        </p>
+
+                        <span class="stat-card__icon stat-card__icon--c4">
+                            <i class="fa-solid fa-turkish-lira-sign"></i>
+                        </span>
+
+                    </div>
+
+                    <p class="stat-card__value">
+                        @Model.MonthlyWorkOrderAmount.ToString("N2") ₺
+                    </p>
+
+                    <p class="stat-card__delta">
+
+                        <i class="fa-regular fa-calendar"></i>
+
+                        <span class="stat-card__delta-period">
+                            Bu ay oluşturulan işler
+                        </span>
+
+                    </p>
+
+                </article>
+
+            </div>
+
+        </div>
+
+
+        @* İkinci sıra - İş emri süreci *@
+        <div class="row row-tight mt-3">
+
+            <div class="col-sm-6 col-lg-3">
+
+                <article class="stat-card">
+
+                    <div class="stat-card__head">
+
+                        <p class="stat-card__label">
+                            Onay Bekleyen
+                        </p>
+
+                        <span class="stat-card__icon stat-card__icon--c1">
+                            <i class="fa-solid fa-hourglass-half"></i>
+                        </span>
+
+                    </div>
+
+                    <p class="stat-card__value">
+                        @Model.PendingApprovalCount
+                    </p>
+
+                    <p class="stat-card__delta">
+
+                        <i class="fa-solid fa-file-circle-question"></i>
+
+                        <span class="stat-card__delta-period">
+                            Yönetici onayı bekliyor
+                        </span>
+
+                    </p>
+
+                </article>
+
+            </div>
+
+
+            <div class="col-sm-6 col-lg-3">
+
+                <article class="stat-card">
+
+                    <div class="stat-card__head">
+
+                        <p class="stat-card__label">
+                            Onaylanan
+                        </p>
+
+                        <span class="stat-card__icon stat-card__icon--c2">
+                            <i class="fa-solid fa-circle-check"></i>
+                        </span>
+
+                    </div>
+
+                    <p class="stat-card__value">
+                        @Model.ApprovedWorkOrderCount
+                    </p>
+
+                    <p class="stat-card__delta">
+
+                        <i class="fa-solid fa-check"></i>
+
+                        <span class="stat-card__delta-period">
+                            Atölyeye başlamayı bekliyor
+                        </span>
+
+                    </p>
+
+                </article>
+
+            </div>
+
+
+            <div class="col-sm-6 col-lg-3">
+
+                <article class="stat-card">
+
+                    <div class="stat-card__head">
+
+                        <p class="stat-card__label">
+                            Atölyede
+                        </p>
+
+                        <span class="stat-card__icon stat-card__icon--c3">
+                            <i class="fa-solid fa-hammer"></i>
+                        </span>
+
+                    </div>
+
+                    <p class="stat-card__value">
+                        @Model.InWorkshopCount
+                    </p>
+
+                    <p class="stat-card__delta">
+
+                        <i class="fa-solid fa-gears"></i>
+
+                        <span class="stat-card__delta-period">
+                            Devam eden iş
+                        </span>
+
+                    </p>
+
+                </article>
+
+            </div>
+
+
+            <div class="col-sm-6 col-lg-3">
+
+                <article class="stat-card">
+
+                    <div class="stat-card__head">
+
+                        <p class="stat-card__label">
+                            Bu Ay Tamamlanan
+                        </p>
+
+                        <span class="stat-card__icon stat-card__icon--c4">
+                            <i class="fa-solid fa-check-double"></i>
+                        </span>
+
+                    </div>
+
+                    <p class="stat-card__value">
+                        @Model.MonthlyCompletedCount
+                    </p>
+
+                    <p class="stat-card__delta">
+
+                        <i class="fa-solid fa-circle-check"></i>
+
+                        <span class="stat-card__delta-period">
+                            Tamamlanan iş
+                        </span>
+
+                    </p>
+
+                </article>
+
+            </div>
+
+        </div>
+
+
+        @* Üçüncü sıra - Finans ve stok özeti *@
+        <div class="row row-tight mt-3">
+
+            <div class="col-sm-6 col-lg-3">
+
+                <article class="stat-card">
+
+                    <div class="stat-card__head">
+
+                        <p class="stat-card__label">
+                            Bu Ay Ciro
+                        </p>
+
+                        <span class="stat-card__icon stat-card__icon--c1">
+                            <i class="fa-solid fa-chart-line"></i>
+                        </span>
+
+                    </div>
+
+                    <p class="stat-card__value">
+                        @Model.MonthlyRevenue.ToString("N2") ₺
+                    </p>
+
+                    <p class="stat-card__delta">
+
+                        <i class="fa-solid fa-turkish-lira-sign"></i>
+
+                        <span class="stat-card__delta-period">
+                            Tamamlanan işler
+                        </span>
+
+                    </p>
+
+                </article>
+
+            </div>
+
+
+            <div class="col-sm-6 col-lg-3">
+
+                <article class="stat-card">
+
+                    <div class="stat-card__head">
+
+                        <p class="stat-card__label">
+                            Toplam Alacak
+                        </p>
+
+                        <span class="stat-card__icon stat-card__icon--c2">
+                            <i class="fa-solid fa-hand-holding-dollar"></i>
+                        </span>
+
+                    </div>
+
+                    <p class="stat-card__value">
+                        @Model.TotalReceivable.ToString("N2") ₺
+                    </p>
+
+                    <p class="stat-card__delta">
+
+                        <i class="fa-solid fa-clock"></i>
+
+                        <span class="stat-card__delta-period">
+                            Tahsil edilmemiş bakiye
+                        </span>
+
+                    </p>
+
+                </article>
+
+            </div>
+
+
+            <div class="col-sm-6 col-lg-3">
+
+                <article class="stat-card">
+
+                    <div class="stat-card__head">
+
+                        <p class="stat-card__label">
+                            Bu Ay Fatura
+                        </p>
+
+                        <span class="stat-card__icon stat-card__icon--c3">
+                            <i class="fa-solid fa-file-invoice"></i>
+                        </span>
+
+                    </div>
+
+                    <p class="stat-card__value">
+                        @Model.MonthlyInvoiceCount
+                    </p>
+
+                    <p class="stat-card__delta">
+
+                        <i class="fa-solid fa-file-lines"></i>
+
+                        <span class="stat-card__delta-period">
+                            Oluşturulan fatura
+                        </span>
+
+                    </p>
+
+                </article>
+
+            </div>
+
+
+            <div class="col-sm-6 col-lg-3">
+
+                <article class="stat-card">
+
+                    <div class="stat-card__head">
+
+                        <p class="stat-card__label">
+                            Toplam Stok
+                        </p>
+
+                        <span class="stat-card__icon stat-card__icon--c4">
+                            <i class="fa-solid fa-layer-group"></i>
+                        </span>
+
+                    </div>
+
+                    <p class="stat-card__value">
+                        @Model.TotalStock.ToString("N0")
+                    </p>
+
+                    <p class="stat-card__delta">
+
+                        <i class="fa-solid fa-boxes-stacked"></i>
+
+                        <span class="stat-card__delta-period">
+                            Mevcut plaka
+                        </span>
+
+                    </p>
+
+                </article>
+
+            </div>
+
+        </div>
+
+
+        @* Son iş emirleri ve son müşteriler *@
+        <div class="row row-tight mt-3">
+
+            <div class="col-xl-7">
+
+                <section class="m-card">
+
+                    <header class="m-card__header">
+
+                        <div>
+
+                            <h2 class="m-card__title">
+                                Son İş Emirleri
+                            </h2>
+
+                            <p class="m-card__subtitle">
+                                Sisteme eklenen son 5 iş emri.
+                            </p>
+
+                        </div>
+
+                        <a asp-controller="WorkOrder"
+                           asp-action="Index"
+                           class="m-btn m-btn--ghost">
+                            Tümünü Gör
+                        </a>
+
+                    </header>
+
+
+                    <div class="table-responsive">
+
+                        <table class="m-table">
+
+                            <thead>
+
+                                <tr>
+                                    <th>İş Emri</th>
+                                    <th>Müşteri</th>
+                                    <th>Tarih</th>
+                                    <th>Durum</th>
+                                    <th class="num">Tutar</th>
+                                    <th></th>
+                                </tr>
+
+                            </thead>
+
+                            <tbody>
+
+                                @if (Model.RecentWorkOrders.Any())
+                                {
+                                    foreach (var item in Model.RecentWorkOrders)
+                                    {
+                                        <tr>
+
+                                            <td>
+                                                <strong>
+                                                    @item.WorkOrderNumber
+                                                </strong>
+                                            </td>
+
+                                            <td>
+                                                @item.CustomerName
+                                            </td>
+
+                                            <td>
+                                                @item.CreatedDate.ToString("dd.MM.yyyy")
+                                            </td>
+
+                                            <td>
+
+                                                @switch (item.Status)
+                                                {
+                                                    case WorkOrderStatus.PendingApproval:
+
+                                                        <span class="status--process">
+                                                            Onay Bekliyor
+                                                        </span>
+
+                                                        break;
+
+                                                    case WorkOrderStatus.Approved:
+
+                                                        <span class="status--approved">
+                                                            Onaylandı
+                                                        </span>
+
+                                                        break;
+
+                                                    case WorkOrderStatus.InWorkshop:
+
+                                                        <span class="status--process">
+                                                            Atölyede
+                                                        </span>
+
+                                                        break;
+
+                                                    case WorkOrderStatus.Completed:
+
+                                                        <span class="badge bg-success">
+                                                            Tamamlandı
+                                                        </span>
+
+                                                        break;
+
+                                                    case WorkOrderStatus.Rejected:
+
+                                                        <span class="badge bg-danger">
+                                                            Reddedildi
+                                                        </span>
+
+                                                        break;
+
+                                                    case WorkOrderStatus.Cancelled:
+
+                                                        <span class="badge bg-secondary">
+                                                            İptal Edildi
+                                                        </span>
+
+                                                        break;
+                                                }
+
+                                            </td>
+
+                                            <td class="num">
+                                                @item.TotalAmount.ToString("N2") ₺
+                                            </td>
+
+                                            <td class="num">
+
+                                                <a asp-controller="WorkOrder"
+                                                   asp-action="Details"
+                                                   asp-route-id="@item.WorkOrderId"
+                                                   class="m-btn m-btn--ghost"
+                                                   title="İş emrini görüntüle">
+
+                                                    <i class="fa-solid fa-eye"></i>
+
+                                                </a>
+
+                                            </td>
+
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+
+                                        <td colspan="6"
+                                            class="text-center">
+                                            Henüz iş emri bulunmuyor.
+                                        </td>
+
+                                    </tr>
+                                }
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </section>
+
+            </div>
+
+
+            <div class="col-xl-5">
+
+                <section class="m-card">
+
+                    <header class="m-card__header">
+
+                        <div>
+
+                            <h2 class="m-card__title">
+                                Son Müşteriler
+                            </h2>
+
+                            <p class="m-card__subtitle">
+                                Sisteme eklenen son 5 müşteri.
+                            </p>
+
+                        </div>
+
+                        <a asp-controller="Customer"
+                           asp-action="Index"
+                           class="m-btn m-btn--ghost">
+                            Tümünü Gör
+                        </a>
+
+                    </header>
+
+
+                    <div class="table-responsive">
+
+                        <table class="m-table">
+
+                            <thead>
+
+                                <tr>
+                                    <th>Müşteri</th>
+                                    <th>Tür</th>
+                                    <th>Telefon</th>
+                                    <th>Durum</th>
+                                </tr>
+
+                            </thead>
+
+                            <tbody>
+
+                                @if (Model.RecentCustomers.Any())
+                                {
+                                    foreach (var item in Model.RecentCustomers)
+                                    {
+                                        <tr>
+
+                                            <td>
+                                                <strong>
+                                                    @item.CustomerName
+                                                </strong>
+                                            </td>
+
+                                            <td>
+
+                                                @if (item.CustomerType == CustomerType.Individual)
+                                                {
+                                                    <span class="badge bg-info">
+                                                        Bireysel
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-primary">
+                                                        Kurumsal
+                                                    </span>
+                                                }
+
+                                            </td>
+
+                                            <td>
+                                                @item.Phone
+                                            </td>
+
+                                            <td>
+
+                                                @if (item.IsActive)
+                                                {
+                                                    <span class="badge bg-success">
+                                                        Aktif
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary">
+                                                        Pasif
+                                                    </span>
+                                                }
+
+                                            </td>
+
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+
+                                        <td colspan="4"
+                                            class="text-center">
+                                            Müşteri bulunmuyor.
+                                        </td>
+
+                                    </tr>
+                                }
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </section>
+
+            </div>
+
+        </div>
+
+
+        @* Onay bekleyen ve tamamlanan işler *@
+        <div class="row row-tight mt-3">
+
+            <div class="col-xl-6">
+
+                <section class="m-card">
+
+                    <header class="m-card__header">
+
+                        <div>
+
+                            <h2 class="m-card__title">
+                                Onay Bekleyen İşler
+                            </h2>
+
+                            <p class="m-card__subtitle">
+                                Yönetici onayı bekleyen son 5 iş emri.
+                            </p>
+
+                        </div>
+
+                        <a asp-controller="WorkOrder"
+                           asp-action="Index"
+                           class="m-btn m-btn--ghost">
+                            Tümünü Gör
+                        </a>
+
+                    </header>
+
+
+                    <div class="table-responsive">
+
+                        <table class="m-table">
+
+                            <thead>
+
+                                <tr>
+                                    <th>İş Emri</th>
+                                    <th>Müşteri</th>
+                                    <th>Tarih</th>
+                                    <th class="num">Tutar</th>
+                                    <th></th>
+                                </tr>
+
+                            </thead>
+
+                            <tbody>
+
+                                @if (Model.PendingWorkOrders.Any())
+                                {
+                                    foreach (var item in Model.PendingWorkOrders)
+                                    {
+                                        <tr>
+
+                                            <td>
+                                                <strong>
+                                                    @item.WorkOrderNumber
+                                                </strong>
+                                            </td>
+
+                                            <td>
+                                                @item.CustomerName
+                                            </td>
+
+                                            <td>
+                                                @item.CreatedDate.ToString("dd.MM.yyyy")
+                                            </td>
+
+                                            <td class="num">
+                                                @item.TotalAmount.ToString("N2") ₺
+                                            </td>
+
+                                            <td class="num">
+
+                                                <a asp-controller="WorkOrder"
+                                                   asp-action="Details"
+                                                   asp-route-id="@item.WorkOrderId"
+                                                   class="m-btn m-btn--ghost"
+                                                   title="İş emrini görüntüle">
+
+                                                    <i class="fa-solid fa-eye"></i>
+
+                                                </a>
+
+                                            </td>
+
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+
+                                        <td colspan="5"
+                                            class="text-center">
+                                            Onay bekleyen iş emri bulunmuyor.
+                                        </td>
+
+                                    </tr>
+                                }
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </section>
+
+            </div>
+
+
+            <div class="col-xl-6">
+
+                <section class="m-card">
+
+                    <header class="m-card__header">
+
+                        <div>
+
+                            <h2 class="m-card__title">
+                                Tamamlanan İşler
+                            </h2>
+
+                            <p class="m-card__subtitle">
+                                Son tamamlanan 5 iş emri.
+                            </p>
+
+                        </div>
+
+                        <a asp-controller="WorkOrder"
+                           asp-action="Index"
+                           class="m-btn m-btn--ghost">
+                            Tümünü Gör
+                        </a>
+
+                    </header>
+
+
+                    <div class="table-responsive">
+
+                        <table class="m-table">
+
+                            <thead>
+
+                                <tr>
+                                    <th>İş Emri</th>
+                                    <th>Müşteri</th>
+                                    <th>Durum</th>
+                                    <th class="num">Tutar</th>
+                                    <th></th>
+                                </tr>
+
+                            </thead>
+
+                            <tbody>
+
+                                @if (Model.CompletedWorkOrders.Any())
+                                {
+                                    foreach (var item in Model.CompletedWorkOrders)
+                                    {
+                                        <tr>
+
+                                            <td>
+                                                <strong>
+                                                    @item.WorkOrderNumber
+                                                </strong>
+                                            </td>
+
+                                            <td>
+                                                @item.CustomerName
+                                            </td>
+
+                                            <td>
+
+                                                <span class="badge bg-success">
+                                                    Tamamlandı
+                                                </span>
+
+                                            </td>
+
+                                            <td class="num">
+                                                @item.TotalAmount.ToString("N2") ₺
+                                            </td>
+
+                                            <td class="num">
+
+                                                <a asp-controller="WorkOrder"
+                                                   asp-action="Details"
+                                                   asp-route-id="@item.WorkOrderId"
+                                                   class="m-btn m-btn--ghost"
+                                                   title="İş emrini görüntüle">
+
+                                                    <i class="fa-solid fa-eye"></i>
+
+                                                </a>
+
+                                            </td>
+
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+
+                                        <td colspan="5"
+                                            class="text-center">
+                                            Tamamlanan iş emri bulunmuyor.
+                                        </td>
+
+                                    </tr>
+                                }
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </section>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+
+@section Scripts
+{
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+
+            // Dashboard üzerindeki tarih ve saati günceller
+            function updateDashboardDateTime() {
+
+                const now = new Date();
+
+                const dateElement =
+                    document.getElementById("dashboardDate");
+
+                const clockElement =
+                    document.getElementById("dashboardClock");
+
+                if (dateElement) {
+
+                    dateElement.textContent =
+                        now.toLocaleDateString("tr-TR", {
+                            day: "2-digit",
+                            month: "long",
+                            year: "numeric",
+                            weekday: "long"
+                        });
+                }
+
+                if (clockElement) {
+
+                    clockElement.textContent =
+                        now.toLocaleTimeString("tr-TR", {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            second: "2-digit"
+                        });
+                }
+            }
+
+            // Sayfa açıldığında tarih ve saati hemen gösterir
+            updateDashboardDateTime();
+
+            // Saati her saniye günceller
+            setInterval(
+                updateDashboardDateTime,
+                1000);
+        });
+
+    </script>
+}

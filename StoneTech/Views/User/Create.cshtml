@@ -1,0 +1,460 @@
+﻿@using StoneTech.Models.User
+@using StoneTech.Enums
+@model UserCreateViewModel
+
+@{
+    ViewData["Title"] = "Yeni Kullanıcı";
+}
+
+<div class="section__content section__content--p30">
+    <div class="container-fluid">
+
+        <!-- Sayfa başlığı -->
+        <div class="page-header">
+
+            <div>
+
+                <h1>Yeni Kullanıcı</h1>
+
+                <p class="subtitle">
+                    Personele sistem erişimi için kullanıcı hesabı oluşturun.
+                </p>
+
+            </div>
+
+            <div class="page-header__actions">
+
+                <a asp-controller="User"
+                   asp-action="Index"
+                   class="m-btn m-btn--ghost">
+
+                    <i class="fa-solid fa-arrow-left"></i>
+                    Kullanıcılara Dön
+
+                </a>
+
+            </div>
+
+        </div>
+
+        <!-- Kullanıcı oluşturma formu -->
+        <form asp-controller="User"
+              asp-action="Create"
+              method="post">
+
+            @Html.AntiForgeryToken()
+
+            <!-- Genel validasyon hataları -->
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div asp-validation-summary="ModelOnly"
+                     class="alert alert-danger">
+                </div>
+            }
+
+            <div class="row">
+
+                <!-- Kullanıcı bilgileri -->
+                <div class="col-lg-8">
+
+                    <section class="m-card"
+                             style="padding: 20px; margin-bottom: 20px;">
+
+                        <div style="margin-bottom: 20px;">
+
+                            <h4 style="margin-bottom: 5px;">
+                                Kullanıcı Bilgileri
+                            </h4>
+
+                            <p class="text-muted"
+                               style="margin: 0;">
+                                Sisteme giriş yapacak personeli ve kullanıcı bilgilerini belirleyin.
+                            </p>
+
+                        </div>
+
+                        <div class="row">
+
+                            <!-- Personel -->
+                            <div class="col-md-12">
+
+                                <div class="form-group">
+
+                                    <label asp-for="EmployeeId"
+                                           class="control-label">
+                                        Personel
+                                    </label>
+
+                                    <select asp-for="EmployeeId"
+                                            class="form-control">
+
+                                        <option value="">
+                                            Personel seçiniz
+                                        </option>
+
+                                        @if (ViewBag.Employees != null)
+                                        {
+                                            @foreach (var employee in ViewBag.Employees)
+                                            {
+                                                <option value="@employee.EmployeeId">
+                                                    @employee.FullName - @employee.Position
+                                                </option>
+                                            }
+                                        }
+
+                                    </select>
+
+                                    <span asp-validation-for="EmployeeId"
+                                          class="text-danger">
+                                    </span>
+
+                                    <small class="form-text text-muted">
+                                        Yalnızca aktif ve henüz sistem hesabı bulunmayan personeller listelenir.
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+                            <!-- Kullanıcı adı -->
+                            <div class="col-md-12">
+
+                                <div class="form-group">
+
+                                    <label asp-for="Username"
+                                           class="control-label">
+                                        Kullanıcı Adı
+                                    </label>
+
+                                    <input asp-for="Username"
+                                           class="form-control"
+                                           placeholder="Örn: enver.kaya"
+                                           autocomplete="off">
+
+                                    <span asp-validation-for="Username"
+                                          class="text-danger">
+                                    </span>
+
+                                    <small class="form-text text-muted">
+                                        Personel sisteme bu kullanıcı adıyla giriş yapacaktır.
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+                            <!-- Şifre -->
+                            <div class="col-md-6">
+
+                                <div class="form-group">
+
+                                    <label asp-for="Password"
+                                           class="control-label">
+                                        Şifre
+                                    </label>
+
+                                    <div style="position: relative;">
+
+                                        <input asp-for="Password"
+                                               class="form-control"
+                                               id="Password"
+                                               autocomplete="new-password"
+                                               placeholder="En az 8 karakter">
+
+                                        <button type="button"
+                                                id="togglePassword"
+                                                tabindex="-1"
+                                                style="position: absolute;
+                                                       right: 10px;
+                                                       top: 50%;
+                                                       transform: translateY(-50%);
+                                                       border: 0;
+                                                       background: transparent;
+                                                       color: #8b95a1;
+                                                       cursor: pointer;">
+
+                                            <i class="fa-solid fa-eye"></i>
+
+                                        </button>
+
+                                    </div>
+
+                                    <span asp-validation-for="Password"
+                                          class="text-danger">
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                            <!-- Şifre tekrar -->
+                            <div class="col-md-6">
+
+                                <div class="form-group">
+
+                                    <label asp-for="ConfirmPassword"
+                                           class="control-label">
+                                        Şifre Tekrar
+                                    </label>
+
+                                    <div style="position: relative;">
+
+                                        <input asp-for="ConfirmPassword"
+                                               class="form-control"
+                                               id="ConfirmPassword"
+                                               autocomplete="new-password"
+                                               placeholder="Şifreyi tekrar girin">
+
+                                        <button type="button"
+                                                id="toggleConfirmPassword"
+                                                tabindex="-1"
+                                                style="position: absolute;
+                                                       right: 10px;
+                                                       top: 50%;
+                                                       transform: translateY(-50%);
+                                                       border: 0;
+                                                       background: transparent;
+                                                       color: #8b95a1;
+                                                       cursor: pointer;">
+
+                                            <i class="fa-solid fa-eye"></i>
+
+                                        </button>
+
+                                    </div>
+
+                                    <span asp-validation-for="ConfirmPassword"
+                                          class="text-danger">
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+                </div>
+
+                <!-- Yetki ve hesap durumu -->
+                <div class="col-lg-4">
+
+                    <section class="m-card"
+                             style="padding: 20px; margin-bottom: 20px;">
+
+                        <div style="margin-bottom: 20px;">
+
+                            <h4 style="margin-bottom: 5px;">
+                                Yetki ve Erişim
+                            </h4>
+
+                            <p class="text-muted"
+                               style="margin: 0;">
+                                Kullanıcının sistemdeki yetki seviyesini belirleyin.
+                            </p>
+
+                        </div>
+
+                        <!-- Rol -->
+                        <div class="form-group">
+
+                            <label asp-for="Role"
+                                   class="control-label">
+                                Kullanıcı Rolü
+                            </label>
+
+                            <select asp-for="Role"
+                                    class="form-control">
+
+                                <option value="@UserRole.Admin">
+                                    Admin
+                                </option>
+
+                                <option value="@UserRole.Manager">
+                                    Yönetici
+                                </option>
+
+                                <option value="@UserRole.Sales">
+                                    Satış
+                                </option>
+
+                                <option value="@UserRole.Accountant">
+                                    Muhasebe
+                                </option>
+
+                                <option value="@UserRole.Workshop">
+                                    Atölye
+                                </option>
+
+                            </select>
+
+                            <span asp-validation-for="Role"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+                        <!-- Hesap durumu -->
+                        <div class="form-group"
+                             style="margin-top: 20px;">
+
+                            <div class="form-check">
+
+                                <input asp-for="IsActive"
+                                       class="form-check-input">
+
+                                <label asp-for="IsActive"
+                                       class="form-check-label">
+                                    Kullanıcı hesabı aktif
+                                </label>
+
+                            </div>
+
+                            <small class="form-text text-muted">
+                                Pasif hesaplar sisteme giriş yapamaz.
+                            </small>
+
+                        </div>
+
+                    </section>
+
+                    <!-- Rol açıklamaları -->
+                    <section class="m-card"
+                             style="padding: 20px; margin-bottom: 20px;">
+
+                        <h4 style="margin-bottom: 15px;">
+                            Roller
+                        </h4>
+
+                        <div style="font-size: 13px;">
+
+                            <p>
+                                <strong>Admin:</strong>
+                                Sistem yönetimi ve tüm yetkiler.
+                            </p>
+
+                            <p>
+                                <strong>Yönetici:</strong>
+                                İşletme yönetimi ve iş emri onay işlemleri.
+                            </p>
+
+                            <p>
+                                <strong>Satış:</strong>
+                                Müşteri ve iş emri oluşturma işlemleri.
+                            </p>
+
+                            <p>
+                                <strong>Muhasebe:</strong>
+                                Ödeme, tahsilat ve finans işlemleri.
+                            </p>
+
+                            <p style="margin-bottom: 0;">
+                                <strong>Atölye:</strong>
+                                Onaylanan işlerin atölye süreçleri.
+                            </p>
+
+                        </div>
+
+                    </section>
+
+                </div>
+
+            </div>
+
+            <!-- Form işlemleri -->
+            <section class="m-card"
+                     style="padding: 20px;">
+
+                <div style="display: flex;
+                            justify-content: flex-end;
+                            align-items: center;
+                            gap: 10px;">
+
+                    <a asp-controller="User"
+                       asp-action="Index"
+                       class="m-btn m-btn--ghost">
+
+                        Vazgeç
+
+                    </a>
+
+                    <button type="submit"
+                            class="m-btn m-btn--primary">
+
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        Kullanıcı Oluştur
+
+                    </button>
+
+                </div>
+
+            </section>
+
+        </form>
+
+    </div>
+</div>
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            // Şifre alanını gösterir veya gizler
+            const passwordInput = document.getElementById("Password");
+            const togglePassword = document.getElementById("togglePassword");
+
+            if (passwordInput && togglePassword) {
+
+                togglePassword.addEventListener("click", function () {
+
+                    const showPassword =
+                        passwordInput.type === "password";
+
+                    passwordInput.type =
+                        showPassword ? "text" : "password";
+
+                    const icon =
+                        togglePassword.querySelector("i");
+
+                    if (icon) {
+                        icon.className = showPassword
+                            ? "fa-solid fa-eye-slash"
+                            : "fa-solid fa-eye";
+                    }
+                });
+            }
+
+            // Şifre tekrar alanını gösterir veya gizler
+            const confirmPasswordInput =
+                document.getElementById("ConfirmPassword");
+
+            const toggleConfirmPassword =
+                document.getElementById("toggleConfirmPassword");
+
+            if (confirmPasswordInput && toggleConfirmPassword) {
+
+                toggleConfirmPassword.addEventListener("click", function () {
+
+                    const showPassword =
+                        confirmPasswordInput.type === "password";
+
+                    confirmPasswordInput.type =
+                        showPassword ? "text" : "password";
+
+                    const icon =
+                        toggleConfirmPassword.querySelector("i");
+
+                    if (icon) {
+                        icon.className = showPassword
+                            ? "fa-solid fa-eye-slash"
+                            : "fa-solid fa-eye";
+                    }
+                });
+            }
+        });
+    </script>
+}

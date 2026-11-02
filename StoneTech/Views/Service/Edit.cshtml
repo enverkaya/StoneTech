@@ -1,0 +1,343 @@
+﻿@using StoneTech.Models.Service
+@model ServiceEditViewModel
+
+@{
+    ViewData["Title"] = "Hizmet Düzenle";
+}
+
+<div class="section__content section__content--p30">
+    <div class="container-fluid">
+
+        <!-- Sayfa başlığı -->
+        <div class="page-header">
+
+            <div>
+                <h1>Hizmet Düzenle</h1>
+
+                <p class="subtitle">
+                    Hizmet bilgilerini ve görselini güncelleyin.
+                </p>
+            </div>
+
+            <div class="page-header__actions">
+
+                <a asp-controller="Service"
+                   asp-action="Index"
+                   class="m-btn m-btn--ghost">
+
+                    <i class="fa-solid fa-arrow-left"></i>
+                    Hizmetlere Dön
+
+                </a>
+
+            </div>
+
+        </div>
+
+        <!-- Hizmet düzenleme formu -->
+        <section class="m-card" style="padding: 24px;">
+
+            <form asp-controller="Service"
+                  asp-action="Edit"
+                  asp-route-id="@Model.Id"
+                  method="post"
+                  enctype="multipart/form-data"
+                  id="serviceEditForm">
+
+                @Html.AntiForgeryToken()
+
+                <input asp-for="Id" type="hidden" />
+
+                <!-- Genel doğrulama hataları -->
+                <div asp-validation-summary="ModelOnly"
+                     class="text-danger mb-3">
+                </div>
+
+                <div class="row">
+
+                    <!-- Sol taraf -->
+                    <div class="col-lg-8">
+
+                        <div class="row">
+
+                            <!-- Hizmet başlığı -->
+                            <div class="col-md-12 mb-4">
+
+                                <label asp-for="Title"
+                                       class="form-label">
+                                    Hizmet Başlığı
+                                </label>
+
+                                <input asp-for="Title"
+                                       class="form-control"
+                                       placeholder="Örn: Mermer Kesim ve İşleme"
+                                       maxlength="150" />
+
+                                <span asp-validation-for="Title"
+                                      class="text-danger">
+                                </span>
+
+                                <small class="text-muted">
+                                    Bu başlık yalnızca admin panelinde kullanılacaktır.
+                                </small>
+
+                            </div>
+
+                            <!-- Hizmet açıklaması -->
+                            <div class="col-md-12 mb-4">
+
+                                <label asp-for="Description"
+                                       class="form-label">
+                                    Hizmet Açıklaması
+                                </label>
+
+                                <textarea asp-for="Description"
+                                          class="form-control"
+                                          rows="7"
+                                          placeholder="Görselin altında gösterilecek hizmet açıklamasını yazın..."></textarea>
+
+                                <span asp-validation-for="Description"
+                                      class="text-danger">
+                                </span>
+
+                                <small class="text-muted">
+                                    Bu açıklama web sitesinde hizmet görselinin altında gösterilecektir.
+                                </small>
+
+                            </div>
+
+                            <!-- Görüntülenme sırası -->
+                            <div class="col-md-6 mb-4">
+
+                                <label asp-for="DisplayOrder"
+                                       class="form-label">
+                                    Görüntülenme Sırası
+                                </label>
+
+                                <input asp-for="DisplayOrder"
+                                       type="number"
+                                       min="0"
+                                       class="form-control"
+                                       placeholder="Örn: 1" />
+
+                                <span asp-validation-for="DisplayOrder"
+                                      class="text-danger">
+                                </span>
+
+                                <small class="text-muted">
+                                    Küçük numaralı hizmet önce gösterilir.
+                                </small>
+
+                            </div>
+
+                            <!-- Aktiflik durumu -->
+                            <div class="col-md-6 mb-4">
+
+                                <label class="form-label">
+                                    Hizmet Durumu
+                                </label>
+
+                                <div class="form-check mt-2">
+
+                                    <input asp-for="IsActive"
+                                           class="form-check-input"
+                                           type="checkbox" />
+
+                                    <label asp-for="IsActive"
+                                           class="form-check-label">
+                                        Aktif
+                                    </label>
+
+                                </div>
+
+                                <span asp-validation-for="IsActive"
+                                      class="text-danger">
+                                </span>
+
+                                <small class="text-muted d-block mt-2">
+                                    Aktif hizmetler web sitesinde gösterilir.
+                                </small>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- Sağ taraf -->
+                    <div class="col-lg-4">
+
+                        <!-- Hizmet görseli -->
+                        <div class="mb-4">
+
+                            <label asp-for="ImageFile"
+                                   class="form-label">
+                                Hizmet Görseli
+                            </label>
+
+                            <!-- Mevcut veya yeni görsel önizlemesi -->
+                            <div style="width: 100%;
+                                height: 220px;
+                                border: 1px dashed #d8dde6;
+                                border-radius: 10px;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                overflow: hidden;
+                                margin-bottom: 12px;
+                                background: #f8f9fb;">
+
+                                <div id="coverPlaceholder"
+                                     style="text-align: center;
+                                    color: #8b95a7;
+                                    display: @(string.IsNullOrWhiteSpace(Model.CurrentImageUrl) ? "block" : "none");">
+
+                                    <i class="fa-regular fa-image"
+                                       style="font-size: 32px;
+                                        margin-bottom: 10px;">
+                                    </i>
+
+                                    <div>
+                                        Hizmet görseli bulunamadı
+                                    </div>
+
+                                </div>
+
+                                <img id="coverPreview"
+                                     src="@(Model.CurrentImageUrl ?? "")"
+                                     alt="Hizmet görseli"
+                                     style="width: 100%;
+                                height: 100%;
+                                object-fit: cover;
+                                display: @(string.IsNullOrWhiteSpace(Model.CurrentImageUrl) ? "none" : "block");" />
+
+                            </div>
+
+                            <input asp-for="CurrentImageUrl"
+                                   type="hidden" />
+
+                            <!-- Yeni hizmet görseli -->
+                            <input asp-for="ImageFile"
+                                   id="coverImageFile"
+                                   type="file"
+                                   class="form-control"
+                                   accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" />
+
+                            <span asp-validation-for="ImageFile"
+                                  class="text-danger">
+                            </span>
+
+                            <small class="text-muted d-block mt-2">
+                                JPG, JPEG, PNG veya WEBP. Maksimum 5 MB.
+                            </small>
+
+                            <small class="text-muted d-block mt-2">
+                                Yeni görsel seçmezseniz mevcut görsel korunur.
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- Kaydet butonları -->
+                <div style="display: flex;
+                    justify-content: flex-end;
+                    gap: 10px;
+                    margin-top: 10px;">
+
+                    <a asp-controller="Service"
+                       asp-action="Index"
+                       class="m-btn m-btn--ghost">
+                        İptal
+                    </a>
+
+                    <button type="submit"
+                            class="m-btn m-btn--primary">
+
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        Değişiklikleri Kaydet
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </section>
+
+    </div>
+</div>
+
+@section Scripts {
+
+    <script>
+                document.addEventListener("DOMContentLoaded", function () {
+
+                const coverInput = document.getElementById("coverImageFile");
+                const coverPreview = document.getElementById("coverPreview");
+                const coverPlaceholder = document.getElementById("coverPlaceholder");
+        const currentImageUrl = document.getElementById("CurrentImageUrl").value;
+
+        const allowedExtensions = [".jpg", ".jpeg", ".png", ".webp"];
+        const maxSize = 5 * 1024 * 1024;
+
+                // Görsel uzantısını ve boyutunu kontrol eder
+        function isValidImage(file) {
+
+            const extension = file.name.substring(
+                file.name.lastIndexOf(".")
+                    ).toLowerCase();
+
+            return allowedExtensions.includes(extension)
+                        && file.size > 0
+                && file.size <= maxSize;
+        }
+
+              // Mevcut görseli geri yükler
+                function restoreCurrentCover() {
+
+                    coverPreview.src = currentImageUrl;
+
+                  coverPreview.style.display =
+                currentImageUrl ? "block" : "none";
+
+                    coverPlaceholder.style.display =
+                currentImageUrl ? "none" : "block";
+        }
+
+               // Yeni hizmet görselini önizler
+                coverInput.addEventListener("change", function () {
+
+                   const file = this.files[0];
+
+            if (!file) {
+                restoreCurrentCover();
+                return;
+                    }
+
+            if (!isValidImage(file)) {
+
+                alert("Hizmet görseli JPG, JPEG, PNG veya WEBP formatında ve en fazla 5 MB olmalıdır.");
+
+                this.value = "";
+                restoreCurrentCover();
+                return;
+            }
+
+            const reader = new FileReader();
+
+                   reader.onload = function (event) {
+                        coverPreview.src = event.target.result;
+                coverPreview.style.display = "block";
+                coverPlaceholder.style.display = "none";
+                    };
+
+                    reader.readAsDataURL(file);
+                });
+
+            });
+    </script>
+
+}

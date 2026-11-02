@@ -1,0 +1,450 @@
+﻿@using StoneTech.Models.Stone
+@model StoneEditViewModel
+
+@{
+    ViewData["Title"] = "Taş Düzenle";
+}
+
+<div class="section__content section__content--p30">
+    <div class="container-fluid">
+
+        <!-- Sayfa başlığı -->
+        <div class="page-header">
+
+            <div>
+                <h1>Taş Düzenle</h1>
+
+                <p class="subtitle">
+                    Taş bilgilerini, görselini ve web sitesi görünürlüğünü güncelleyin.
+                </p>
+            </div>
+
+            <div class="page-header__actions">
+
+                <a asp-controller="Stone"
+                   asp-action="Index"
+                   class="m-btn m-btn--ghost">
+
+                    <i class="fa-solid fa-arrow-left"></i>
+                    Taşlara Dön
+
+                </a>
+
+            </div>
+
+        </div>
+
+        <!-- Form -->
+        <section class="m-card" style="padding: 24px;">
+
+            <form asp-controller="Stone"
+                  asp-action="Edit"
+                  method="post"
+                  enctype="multipart/form-data">
+
+                @Html.AntiForgeryToken()
+
+                <!-- Güncellenecek taşın Id bilgisi -->
+                <input asp-for="StoneId"
+                       type="hidden" />
+
+                <!-- Mevcut görsel yolu -->
+                <input asp-for="CurrentImageUrl"
+                       type="hidden" />
+
+                <!-- Genel validation hataları -->
+                <div asp-validation-summary="ModelOnly"
+                     class="text-danger mb-3">
+                </div>
+
+                <div class="row">
+
+                    <!-- Sol taraf -->
+                    <div class="col-lg-8">
+
+                        <div class="row">
+
+                            <!-- Taş adı -->
+                            <div class="col-md-6 mb-4">
+
+                                <label asp-for="StoneName"
+                                       class="form-label">
+                                    Taş Adı
+                                </label>
+
+                                <input asp-for="StoneName"
+                                       class="form-control"
+                                       placeholder="Örn: Calacatta Gold" />
+
+                                <span asp-validation-for="StoneName"
+                                      class="text-danger">
+                                </span>
+
+                            </div>
+
+                            <!-- Renk -->
+                            <div class="col-md-6 mb-4">
+
+                                <label asp-for="Color"
+                                       class="form-label">
+                                    Renk
+                                </label>
+
+                                <input asp-for="Color"
+                                       class="form-control"
+                                       placeholder="Örn: Beyaz / Gri" />
+
+                                <span asp-validation-for="Color"
+                                      class="text-danger">
+                                </span>
+
+                            </div>
+
+                            <!-- Alış fiyatı -->
+                            <div class="col-md-6 mb-4">
+
+                                <label asp-for="PurchasePrice"
+                                       class="form-label">
+                                    Alış Fiyatı
+                                </label>
+
+                                <div class="input-group">
+
+                                    <input asp-for="PurchasePrice"
+                                           type="number"
+                                           step="0.01"
+                                           min="0"
+                                           class="form-control" />
+
+                                    <span class="input-group-text">
+                                        ₺
+                                    </span>
+
+                                </div>
+
+                                <span asp-validation-for="PurchasePrice"
+                                      class="text-danger">
+                                </span>
+
+                            </div>
+
+                            <!-- Satış fiyatı -->
+                            <div class="col-md-6 mb-4">
+
+                                <label asp-for="SalePrice"
+                                       class="form-label">
+                                    Satış Fiyatı
+                                </label>
+
+                                <div class="input-group">
+
+                                    <input asp-for="SalePrice"
+                                           type="number"
+                                           step="0.01"
+                                           min="0"
+                                           class="form-control" />
+
+                                    <span class="input-group-text">
+                                        ₺
+                                    </span>
+
+                                </div>
+
+                                <span asp-validation-for="SalePrice"
+                                      class="text-danger">
+                                </span>
+
+                            </div>
+
+                            <!-- Aktif / Pasif -->
+                            <div class="col-md-6 mb-4">
+
+                                <label class="form-label">
+                                    Durum
+                                </label>
+
+                                <div class="form-check form-switch"
+                                     style="margin-top: 8px;">
+
+                                    <input asp-for="IsActive"
+                                           class="form-check-input"
+                                           type="checkbox"
+                                           role="switch" />
+
+                                    <label asp-for="IsActive"
+                                           class="form-check-label">
+                                        Taş aktif
+                                    </label>
+
+                                </div>
+
+                                <small class="text-muted d-block mt-2">
+                                    Taşın işletme otomasyonundaki durumunu belirler.
+                                </small>
+
+                            </div>
+
+                            <!-- Web sitesinde göster -->
+                            <div class="col-md-6 mb-4">
+
+                                <label class="form-label">
+                                    Web Sitesi Görünürlüğü
+                                </label>
+
+                                <div class="form-check form-switch"
+                                     style="margin-top: 8px;">
+
+                                    <input asp-for="ShowOnWeb"
+                                           class="form-check-input"
+                                           type="checkbox"
+                                           role="switch" />
+
+                                    <label asp-for="ShowOnWeb"
+                                           class="form-check-label">
+                                        Web Sitesinde Göster
+                                    </label>
+
+                                </div>
+
+                                <span asp-validation-for="ShowOnWeb"
+                                      class="text-danger">
+                                </span>
+
+                                <small class="text-muted d-block mt-2">
+                                    Taşın web sitesindeki tanıtım bölümünde gösterilmesini belirler.
+                                </small>
+
+                            </div>
+
+                            <!-- Web sitesi açıklaması -->
+                            <div class="col-md-12 mb-4">
+
+                                <label asp-for="WebDescription"
+                                       class="form-label">
+                                    Web Sitesi Açıklaması
+                                </label>
+
+                                <textarea asp-for="WebDescription"
+                                          class="form-control"
+                                          rows="6"
+                                          placeholder="Taşın görünümünü, özelliklerini ve kullanım alanlarını açıklayın..."></textarea>
+
+                                <span asp-validation-for="WebDescription"
+                                      class="text-danger">
+                                </span>
+
+                                <small class="text-muted">
+                                    Bu açıklama web sitesinde taşın tanıtımında kullanılacaktır.
+                                    Alış fiyatı, satış fiyatı ve stok bilgileri yayınlanmayacaktır.
+                                </small>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- Sağ taraf - Görsel -->
+                    <div class="col-lg-4">
+
+                        <div class="mb-4">
+
+                            <label asp-for="ImageFile"
+                                   class="form-label">
+                                Taş Görseli
+                            </label>
+
+                            <!-- Görsel önizleme alanı -->
+                            <div id="imagePreviewContainer"
+                                 style="width: 100%;
+                                height: 220px;
+                                border: 1px dashed #d8dde6;
+                                border-radius: 10px;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                overflow: hidden;
+                                margin-bottom: 12px;
+                                background: #f8f9fb;">
+
+                                @if (!string.IsNullOrWhiteSpace(Model.CurrentImageUrl))
+                                {
+                                    <!-- Mevcut görsel -->
+                                    <img id="imagePreview"
+                                         src="@Model.CurrentImageUrl"
+                                         alt="@Model.StoneName"
+                                         style="width: 100%;
+                                    height: 100%;
+                                    object-fit: cover;
+                                    display: block;" />
+
+                                    <div id="imagePlaceholder"
+                                         style="display: none;
+                                        text-align: center;
+                                        color: #8b95a7;">
+
+                                        <i class="fa-regular fa-image"
+                                           style="font-size: 32px;
+                                            margin-bottom: 10px;">
+                                        </i>
+
+                                        <div>
+                                            Görsel seçilmedi
+                                        </div>
+
+                                    </div>
+                                }
+                                else
+                                {
+                                    <!-- Görsel yoksa -->
+                                    <div id="imagePlaceholder"
+                                         style="text-align: center;
+                                        color: #8b95a7;">
+
+                                        <i class="fa-regular fa-image"
+                                           style="font-size: 32px;
+                                            margin-bottom: 10px;">
+                                        </i>
+
+                                        <div>
+                                            Görsel bulunmuyor
+                                        </div>
+
+                                    </div>
+
+                                    <img id="imagePreview"
+                                         src=""
+                                         alt="Taş görseli önizleme"
+                                         style="width: 100%;
+                                    height: 100%;
+                                    object-fit: cover;
+                                    display: none;" />
+                                }
+
+                            </div>
+
+                            <!-- Yeni görsel -->
+                            <input asp-for="ImageFile"
+                                   id="imageFile"
+                                   type="file"
+                                   class="form-control"
+                                   accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" />
+
+                            <span asp-validation-for="ImageFile"
+                                  class="text-danger">
+                            </span>
+
+                            <small class="text-muted d-block mt-2">
+                                Yeni görsel seçmezseniz mevcut görsel korunur.
+                                JPG, JPEG, PNG veya WEBP. Maksimum 5 MB.
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- Butonlar -->
+                <div style="display: flex;
+                    justify-content: flex-end;
+                    gap: 10px;
+                    margin-top: 10px;">
+
+                    <a asp-controller="Stone"
+                       asp-action="Index"
+                       class="m-btn m-btn--ghost">
+
+                        İptal
+
+                    </a>
+
+                    <button type="submit"
+                            class="m-btn m-btn--primary">
+
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        Değişiklikleri Kaydet
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </section>
+
+    </div>
+</div>
+
+@section Scripts {
+
+    <!-- Yeni görsel seçildiğinde önizlemeyi değiştirir -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+
+            const imageFile =
+                document.getElementById("imageFile");
+
+            const imagePreview =
+                document.getElementById("imagePreview");
+
+            const imagePlaceholder =
+                document.getElementById("imagePlaceholder");
+
+            const currentImageInput =
+                document.getElementById("CurrentImageUrl");
+
+            if (!imageFile || !imagePreview || !imagePlaceholder) {
+                return;
+            }
+
+            // Mevcut görselin yolunu saklar
+            const currentImageUrl = currentImageInput
+                ? currentImageInput.value
+                : "";
+
+            // Mevcut görsel önizlemesini geri yükler
+            function restoreCurrentImage() {
+
+                if (currentImageUrl) {
+
+                    imagePreview.src = currentImageUrl;
+                    imagePreview.style.display = "block";
+                    imagePlaceholder.style.display = "none";
+                }
+                else {
+
+                    imagePreview.removeAttribute("src");
+                    imagePreview.style.display = "none";
+                    imagePlaceholder.style.display = "block";
+                }
+            }
+
+            // Yeni görsel seçildiğinde önizlemeyi günceller
+            imageFile.addEventListener("change", function() {
+
+                const file = this.files[0];
+
+                // Dosya seçimi kaldırılırsa mevcut görsele döner
+                if (!file) {
+
+                    restoreCurrentImage();
+                    return;
+                }
+
+                const reader = new FileReader();
+
+                reader.onload = function(event) {
+
+                    imagePreview.src = event.target.result;
+                    imagePreview.style.display = "block";
+                    imagePlaceholder.style.display = "none";
+                };
+
+                reader.readAsDataURL(file);
+            });
+
+        });
+    </script>
+
+}

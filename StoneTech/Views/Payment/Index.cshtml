@@ -1,0 +1,427 @@
+﻿@using StoneTech.Models.Payment
+@model IEnumerable<PaymentListViewModel>
+
+@{
+    ViewData["Title"] = "Ödemeler";
+
+    string search = ViewBag.Search ?? "";
+
+    int page = ViewBag.Page ?? 1;
+    int pageSize = ViewBag.PageSize ?? 10;
+    int totalPages = ViewBag.TotalPages ?? 0;
+    int totalCount = ViewBag.TotalCount ?? 0;
+
+    int firstItem = totalCount == 0
+        ? 0
+        : ((page - 1) * pageSize) + 1;
+
+    int lastItem = Math.Min(
+        page * pageSize,
+        totalCount
+    );
+}
+
+<div class="section__content section__content--p30">
+    <div class="container-fluid">
+
+        <!-- Sayfa başlığı -->
+        <div class="page-header">
+
+            <div>
+                <h1>Ödemeler</h1>
+
+                <p class="subtitle">
+                    İş emirlerinin ödeme, tahsilat ve kalan borç durumlarını takip edin.
+                </p>
+            </div>
+
+        </div>
+
+        <!-- Başarı mesajı -->
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success">
+                @TempData["SuccessMessage"]
+            </div>
+        }
+
+        <!-- Hata mesajı -->
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger">
+                @TempData["ErrorMessage"]
+            </div>
+        }
+
+        <!-- Ödeme takip listesi -->
+        <section class="m-card" style="padding: 20px;">
+
+            <!-- Arama ve sayfa başına kayıt -->
+            <form asp-controller="Payment"
+                  asp-action="Index"
+                  method="get">
+
+                <div class="dt-toolbar">
+
+                    <!-- Arama -->
+                    <div class="dt-search">
+
+                        <i class="fa-solid fa-magnifying-glass"></i>
+
+                        <input type="text"
+                               name="search"
+                               value="@search"
+                               placeholder="İş emri no, müşteri adı veya telefon ara..."
+                               autocomplete="off" />
+
+                    </div>
+
+                    <!-- Sayfa başına kayıt -->
+                    <div style="display: flex; gap: 8px; align-items: center;">
+
+                        <label style="font-size: 12.5px;
+                                      color: var(--m-text-muted);
+                                      display: inline-flex;
+                                      align-items: center;
+                                      gap: 8px;">
+
+                            Göster
+
+                            <select name="pageSize"
+                                    class="form-select"
+                                    style="width: 80px;
+                                           height: 32px;
+                                           padding: 0 24px 0 10px;
+                                           font-size: 12.5px;"
+                                    onchange="this.form.submit()">
+
+                                <option value="5"
+                                        selected="@(pageSize == 5)">
+                                    5
+                                </option>
+
+                                <option value="10"
+                                        selected="@(pageSize == 10)">
+                                    10
+                                </option>
+
+                                <option value="20"
+                                        selected="@(pageSize == 20)">
+                                    20
+                                </option>
+
+                                <option value="50"
+                                        selected="@(pageSize == 50)">
+                                    50
+                                </option>
+
+                            </select>
+
+                            kayıt
+
+                        </label>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+            <!-- İş emri ödeme tablosu -->
+            <div class="table-responsive">
+
+                <table class="m-table dt-table">
+
+                    <thead>
+                        <tr>
+                            <th>Tarih</th>
+                            <th>İş Emri No</th>
+                            <th>Müşteri</th>
+                            <th>Toplam</th>
+                            <th>Ödenen</th>
+                            <th>Kalan</th>
+                            <th>Ödeme Durumu</th>
+                            <th style="text-align: right;">İşlem</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        @if (!Model.Any())
+                        {
+                            <tr>
+                                <td colspan="8">
+
+                                    <div class="empty-state">
+
+                                        <span class="empty-state__icon">
+                                            <i class="fa-solid fa-wallet"></i>
+                                        </span>
+
+                                        <h3 class="empty-state__title">
+                                            İş emri bulunamadı
+                                        </h3>
+
+                                        <p class="empty-state__text">
+                                            Ödeme takibine uygun iş emri bulunamadı.
+                                        </p>
+
+                                    </div>
+
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+
+                                    <!-- İş emri tarihi -->
+                                    <td>
+                                        @item.WorkOrderDate.ToString("dd.MM.yyyy")
+                                    </td>
+
+                                    <!-- Kullanıcıya gösterilen iş emri numarası -->
+                                    <td>
+
+                                        @if (User.IsInRole("Accountant"))
+                                        {
+                                            <strong>@item.WorkOrderNumber</strong>
+                                        }
+                                        else
+                                        {
+                                            <a asp-controller="WorkOrder"
+                                               asp-action="Details"
+                                               asp-route-id="@item.WorkOrderId">
+                                                <strong>@item.WorkOrderNumber</strong>
+                                            </a>
+                                        }
+
+                                    </td>
+
+                                    <!-- Müşteri -->
+                                    <td>
+
+                                        @if (User.IsInRole("Accountant"))
+                                        {
+                                            @item.CustomerName
+                                        }
+                                        else
+                                        {
+                                            <a asp-controller="Customer"
+                                               asp-action="Details"
+                                               asp-route-id="@item.CustomerId">
+                                                @item.CustomerName
+                                            </a>
+                                        }
+
+                                    </td>
+
+                                    <!-- İş emri toplamı -->
+                                    <td>
+                                        <strong>
+                                            @item.TotalAmount.ToString("N2") ₺
+                                        </strong>
+                                    </td>
+
+                                    <!-- Toplam ödenen -->
+                                    <td>
+
+                                        @if (item.TotalPaid > 0)
+                                        {
+                                            <strong class="text-success">
+                                                @item.TotalPaid.ToString("N2") ₺
+                                            </strong>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">
+                                                0,00 ₺
+                                            </span>
+                                        }
+
+                                    </td>
+
+                                    <!-- Kalan borç -->
+                                    <td>
+
+                                        @if (item.RemainingAmount > 0)
+                                        {
+                                            <strong class="text-danger">
+                                                @item.RemainingAmount.ToString("N2") ₺
+                                            </strong>
+                                        }
+                                        else
+                                        {
+                                            <strong class="text-success">
+                                                0,00 ₺
+                                            </strong>
+                                        }
+
+                                    </td>
+
+                                    <!-- Ödeme durumu -->
+                                    <td>
+
+                                        @if (item.TotalPaid <= 0)
+                                        {
+                                            <span class="badge bg-danger">
+                                                Ödeme Bekliyor
+                                            </span>
+                                        }
+                                        else if (item.RemainingAmount > 0)
+                                        {
+                                            <span class="badge bg-warning text-dark">
+                                                Kısmi Ödendi
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-success">
+                                                Ödendi
+                                            </span>
+                                        }
+
+                                    </td>
+
+                                    <!-- İşlemler -->
+                                    <td style="text-align: right;">
+
+                                        <div class="table-data-feature"
+                                             style="justify-content: flex-start; gap: 6px;">
+
+                                            @if (!User.IsInRole("Accountant"))
+                                            {
+                                                <!-- İş emri detayı -->
+                                                <a asp-controller="WorkOrder"
+                                                   asp-action="Details"
+                                                   asp-route-id="@item.WorkOrderId"
+                                                   class="item"
+                                                   title="İş Emri Detayı">
+                                                    <i class="fa-solid fa-eye"></i>
+                                                </a>
+                                            }
+
+                                            <!-- Borç varsa ödeme al -->
+                                            @if (item.RemainingAmount > 0)
+                                            {
+                                                <a asp-controller="Payment"
+                                                   asp-action="Create"
+                                                   asp-route-workOrderId="@item.WorkOrderId"
+                                                   class="item"
+                                                   title="Ödeme Al">
+
+                                                    <i class="fa-solid fa-money-bill-wave"></i>
+
+                                                </a>
+                                            }
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+                            }
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <!-- Sayfalama -->
+            <div class="dt-pagination">
+
+                <!-- Gösterilen kayıt bilgisi -->
+                <span class="dt-pagination__info">
+
+                    @if (totalCount == 0)
+                    {
+                        @:Sonuç yok
+                    }
+                    else
+                    {
+                        @:@firstItem–@lastItem / @totalCount kayıt
+                    }
+
+                </span>
+
+                <!-- Sayfa navigasyonu -->
+                <div class="dt-pagination__nav">
+
+                    <!-- Önceki sayfa -->
+                    @if (page > 1)
+                    {
+                        <a asp-controller="Payment"
+                           asp-action="Index"
+                           asp-route-search="@search"
+                           asp-route-page="@(page - 1)"
+                           asp-route-pageSize="@pageSize">
+
+                            <i class="fa-solid fa-chevron-left"></i>
+
+                        </a>
+                    }
+                    else
+                    {
+                        <button type="button" disabled>
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </button>
+                    }
+
+                    <!-- Sayfa numaraları -->
+                    @if (totalPages > 0)
+                    {
+                        @for (int i = 1; i <= totalPages; i++)
+                        {
+                            if (i == page)
+                            {
+                                <button type="button"
+                                        class="is-active"
+                                        disabled>
+                                    @i
+                                </button>
+                            }
+                            else
+                            {
+                                <a asp-controller="Payment"
+                                   asp-action="Index"
+                                   asp-route-search="@search"
+                                   asp-route-page="@i"
+                                   asp-route-pageSize="@pageSize">
+                                    @i
+                                </a>
+                            }
+                        }
+                    }
+
+                    <!-- Sonraki sayfa -->
+                    @if (totalPages > 0 && page < totalPages)
+                    {
+                        <a asp-controller="Payment"
+                           asp-action="Index"
+                           asp-route-search="@search"
+                           asp-route-page="@(page + 1)"
+                           asp-route-pageSize="@pageSize">
+
+                            <i class="fa-solid fa-chevron-right"></i>
+
+                        </a>
+                    }
+                    else
+                    {
+                        <button type="button" disabled>
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </button>
+                    }
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </div>
+</div>

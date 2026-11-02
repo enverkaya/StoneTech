@@ -1,0 +1,537 @@
+﻿@using StoneTech.Models.ActivityLog
+@model IEnumerable<ActivityLogListViewModel>
+
+@{
+    ViewData["Title"] = "Son İşlemler";
+
+    string search = ViewBag.Search ?? "";
+    int page = ViewBag.Page ?? 1;
+    int pageSize = ViewBag.PageSize ?? 10;
+    int totalPages = ViewBag.TotalPages ?? 0;
+    int totalCount = ViewBag.TotalCount ?? 0;
+
+    int firstItem = totalCount == 0
+        ? 0
+        : ((page - 1) * pageSize) + 1;
+
+    int lastItem = Math.Min(
+        page * pageSize,
+        totalCount
+    );
+}
+
+<div class="section__content section__content--p30">
+    <div class="container-fluid">
+
+        <!-- Sayfa başlığı -->
+        <div class="page-header">
+
+            <div>
+
+                <h1>Son İşlemler</h1>
+
+                <p class="subtitle">
+                    Sistem içerisinde gerçekleştirilen işlemleri görüntüleyin.
+                </p>
+
+            </div>
+
+        </div>
+
+        <!-- İşlem geçmişi listesi -->
+        <section class="m-card" style="padding: 20px;">
+
+            <!-- Arama ve sayfa başına kayıt -->
+            <form asp-controller="ActivityLog"
+                  asp-action="Index"
+                  method="get">
+
+                <div class="dt-toolbar">
+
+                    <!-- İşlem geçmişi arama -->
+                    <div class="dt-search">
+
+                        <i class="fa-solid fa-magnifying-glass"
+                           aria-hidden="true"></i>
+
+                        <input type="search"
+                               name="search"
+                               value="@search"
+                               placeholder="Kullanıcı, modül, işlem veya açıklama ara..."
+                               aria-label="Son işlemlerde ara">
+
+                    </div>
+
+                    <!-- Sayfa başına kayıt seçimi -->
+                    <div style="display: flex;
+                                gap: 8px;
+                                align-items: center;">
+
+                        <label style="font-size: 12.5px;
+                                      color: var(--m-text-muted);
+                                      display: inline-flex;
+                                      align-items: center;
+                                      gap: 8px;">
+
+                            Göster
+
+                            <select name="pageSize"
+                                    class="form-select"
+                                    style="width: 80px;
+                                           height: 32px;
+                                           padding: 0 24px 0 10px;
+                                           font-size: 12.5px;"
+                                    onchange="this.form.submit()">
+
+                                <option value="5"
+                                        selected="@(pageSize == 5)">
+                                    5
+                                </option>
+
+                                <option value="10"
+                                        selected="@(pageSize == 10)">
+                                    10
+                                </option>
+
+                                <option value="20"
+                                        selected="@(pageSize == 20)">
+                                    20
+                                </option>
+
+                                <option value="50"
+                                        selected="@(pageSize == 50)">
+                                    50
+                                </option>
+
+                            </select>
+
+                            kayıt
+
+                        </label>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+            <!-- Son işlemler tablosu -->
+            <div class="table-responsive">
+
+                <table class="m-table dt-table">
+
+                    <thead>
+
+                        <tr>
+                            <th>Kullanıcı</th>
+                            <th>Kullanıcı Adı</th>
+                            <th>Modül</th>
+                            <th>İşlem</th>
+                            <th>Açıklama</th>
+                            <th>IP Adresi</th>
+                            <th>Tarih</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        @if (!Model.Any())
+                        {
+                            <tr>
+
+                                <td colspan="7">
+
+                                    <div class="empty-state">
+
+                                        <span class="empty-state__icon">
+
+                                            <i class="fa-solid fa-clock-rotate-left"></i>
+
+                                        </span>
+
+                                        <h3 class="empty-state__title">
+                                            İşlem kaydı bulunamadı
+                                        </h3>
+
+                                        <p class="empty-state__text">
+
+                                            @if (!string.IsNullOrWhiteSpace(search))
+                                            {
+                                                @:Aramanızla eşleşen işlem kaydı bulunamadı.
+                                            }
+                                            else
+                                            {
+                                                @:Henüz sistemde kayıtlı bir işlem bulunmuyor.
+                                            }
+
+                                        </p>
+
+                                        @if (!string.IsNullOrWhiteSpace(search))
+                                        {
+                                            <div class="empty-state__actions">
+
+                                                <a asp-controller="ActivityLog"
+                                                   asp-action="Index"
+                                                   class="m-btn m-btn--ghost">
+
+                                                    Aramayı temizle
+
+                                                </a>
+
+                                            </div>
+                                        }
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var log in Model)
+                            {
+                                <tr>
+
+                                    <!-- İşlemi yapan personel -->
+                                    <td>
+
+                                        <span class="name">
+                                            @log.UserFullName
+                                        </span>
+
+                                    </td>
+
+                                    <!-- Kullanıcı adı -->
+                                    <td>
+
+                                        @if (!string.IsNullOrWhiteSpace(log.Username))
+                                        {
+                                            @log.Username
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">
+                                                -
+                                            </span>
+                                        }
+
+                                    </td>
+
+                                    <!-- İşlemin gerçekleştirildiği modül -->
+                                    <td>
+
+                                        @switch (log.Module)
+                                        {
+                                            case "WorkOrder":
+                                                <span class="badge bg-primary">
+                                                    İş Emirleri
+                                                </span>
+                                                break;
+
+                                            case "Payment":
+                                                <span class="badge bg-success">
+                                                    Ödemeler
+                                                </span>
+                                                break;
+
+                                            case "Purchase":
+                                                <span class="badge bg-info">
+                                                    Alımlar
+                                                </span>
+                                                break;
+
+                                            case "Stock":
+                                                <span class="badge bg-warning text-dark">
+                                                    Stok
+                                                </span>
+                                                break;
+
+                                            case "Customer":
+                                                <span class="badge bg-primary">
+                                                    Müşteriler
+                                                </span>
+                                                break;
+
+                                            case "Stone":
+                                                <span class="badge bg-secondary">
+                                                    Taşlar
+                                                </span>
+                                                break;
+
+                                            case "Supplier":
+                                                <span class="badge bg-info">
+                                                    Tedarikçiler
+                                                </span>
+                                                break;
+
+                                            case "Employee":
+                                                <span class="badge bg-secondary">
+                                                    Personeller
+                                                </span>
+                                                break;
+
+                                            case "User":
+                                                <span class="badge bg-dark">
+                                                    Kullanıcılar
+                                                </span>
+                                                break;
+
+                                            case "Authentication":
+                                                <span class="badge bg-dark">
+                                                    Oturum
+                                                </span>
+                                                break;
+
+                                            default:
+                                                <span class="badge bg-secondary">
+                                                    @log.Module
+                                                </span>
+                                                break;
+                                        }
+
+                                    </td>
+
+                                    <!-- Gerçekleştirilen işlem -->
+                                    <td>
+
+                                        @switch (log.Action)
+                                        {
+                                            case "Create":
+                                                <span class="badge bg-success">
+                                                    Oluşturuldu
+                                                </span>
+                                                break;
+
+                                            case "Update":
+                                                <span class="badge bg-info">
+                                                    Güncellendi
+                                                </span>
+                                                break;
+
+                                            case "Approve":
+                                                <span class="badge bg-success">
+                                                    Onaylandı
+                                                </span>
+                                                break;
+
+                                            case "Reject":
+                                                <span class="badge bg-danger">
+                                                    Reddedildi
+                                                </span>
+                                                break;
+
+                                            case "StartWorkshop":
+                                                <span class="badge bg-warning text-dark">
+                                                    İşleme Alındı
+                                                </span>
+                                                break;
+
+                                            case "Complete":
+                                                <span class="badge bg-success">
+                                                    Tamamlandı
+                                                </span>
+                                                break;
+
+                                            case "Cancel":
+                                                <span class="badge bg-danger">
+                                                    İptal Edildi
+                                                </span>
+                                                break;
+
+                                            case "PaymentReceived":
+                                                <span class="badge bg-success">
+                                                    Ödeme Alındı
+                                                </span>
+                                                break;
+
+                                            case "Adjustment":
+                                                <span class="badge bg-warning text-dark">
+                                                    Stok Düzeltildi
+                                                </span>
+                                                break;
+
+                                            case "Login":
+                                                <span class="badge bg-success">
+                                                    Giriş Yapıldı
+                                                </span>
+                                                break;
+
+                                            case "Logout":
+                                                <span class="badge bg-secondary">
+                                                    Çıkış Yapıldı
+                                                </span>
+                                                break;
+
+                                            case "PasswordReset":
+                                                <span class="badge bg-warning text-dark">
+                                                    Şifre Sıfırlandı
+                                                </span>
+                                                break;
+
+                                            case "StatusChange":
+                                                <span class="badge bg-info">
+                                                    Durum Değiştirildi
+                                                </span>
+                                                break;
+
+                                            default:
+                                                <span class="badge bg-secondary">
+                                                    @log.Action
+                                                </span>
+                                                break;
+                                        }
+
+                                    </td>
+
+                                    <!-- İşlem açıklaması -->
+                                    <td>
+                                        @log.Description
+                                    </td>
+
+                                    <!-- IP adresi -->
+                                    <td>
+
+                                        @if (!string.IsNullOrWhiteSpace(log.IpAddress))
+                                        {
+                                            @log.IpAddress
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">
+                                                -
+                                            </span>
+                                        }
+
+                                    </td>
+
+                                    <!-- İşlem tarihi -->
+                                    <td>
+
+                                        <span>
+                                            @log.CreatedDate.ToString("dd.MM.yyyy")
+                                        </span>
+
+                                        <br />
+
+                                        <small class="text-muted">
+                                            @log.CreatedDate.ToString("HH:mm:ss")
+                                        </small>
+
+                                    </td>
+
+                                </tr>
+                            }
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <!-- Sayfalama -->
+            <div class="dt-pagination">
+
+                <!-- Gösterilen kayıt bilgisi -->
+                <span class="dt-pagination__info">
+
+                    @if (totalCount == 0)
+                    {
+                        @:Sonuç yok
+                    }
+                    else
+                    {
+                        @:@firstItem–@lastItem / @totalCount kayıt
+                    }
+
+                </span>
+
+                <!-- Sayfa navigasyonu -->
+                <div class="dt-pagination__nav">
+
+                    <!-- Önceki sayfa -->
+                    @if (page > 1)
+                    {
+                        <a asp-controller="ActivityLog"
+                           asp-action="Index"
+                           asp-route-search="@search"
+                           asp-route-page="@(page - 1)"
+                           asp-route-pageSize="@pageSize">
+
+                            <i class="fa-solid fa-chevron-left"></i>
+
+                        </a>
+                    }
+                    else
+                    {
+                        <button type="button"
+                                disabled>
+
+                            <i class="fa-solid fa-chevron-left"></i>
+
+                        </button>
+                    }
+
+                    <!-- Sayfa numaraları -->
+                    @if (totalPages > 0)
+                    {
+                        @for (int i = 1; i <= totalPages; i++)
+                        {
+                            if (i == page)
+                            {
+                                <button type="button"
+                                        class="is-active"
+                                        disabled>
+
+                                    @i
+
+                                </button>
+                            }
+                            else
+                            {
+                                <a asp-controller="ActivityLog"
+                                   asp-action="Index"
+                                   asp-route-search="@search"
+                                   asp-route-page="@i"
+                                   asp-route-pageSize="@pageSize">
+
+                                    @i
+
+                                </a>
+                            }
+                        }
+                    }
+
+                    <!-- Sonraki sayfa -->
+                    @if (totalPages > 0 && page < totalPages)
+                    {
+                        <a asp-controller="ActivityLog"
+                           asp-action="Index"
+                           asp-route-search="@search"
+                           asp-route-page="@(page + 1)"
+                           asp-route-pageSize="@pageSize">
+
+                            <i class="fa-solid fa-chevron-right"></i>
+
+                        </a>
+                    }
+                    else
+                    {
+                        <button type="button"
+                                disabled>
+
+                            <i class="fa-solid fa-chevron-right"></i>
+
+                        </button>
+                    }
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </div>
+</div>

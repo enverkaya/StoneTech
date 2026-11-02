@@ -1,0 +1,402 @@
+﻿@using StoneTech.Models.WhyChooseUs
+@model WhyChooseUsCreateViewModel
+
+@{
+    ViewData["Title"] = "Neden Biz Özelliği Ekle";
+}
+
+<div class="section__content section__content--p30">
+    <div class="container-fluid">
+
+        <!-- Sayfa başlığı -->
+        <div class="page-header">
+
+            <div>
+                <h1>Yeni Neden Biz Özelliği</h1>
+
+                <p class="subtitle">
+                    Web sitesinin Neden Biz bölümüne yeni bir özellik ekleyin.
+                </p>
+            </div>
+
+            <div class="page-header__actions">
+
+                <a asp-controller="WhyChooseUs"
+                   asp-action="Index"
+                   class="m-btn m-btn--ghost">
+
+                    <i class="fa-solid fa-arrow-left"></i>
+                    Özelliklere Dön
+
+                </a>
+
+            </div>
+
+        </div>
+
+        <!-- Form -->
+        <section class="m-card" style="padding: 24px;">
+
+            <form asp-controller="WhyChooseUs"
+                  asp-action="Create"
+                  method="post"
+                  id="whyChooseUsCreateForm">
+
+                @Html.AntiForgeryToken()
+
+                <!-- Genel doğrulama hataları -->
+                <div asp-validation-summary="ModelOnly"
+                     class="text-danger mb-3">
+                </div>
+
+                <div class="row">
+
+                    <!-- Sol taraf -->
+                    <div class="col-lg-8">
+
+                        <div class="row">
+
+                            <!-- Özellik başlığı -->
+                            <div class="col-md-12 mb-4">
+
+                                <label asp-for="Title"
+                                       class="form-label">
+                                    Özellik Başlığı
+                                </label>
+
+                                <input asp-for="Title"
+                                       class="form-control"
+                                       placeholder="Örn: Kaliteli Malzeme"
+                                       maxlength="150" />
+
+                                <span asp-validation-for="Title"
+                                      class="text-danger">
+                                </span>
+
+                            </div>
+
+                            <!-- Özellik açıklaması -->
+                            <div class="col-md-12 mb-4">
+
+                                <label asp-for="Description"
+                                       class="form-label">
+                                    Özellik Açıklaması
+                                </label>
+
+                                <textarea asp-for="Description"
+                                          class="form-control"
+                                          rows="6"
+                                          maxlength="500"
+                                          placeholder="Bu özelliğin müşterilere sunduğu avantajları açıklayın..."></textarea>
+
+                                <span asp-validation-for="Description"
+                                      class="text-danger">
+                                </span>
+
+                                <small class="text-muted">
+                                    Açıklama en fazla 500 karakter olabilir.
+                                </small>
+
+                            </div>
+
+                            <!-- Görüntülenme sırası -->
+                            <div class="col-md-6 mb-4">
+
+                                <label asp-for="DisplayOrder"
+                                       class="form-label">
+                                    Görüntülenme Sırası
+                                </label>
+
+                                <input asp-for="DisplayOrder"
+                                       type="number"
+                                       min="0"
+                                       class="form-control"
+                                       placeholder="Örn: 1" />
+
+                                <span asp-validation-for="DisplayOrder"
+                                      class="text-danger">
+                                </span>
+
+                                <small class="text-muted">
+                                    Küçük numaralı özellik önce gösterilir.
+                                </small>
+
+                            </div>
+
+                            <!-- Aktiflik durumu -->
+                            <div class="col-md-6 mb-4">
+
+                                <label class="form-label">
+                                    Özellik Durumu
+                                </label>
+
+                                <div class="form-check mt-2">
+
+                                    <input asp-for="IsActive"
+                                           class="form-check-input"
+                                           type="checkbox" />
+
+                                    <label asp-for="IsActive"
+                                           class="form-check-label">
+                                        Aktif
+                                    </label>
+
+                                </div>
+
+                                <span asp-validation-for="IsActive"
+                                      class="text-danger">
+                                </span>
+
+                                <small class="text-muted d-block mt-2">
+                                    Aktif özellikler web sitesinde gösterilir.
+                                </small>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- Sağ taraf - İkon -->
+                    <div class="col-lg-4">
+
+                        <div class="mb-4">
+
+                            <label asp-for="IconClass"
+                                   class="form-label">
+                                Özellik İkonu
+                            </label>
+
+                            <!-- İkon önizleme -->
+                            <div style="width: 100%;
+                                height: 220px;
+                                border: 1px dashed #d8dde6;
+                                border-radius: 10px;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                overflow: hidden;
+                                margin-bottom: 12px;
+                                background: #f8f9fb;">
+
+                                <div style="text-align: center;
+                                    color: #8b95a7;">
+
+                                    <i id="iconPreview"
+                                       class="fa-regular fa-star"
+                                       style="font-size: 48px;
+                                    margin-bottom: 12px;
+                                    display: block;"></i>
+
+                                    <div id="iconPreviewText">
+                                        İkon önizlemesi
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <!-- İkon sınıfı -->
+                            <input asp-for="IconClass"
+                                   class="form-control"
+                                   maxlength="150"
+                                   placeholder="Örn: fa-solid fa-gem" />
+
+                            <span asp-validation-for="IconClass"
+                                  class="text-danger">
+                            </span>
+
+                            <small class="text-muted d-block mt-2">
+                                Font Awesome ikon sınıfını giriniz.
+                            </small>
+
+                            <small class="text-muted d-block mt-2">
+                                Örnek: fa-solid fa-gem
+                            </small>
+
+                        </div>
+
+                        <!-- İkon önerileri -->
+                        <div class="mb-4">
+
+                            <label class="form-label">
+                                Hazır İkon Önerileri
+                            </label>
+
+                            <div style="display: flex;
+                                flex-wrap: wrap;
+                                gap: 8px;">
+
+                                <button type="button"
+                                        class="m-btn m-btn--ghost"
+                                        data-icon="fa-solid fa-gem"
+                                        title="Kaliteli Malzeme">
+
+                                    <i class="fa-solid fa-gem"></i>
+
+                                </button>
+
+                                <button type="button"
+                                        class="m-btn m-btn--ghost"
+                                        data-icon="fa-solid fa-shield-halved"
+                                        title="Güvenilir Hizmet">
+
+                                    <i class="fa-solid fa-shield-halved"></i>
+
+                                </button>
+
+                                <button type="button"
+                                        class="m-btn m-btn--ghost"
+                                        data-icon="fa-solid fa-truck-fast"
+                                        title="Hızlı Teslimat">
+
+                                    <i class="fa-solid fa-truck-fast"></i>
+
+                                </button>
+
+                                <button type="button"
+                                        class="m-btn m-btn--ghost"
+                                        data-icon="fa-solid fa-users"
+                                        title="Deneyimli Ekip">
+
+                                    <i class="fa-solid fa-users"></i>
+
+                                </button>
+
+                                <button type="button"
+                                        class="m-btn m-btn--ghost"
+                                        data-icon="fa-solid fa-award"
+                                        title="Kalite ve Başarı">
+
+                                    <i class="fa-solid fa-award"></i>
+
+                                </button>
+
+                                <button type="button"
+                                        class="m-btn m-btn--ghost"
+                                        data-icon="fa-solid fa-handshake"
+                                        title="Müşteri Memnuniyeti">
+
+                                    <i class="fa-solid fa-handshake"></i>
+
+                                </button>
+
+                            </div>
+
+                            <small class="text-muted d-block mt-2">
+                                Bir ikona tıklayarak otomatik seçebilirsiniz.
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- Butonlar -->
+                <div style="display: flex;
+                    justify-content: flex-end;
+                    gap: 10px;
+                    margin-top: 10px;">
+
+                    <a asp-controller="WhyChooseUs"
+                       asp-action="Index"
+                       class="m-btn m-btn--ghost">
+
+                        İptal
+
+                    </a>
+
+                    <button type="submit"
+                            class="m-btn m-btn--primary">
+
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        Özelliği Kaydet
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </section>
+
+    </div>
+</div>
+
+@section Scripts {
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+
+            const iconInput =
+                document.getElementById("IconClass");
+
+            const iconPreview =
+                document.getElementById("iconPreview");
+
+            const iconPreviewText =
+                document.getElementById("iconPreviewText");
+
+            const iconButtons =
+                document.querySelectorAll("[data-icon]");
+
+            // İkon önizlemesini günceller
+            function updateIconPreview() {
+
+                const iconClass = iconInput.value.trim();
+
+                // İkon sınıfı boşsa varsayılan ikonu gösterir
+                if (!iconClass) {
+
+                    iconPreview.className = "fa-regular fa-star";
+
+                    iconPreviewText.textContent =
+                        "İkon önizlemesi";
+
+                    return;
+                }
+
+                // Girilen Font Awesome ikonunu gösterir
+                iconPreview.className = iconClass;
+
+                iconPreviewText.textContent =
+                    "Seçilen ikon";
+
+            }
+
+            // İkon sınıfı yazıldığında önizlemeyi günceller
+            if (iconInput) {
+
+                iconInput.addEventListener(
+                    "input",
+                    updateIconPreview
+                );
+
+            }
+
+            // Hazır ikon butonlarına tıklanınca ikonu seçer
+            iconButtons.forEach(function(button) {
+
+                button.addEventListener("click", function() {
+
+                    const selectedIcon =
+                        this.getAttribute("data-icon");
+
+                    iconInput.value = selectedIcon;
+
+                    updateIconPreview();
+
+                });
+
+            });
+
+            // Sayfa açıldığında mevcut değeri gösterir
+            if (iconInput) {
+                updateIconPreview();
+            }
+
+        });
+    </script>
+
+}

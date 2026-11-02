@@ -1,0 +1,201 @@
+﻿@model StoneTech.Entities.Service
+
+@{
+    ViewData["Title"] = "Hizmet Detayı";
+}
+
+<div class="section__content section__content--p30">
+    <div class="container-fluid">
+
+        <!-- Sayfa başlığı -->
+        <div class="page-header">
+
+            <div>
+                <h1>Hizmet Detayı</h1>
+
+                <p class="subtitle">
+                    Hizmete ait bilgileri ve görseli görüntüleyin.
+                </p>
+            </div>
+
+            <div class="page-header__actions">
+
+                <a asp-controller="Service"
+                   asp-action="Index"
+                   class="m-btn m-btn--ghost">
+
+                    <i class="fa-solid fa-arrow-left"></i>
+                    Hizmetlere Dön
+
+                </a>
+
+                @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
+                {
+                    <a asp-controller="Service"
+                       asp-action="Edit"
+                       asp-route-id="@Model.Id"
+                       class="m-btn m-btn--primary">
+
+                        <i class="fa-solid fa-pen-to-square"></i>
+                        Düzenle
+
+                    </a>
+                }
+
+            </div>
+
+        </div>
+
+        <!-- Hizmet özet kartı -->
+        <section class="m-card mb-4" style="padding: 24px;">
+
+            <div class="row align-items-center">
+
+                <!-- Hizmet görseli -->
+                <div class="col-lg-4 mb-3 mb-lg-0">
+
+                    @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
+                    {
+                        <img src="@Model.ImageUrl"
+                             alt="@Model.Title"
+                             style="width: 100%;
+                        height: 240px;
+                        object-fit: cover;
+                        border-radius: 10px;" />
+                    }
+                    else
+                    {
+                        <div style="width: 100%;
+                            height: 240px;
+                            background: #f8f9fb;
+                            border: 1px dashed #d8dde6;
+                            border-radius: 10px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            color: #8b95a7;">
+
+                            <i class="fa-regular fa-image"
+                               style="font-size: 40px;">
+                            </i>
+
+                        </div>
+                    }
+
+                </div>
+
+                <!-- Hizmet özeti -->
+                <div class="col-lg-8">
+
+                    <h2 class="mb-3">
+                        @Model.Title
+                    </h2>
+
+                    @if (!string.IsNullOrWhiteSpace(Model.Description))
+                    {
+                        <p class="text-muted mb-4"
+                           style="white-space: pre-line;">@Model.Description</p>
+                    }
+
+                    <div class="row">
+
+                        <!-- Hizmet durumu -->
+                        <div class="col-md-6 mb-3">
+
+                            <small class="text-muted d-block mb-2">
+                                Hizmet Durumu
+                            </small>
+
+                            @if (Model.IsActive)
+                            {
+                                <span class="badge bg-success">
+                                    Aktif
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">
+                                    Pasif
+                                </span>
+                            }
+
+                        </div>
+
+                        <!-- Görüntülenme sırası -->
+                        <div class="col-md-6 mb-3">
+
+                            <small class="text-muted d-block mb-2">
+                                Görüntülenme Sırası
+                            </small>
+
+                            <strong>
+                                @Model.DisplayOrder
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- Hizmet bilgileri -->
+        <section class="m-card mb-4" style="padding: 24px;">
+
+            <h3 class="mb-4">
+                <i class="fa-solid fa-circle-info me-2"></i>
+                Hizmet Bilgileri
+            </h3>
+
+            <div class="row">
+
+                <!-- Hizmet numarası -->
+                <div class="col-md-6 mb-4">
+
+                    <label class="form-label">
+                        Hizmet Numarası
+                    </label>
+
+                    <input type="text"
+                           class="form-control"
+                           value="@Model.Id"
+                           readonly />
+
+                </div>
+
+                <!-- Hizmet başlığı -->
+                <div class="col-md-6 mb-4">
+
+                    <label class="form-label">
+                        Hizmet Başlığı
+                    </label>
+
+                    <input type="text"
+                           class="form-control"
+                           value="@Model.Title"
+                           readonly />
+
+                </div>
+
+                <!-- Hizmet açıklaması -->
+                <div class="col-md-12 mb-4">
+
+                    <label class="form-label">
+                        Hizmet Açıklaması
+                    </label>
+
+                    <textarea class="form-control"
+                              rows="7"
+                              readonly>@Model.Description</textarea>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </div>
+</div>

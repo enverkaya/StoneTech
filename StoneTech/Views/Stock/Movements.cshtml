@@ -1,0 +1,519 @@
+﻿@using StoneTech.Models.Stock
+@using StoneTech.Enums
+@model IEnumerable<StockMovementListViewModel>
+
+@{
+    ViewData["Title"] = "Stok Hareketleri";
+
+    int stoneId = ViewBag.StoneId ?? 0;
+    string stoneName = ViewBag.StoneName ?? "";
+    string? color = ViewBag.Color;
+    int currentStock = ViewBag.CurrentStock ?? 0;
+
+    int page = ViewBag.Page ?? 1;
+    int pageSize = ViewBag.PageSize ?? 20;
+    int totalPages = ViewBag.TotalPages ?? 0;
+    int totalCount = ViewBag.TotalCount ?? 0;
+
+    int firstItem = totalCount == 0
+        ? 0
+        : ((page - 1) * pageSize) + 1;
+
+    int lastItem = Math.Min(
+        page * pageSize,
+        totalCount
+    );
+}
+
+<div class="section__content section__content--p30">
+    <div class="container-fluid">
+
+        <!-- Sayfa başlığı -->
+        <div class="page-header">
+
+            <div>
+
+                <h1>Stok Hareketleri</h1>
+
+                <p class="subtitle">
+                    @if (stoneId > 0)
+                    {
+                        @($"{stoneName} taşına ait stok giriş ve çıkış hareketlerini görüntüleyin.")
+                    }
+                    else
+                    {
+                        @:Tüm taşlara ait en son stok giriş, çıkış, düzeltme ve iade hareketlerini görüntüleyin.
+                    }
+                </p>
+
+            </div>
+
+            <div class="page-header__actions">
+
+                <!-- Stok listesine dönüş -->
+                <a asp-controller="Stock"
+                   asp-action="Index"
+                   class="m-btn m-btn--ghost">
+
+                    <i class="fa-solid fa-arrow-left"></i>
+                    Stok Listesi
+
+                </a>
+
+                @if (stoneId > 0 &&
+                                (User.IsInRole("Admin") ||
+                                 User.IsInRole("Manager")))
+                {
+                    <!-- Manuel stok düzeltme -->
+                    <a asp-controller="Stock"
+                       asp-action="Adjustment"
+                       asp-route-id="@stoneId"
+                       class="m-btn m-btn--primary">
+
+                        <i class="fa-solid fa-pen-to-square"></i>
+                        Stok Düzelt
+
+                    </a>
+                }
+
+            </div>
+
+        </div>
+
+        <!-- Başarı mesajı -->
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success">
+                @TempData["SuccessMessage"]
+            </div>
+        }
+
+        <!-- Hata mesajı -->
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger">
+                @TempData["ErrorMessage"]
+            </div>
+        }
+
+        @if (stoneId > 0)
+        {
+            <!-- Taş bilgileri -->
+            <section class="m-card" style="padding: 20px; margin-bottom: 20px;">
+
+                <div class="row">
+
+                    <!-- Taş adı -->
+                    <div class="col-md-4">
+
+                        <label class="form-control-label">
+                            Taş
+                        </label>
+
+                        <input type="text"
+                               class="form-control"
+                               value="@stoneName"
+                               readonly />
+
+                    </div>
+
+                    <!-- Renk -->
+                    <div class="col-md-4">
+
+                        <label class="form-control-label">
+                            Renk
+                        </label>
+
+                        <input type="text"
+                               class="form-control"
+                               value="@(string.IsNullOrWhiteSpace(color) ? "-" : color)"
+                               readonly />
+
+                    </div>
+
+                    <!-- Mevcut stok -->
+                    <div class="col-md-4">
+
+                        <label class="form-control-label">
+                            Mevcut Stok
+                        </label>
+
+                        <input type="text"
+                               class="form-control"
+                               value="@currentStock plaka"
+                               readonly />
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        }
+
+        <!-- Stok hareketleri -->
+        <section class="m-card" style="padding: 20px;">
+
+            <!-- Sayfa başına kayıt seçimi -->
+            <form asp-controller="Stock"
+                  asp-action="Movements"
+                  asp-route-id="@stoneId"
+                  method="get">
+
+                <input type="hidden"
+                       name="id"
+                       value="@stoneId" />
+
+                <div class="dt-toolbar">
+
+                    <div>
+
+                        <strong>
+                            Hareket Geçmişi
+                        </strong>
+
+                    </div>
+
+                    <div style="display: flex;
+                                gap: 8px;
+                                align-items: center;">
+
+                        <label style="font-size: 12.5px;
+                                      color: var(--m-text-muted);
+                                      display: inline-flex;
+                                      align-items: center;
+                                      gap: 8px;">
+
+                            Göster
+
+                            <select name="pageSize"
+                                    class="form-select"
+                                    style="width: 80px;
+                                           height: 32px;
+                                           padding: 0 24px 0 10px;
+                                           font-size: 12.5px;"
+                                    onchange="this.form.submit()">
+
+                                <option value="10"
+                                        selected="@(pageSize == 10)">
+                                    10
+                                </option>
+
+                                <option value="20"
+                                        selected="@(pageSize == 20)">
+                                    20
+                                </option>
+
+                                <option value="50"
+                                        selected="@(pageSize == 50)">
+                                    50
+                                </option>
+
+                                <option value="100"
+                                        selected="@(pageSize == 100)">
+                                    100
+                                </option>
+
+                            </select>
+
+                            kayıt
+
+                        </label>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+            <!-- Hareket tablosu -->
+            <div class="table-responsive">
+
+                <table class="m-table dt-table">
+
+                    <thead>
+
+                        <tr>
+                            <th>Tarih</th>
+                            <th>Taş</th>
+                            <th>Hareket Türü</th>
+                            <th>Plaka</th>
+                            <th>Kaynak</th>
+                            <th>Açıklama</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        @if (!Model.Any())
+                        {
+                            <tr>
+
+                                <td colspan="6">
+
+                                    <div class="empty-state">
+
+                                        <span class="empty-state__icon">
+
+                                            <i class="fa-solid fa-clock-rotate-left"></i>
+
+                                        </span>
+
+                                        <h3 class="empty-state__title">
+                                            Stok hareketi bulunamadı
+                                        </h3>
+
+                                        <p class="empty-state__text">
+                                            Bu taş için henüz bir stok hareketi oluşturulmamış.
+                                        </p>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var movement in Model)
+                            {
+                                <tr>
+
+                                    <!-- Hareket tarihi -->
+                                    <td>
+                                        @movement.MovementDate.ToString("dd.MM.yyyy HH:mm")
+                                    </td>
+
+                                    <!-- Taş -->
+                                    <td>
+                                        <strong>@movement.StoneName</strong>
+                                    </td>
+
+                                    <!-- Hareket türü -->
+                                    <td>
+
+                                        @switch (movement.MovementType)
+                                        {
+                                            case StockMovementType.Entry:
+
+                                                <span class="badge bg-success">
+                                                    Alım Girişi
+                                                </span>
+
+                                                break;
+
+                                            case StockMovementType.Exit:
+
+                                                <span class="badge bg-danger">
+                                                    İş Emri Çıkışı
+                                                </span>
+
+                                                break;
+
+                                            case StockMovementType.AdjustmentIn:
+
+                                                <span class="badge bg-success">
+                                                    Düzeltme Girişi
+                                                </span>
+
+                                                break;
+
+                                            case StockMovementType.AdjustmentOut:
+
+                                                <span class="badge bg-warning">
+                                                    Düzeltme Çıkışı
+                                                </span>
+
+                                                break;
+
+                                            case StockMovementType.WorkOrderReturn:
+
+                                                <span class="badge bg-info text-dark">
+                                                    İş Emri İptal İadesi
+                                                </span>
+
+                                                break;
+                                        }
+
+                                    </td>
+
+                                    <!-- Plaka miktarı -->
+                                    <td>
+
+                                        @if (movement.MovementType == StockMovementType.Entry ||
+                                                                        movement.MovementType == StockMovementType.AdjustmentIn ||
+                                                                        movement.MovementType == StockMovementType.WorkOrderReturn)
+                                        {
+                                            <strong class="text-success">
+                                                +@movement.Quantity plaka
+                                            </strong>
+                                        }
+                                        else
+                                        {
+                                            <strong class="text-danger">
+                                                -@movement.Quantity plaka
+                                            </strong>
+                                        }
+
+                                    </td>
+
+                                    <!-- Hareketin kaynağı -->
+                                    <td>
+
+                                        @if (movement.PurchaseId.HasValue &&
+                                                                        !string.IsNullOrWhiteSpace(movement.PurchaseNumber))
+                                        {
+                                            <!-- Alımdan oluşan stok hareketi -->
+                                            <a asp-controller="Purchase"
+                                               asp-action="Details"
+                                               asp-route-id="@movement.PurchaseId">
+
+                                                @movement.PurchaseNumber
+
+                                            </a>
+                                        }
+                                        else if (movement.WorkOrderId.HasValue)
+                                        {
+                                            <a asp-controller="WorkOrder"
+                                               asp-action="Details"
+                                               asp-route-id="@movement.WorkOrderId">
+                                                İş Emri #@movement.WorkOrderId
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <!-- Manuel stok düzeltmesi -->
+                                            <span class="text-muted">
+                                                Manuel Düzeltme
+                                            </span>
+                                        }
+
+                                    </td>
+
+                                    <!-- Açıklama -->
+                                    <td>
+
+                                        @if (!string.IsNullOrWhiteSpace(movement.Description))
+                                        {
+                                            @movement.Description
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">
+                                                -
+                                            </span>
+                                        }
+
+                                    </td>
+
+                                </tr>
+                            }
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <!-- Sayfalama -->
+            <div class="dt-pagination">
+
+                <!-- Gösterilen kayıt bilgisi -->
+                <span class="dt-pagination__info">
+
+                    @if (totalCount == 0)
+                    {
+                        @:Sonuç yok
+                    }
+                    else
+                    {
+                        @:@firstItem–@lastItem / @totalCount kayıt
+                    }
+
+                </span>
+
+                <!-- Sayfa navigasyonu -->
+                <div class="dt-pagination__nav">
+
+                    <!-- Önceki sayfa -->
+                    @if (page > 1)
+                    {
+                        <a asp-controller="Stock"
+                           asp-action="Movements"
+                           asp-route-id="@stoneId"
+                           asp-route-page="@(page - 1)"
+                           asp-route-pageSize="@pageSize">
+
+                            <i class="fa-solid fa-chevron-left"></i>
+
+                        </a>
+                    }
+                    else
+                    {
+                        <button type="button"
+                                disabled>
+
+                            <i class="fa-solid fa-chevron-left"></i>
+
+                        </button>
+                    }
+
+                    <!-- Sayfa numaraları -->
+                    @if (totalPages > 0)
+                    {
+                        @for (int i = 1; i <= totalPages; i++)
+                        {
+                            if (i == page)
+                            {
+                                <button type="button"
+                                        class="is-active"
+                                        disabled>
+                                    @i
+                                </button>
+                            }
+                            else
+                            {
+                                <a asp-controller="Stock"
+                                   asp-action="Movements"
+                                   asp-route-id="@stoneId"
+                                   asp-route-page="@i"
+                                   asp-route-pageSize="@pageSize">
+                                    @i
+                                </a>
+                            }
+                        }
+                    }
+
+                    <!-- Sonraki sayfa -->
+                    @if (totalPages > 0 && page < totalPages)
+                    {
+                        <a asp-controller="Stock"
+                           asp-action="Movements"
+                           asp-route-id="@stoneId"
+                           asp-route-page="@(page + 1)"
+                           asp-route-pageSize="@pageSize">
+
+                            <i class="fa-solid fa-chevron-right"></i>
+
+                        </a>
+                    }
+                    else
+                    {
+                        <button type="button"
+                                disabled>
+
+                            <i class="fa-solid fa-chevron-right"></i>
+
+                        </button>
+                    }
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </div>
+</div>

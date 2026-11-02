@@ -1,0 +1,253 @@
+﻿@using StoneTech.Models.Purchase
+@model PurchaseDetailsViewModel
+
+@{
+    ViewData["Title"] = "Alım Detayı";
+}
+
+<div class="section__content section__content--p30">
+    <div class="container-fluid">
+
+        <div class="page-header">
+            <div>
+                <h1>Alım Detayı</h1>
+
+                <p class="subtitle">
+                    @Model.PurchaseNumber numaralı alım kaydının detayları.
+                </p>
+            </div>
+
+            <div class="page-header__actions">
+
+                <a asp-controller="Purchase"
+                   asp-action="Index"
+                   class="btn btn-secondary">
+
+                    <i class="fa-solid fa-arrow-left"></i>
+                    Alımlara Dön
+
+                </a>
+
+            </div>
+        </div>
+
+        <!-- Alım Bilgileri -->
+        <div class="card">
+
+            <div class="card-header">
+                Alım Bilgileri
+            </div>
+
+            <div class="card-body">
+
+                <div class="row">
+
+                    <!-- Alım No -->
+                    <div class="col-md-3">
+
+                        <div class="mb-3">
+
+                            <label class="form-control-label">
+                                Alım No
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   value="@Model.PurchaseNumber"
+                                   readonly />
+
+                        </div>
+
+                    </div>
+
+                    <!-- Tarih -->
+                    <div class="col-md-3">
+
+                        <div class="mb-3">
+
+                            <label class="form-control-label">
+                                Alım Tarihi
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   value="@Model.PurchaseDate.ToString("dd.MM.yyyy")"
+                                   readonly />
+
+                        </div>
+
+                    </div>
+
+                    <!-- Tedarikçi -->
+                    <div class="col-md-3">
+
+                        <div class="mb-3">
+
+                            <label class="form-control-label">
+                                Tedarikçi
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   value="@Model.SupplierName"
+                                   readonly />
+
+                        </div>
+
+                    </div>
+
+                    <!-- Telefon -->
+                    <div class="col-md-3">
+
+                        <div class="mb-3">
+
+                            <label class="form-control-label">
+                                Telefon
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   value="@(string.IsNullOrWhiteSpace(Model.SupplierPhone) ? "-" : Model.SupplierPhone)"
+                                   readonly />
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- Açıklama -->
+                <div class="mb-3">
+
+                    <label class="form-control-label">
+                        Açıklama
+                    </label>
+
+                    <textarea class="form-control"
+                              rows="3"
+                              readonly>@(string.IsNullOrWhiteSpace(Model.Description) ? "-" : Model.Description)</textarea>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Alınan Taşlar -->
+        <div class="card">
+
+            <div class="card-header">
+                Alınan Taşlar
+            </div>
+
+            <div class="card-body">
+
+                <div class="table-responsive">
+
+                    <table class="table table-bordered table-striped">
+
+                        <thead>
+                            <tr>
+                                <th>Taş</th>
+                                <th>Plaka Adedi</th>
+                                <th>Birim Alış Fiyatı</th>
+                                <th>Satır Toplamı</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            @if (Model.Details == null || Model.Details.Count == 0)
+                            {
+                                <tr>
+                                    <td colspan="4"
+                                        class="text-center">
+
+                                        Bu alıma ait taş bulunamadı.
+
+                                    </td>
+                                </tr>
+                            }
+                            else
+                            {
+                                @foreach (var item in Model.Details)
+                                {
+                                    <tr>
+
+                                        <td>
+                                            @item.StoneName
+                                        </td>
+
+                                        <td>
+                                            @item.Quantity plaka
+                                        </td>
+
+                                        <td>
+                                            @item.UnitPrice.ToString("N2") ₺
+                                        </td>
+
+                                        <td>
+                                            <strong>
+                                                @item.LineTotal.ToString("N2") ₺
+                                            </strong>
+                                        </td>
+
+                                    </tr>
+                                }
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+            <!-- Genel Toplam -->
+            <div class="card-footer">
+
+                <div class="row">
+
+                    <div class="col-md-8">
+                    </div>
+
+                    <div class="col-md-4">
+
+                        <label class="form-control-label">
+                            Genel Toplam
+                        </label>
+
+                        <input type="text"
+                               class="form-control"
+                               value="@($"{Model.TotalAmount:N2} ₺")"
+                               readonly />
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Alt Buton -->
+        <div class="card">
+
+            <div class="card-footer">
+
+                <a asp-controller="Purchase"
+                   asp-action="Index"
+                   class="btn btn-secondary">
+
+                    <i class="fa-solid fa-arrow-left"></i>
+                    Alımlara Dön
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>

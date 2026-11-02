@@ -1,0 +1,652 @@
+﻿@using StoneTech.Models.Customer
+@using StoneTech.Enums
+@model CustomerDetailsViewModel
+
+@{
+    ViewData["Title"] = "Müşteri Detayı";
+}
+
+<div class="section__content section__content--p30">
+    <div class="container-fluid">
+
+        <!-- Sayfa başlığı -->
+        <div class="page-header">
+
+            <div>
+
+                <h1>Müşteri Detayı</h1>
+
+                <p class="subtitle">
+                    @Model.CustomerName müşterisine ait bilgileri ve cari durumu görüntüleyin.
+                </p>
+
+            </div>
+
+            <div class="page-header__actions">
+
+                <a asp-controller="Customer"
+                   asp-action="Index"
+                   class="m-btn m-btn--ghost">
+
+                    <i class="fa-solid fa-arrow-left"></i>
+                    Müşteri Listesi
+
+                </a>
+
+                <a asp-controller="Customer"
+                   asp-action="Edit"
+                   asp-route-id="@Model.CustomerId"
+                   class="m-btn m-btn--primary">
+
+                    <i class="fa-solid fa-pen-to-square"></i>
+                    Düzenle
+
+                </a>
+
+            </div>
+
+        </div>
+
+        <!-- Başarı mesajı -->
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success">
+                @TempData["SuccessMessage"]
+            </div>
+        }
+
+        <!-- Müşteri temel bilgileri -->
+        <div class="card mb-4">
+
+            <div class="card-header">
+                <strong>Müşteri Bilgileri</strong>
+            </div>
+
+            <div class="card-body">
+
+                <div class="row">
+
+                    <!-- Müşteri tipi -->
+                    <div class="col-md-4">
+
+                        <div class="mb-3">
+
+                            <label class="form-control-label">
+                                Müşteri Tipi
+                            </label>
+
+                            <div class="form-control">
+
+                                @if (Model.CustomerType == CustomerType.Individual)
+                                {
+                                    <span class="badge bg-primary">
+                                        Bireysel
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-info">
+                                        Kurumsal
+                                    </span>
+                                }
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- Ad soyad / firma unvanı -->
+                    <div class="col-md-4">
+
+                        <div class="mb-3">
+
+                            <label class="form-control-label">
+
+                                @if (Model.CustomerType == CustomerType.Individual)
+                                {
+                                    <text>Ad Soyad</text>
+                                }
+                                else
+                                {
+                                    <text>Firma Unvanı</text>
+                                }
+
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   value="@Model.CustomerName"
+                                   readonly />
+
+                        </div>
+
+                    </div>
+
+                    <!-- Durum -->
+                    <div class="col-md-4">
+
+                        <div class="mb-3">
+
+                            <label class="form-control-label">
+                                Durum
+                            </label>
+
+                            <div class="form-control">
+
+                                @if (Model.IsActive)
+                                {
+                                    <span class="badge bg-success">
+                                        Aktif
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">
+                                        Pasif
+                                    </span>
+                                }
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- Bireysel müşteri bilgileri -->
+                @if (Model.CustomerType == CustomerType.Individual)
+                {
+                    <div class="row">
+
+                        <div class="col-md-4">
+
+                            <div class="mb-3">
+
+                                <label class="form-control-label">
+                                    T.C. Kimlik Numarası
+                                </label>
+
+                                <input type="text"
+                                       class="form-control"
+                                       value="@(string.IsNullOrWhiteSpace(Model.IdentityNumber) ? "-" : Model.IdentityNumber)"
+                                       readonly />
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-4">
+
+                            <div class="mb-3">
+
+                                <label class="form-control-label">
+                                    Telefon
+                                </label>
+
+                                <input type="text"
+                                       class="form-control"
+                                       value="@Model.Phone"
+                                       readonly />
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-4">
+
+                            <div class="mb-3">
+
+                                <label class="form-control-label">
+                                    E-posta
+                                </label>
+
+                                <input type="text"
+                                       class="form-control"
+                                       value="@(string.IsNullOrWhiteSpace(Model.Email) ? "-" : Model.Email)"
+                                       readonly />
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                }
+                else
+                {
+                    <!-- Kurumsal müşteri bilgileri -->
+                    <div class="row">
+
+                        <div class="col-md-3">
+
+                            <div class="mb-3">
+
+                                <label class="form-control-label">
+                                    Vergi Numarası
+                                </label>
+
+                                <input type="text"
+                                       class="form-control"
+                                       value="@(string.IsNullOrWhiteSpace(Model.TaxNumber) ? "-" : Model.TaxNumber)"
+                                       readonly />
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-3">
+
+                            <div class="mb-3">
+
+                                <label class="form-control-label">
+                                    Vergi Dairesi
+                                </label>
+
+                                <input type="text"
+                                       class="form-control"
+                                       value="@(string.IsNullOrWhiteSpace(Model.TaxOffice) ? "-" : Model.TaxOffice)"
+                                       readonly />
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-3">
+
+                            <div class="mb-3">
+
+                                <label class="form-control-label">
+                                    Telefon
+                                </label>
+
+                                <input type="text"
+                                       class="form-control"
+                                       value="@Model.Phone"
+                                       readonly />
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-3">
+
+                            <div class="mb-3">
+
+                                <label class="form-control-label">
+                                    E-posta
+                                </label>
+
+                                <input type="text"
+                                       class="form-control"
+                                       value="@(string.IsNullOrWhiteSpace(Model.Email) ? "-" : Model.Email)"
+                                       readonly />
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                }
+
+                <!-- Adres -->
+                <div class="mb-3">
+
+                    <label class="form-control-label">
+                        Adres
+                    </label>
+
+                    <textarea class="form-control"
+                              rows="3"
+                              readonly>@(string.IsNullOrWhiteSpace(Model.Address) ? "-" : Model.Address)</textarea>
+
+                </div>
+
+                <!-- Not -->
+                <div class="mb-3">
+
+                    <label class="form-control-label">
+                        Not
+                    </label>
+
+                    <textarea class="form-control"
+                              rows="3"
+                              readonly>@(string.IsNullOrWhiteSpace(Model.Note) ? "-" : Model.Note)</textarea>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Cari özet -->
+        <div class="card mb-4">
+
+            <div class="card-header">
+                <strong>Cari Özet</strong>
+            </div>
+
+            <div class="card-body">
+
+                <div class="row">
+
+                    <!-- İş emri sayısı -->
+                    <div class="col-md-3">
+
+                        <div class="mb-3">
+
+                            <label class="form-control-label">
+                                Aktif İş Sayısı
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   value="@Model.WorkOrderCount"
+                                   readonly />
+
+                        </div>
+
+                    </div>
+
+                    <!-- Toplam iş tutarı -->
+                    <div class="col-md-3">
+
+                        <div class="mb-3">
+
+                            <label class="form-control-label">
+                                Toplam Tutar
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   value="@($"{Model.TotalAmount:N2} ₺")"
+                                   readonly />
+
+                        </div>
+
+                    </div>
+
+                    <!-- Toplam ödeme -->
+                    <div class="col-md-3">
+
+                        <div class="mb-3">
+
+                            <label class="form-control-label">
+                                Toplam Ödenen
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   value="@($"{Model.TotalPaid:N2} ₺")"
+                                   readonly />
+
+                        </div>
+
+                    </div>
+
+                    <!-- Kalan borç -->
+                    <div class="col-md-3">
+
+                        <div class="mb-3">
+
+                            <label class="form-control-label">
+                                Kalan Borç
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   value="@($"{Model.RemainingDebt:N2} ₺")"
+                                   readonly />
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Müşterinin iş emirleri -->
+        <section class="m-card" style="padding: 20px;">
+
+            <div class="dt-toolbar">
+
+                <div>
+                    <strong>İş Emirleri</strong>
+                </div>
+
+                <div>
+                    <span class="text-muted">
+                        Toplam @Model.WorkOrders.Count kayıt
+                    </span>
+                </div>
+
+            </div>
+
+            <div class="table-responsive">
+
+                <table class="m-table dt-table">
+
+                    <thead>
+
+                        <tr>
+                            <th>İş Emri</th>
+                            <th>Tarih</th>
+                            <th>Durum</th>
+                            <th>Toplam</th>
+                            <th>Ödenen</th>
+                            <th>Kalan</th>
+                            <th>Açıklama</th>
+                            <th></th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        @if (Model.WorkOrders.Count == 0)
+                        {
+                            <tr>
+
+                                <td colspan="8">
+
+                                    <div class="empty-state">
+
+                                        <span class="empty-state__icon">
+                                            <i class="fa-solid fa-clipboard-list"></i>
+                                        </span>
+
+                                        <h3 class="empty-state__title">
+                                            İş emri bulunamadı
+                                        </h3>
+
+                                        <p class="empty-state__text">
+                                            Bu müşteriye ait henüz bir iş emri oluşturulmamış.
+                                        </p>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var workOrder in Model.WorkOrders)
+                            {
+                                <tr>
+
+                                    <!-- İş emri numarası -->
+                                    <td>
+                                        <a asp-controller="WorkOrder"
+                                           asp-action="Details"
+                                           asp-route-id="@workOrder.WorkOrderId">
+
+                                            <strong>
+                                                @workOrder.WorkOrderNumber
+                                            </strong>
+
+                                        </a>
+                                    </td>
+
+                                    <!-- Oluşturulma tarihi -->
+                                    <td>
+                                        @workOrder.CreatedDate.ToString("dd.MM.yyyy HH:mm")
+                                    </td>
+
+                                    <!-- İş emri durumu -->
+                                    <td>
+
+                                        @switch (workOrder.Status)
+                                        {
+                                            case WorkOrderStatus.PendingApproval:
+
+                                                <span class="badge bg-warning text-dark">
+                                                    Onay Bekliyor
+                                                </span>
+
+                                                break;
+
+                                            case WorkOrderStatus.Approved:
+
+                                                <span class="badge bg-primary">
+                                                    Onaylandı
+                                                </span>
+
+                                                break;
+
+                                            case WorkOrderStatus.InWorkshop:
+
+                                                <span class="badge bg-info">
+                                                    Atölyede
+                                                </span>
+
+                                                break;
+
+                                            case WorkOrderStatus.Completed:
+
+                                                <span class="badge bg-success">
+                                                    Tamamlandı
+                                                </span>
+
+                                                break;
+
+                                            case WorkOrderStatus.Rejected:
+
+                                                <span class="badge bg-danger">
+                                                    Reddedildi
+                                                </span>
+
+                                                break;
+
+                                            case WorkOrderStatus.Cancelled:
+
+                                                <span class="badge bg-secondary">
+                                                    İptal Edildi
+                                                </span>
+
+                                                break;
+                                        }
+
+                                    </td>
+
+                                    <!-- Toplam tutar -->
+                                    <td>
+                                        @workOrder.TotalAmount.ToString("N2") ₺
+                                    </td>
+
+                                    <!-- Ödenen tutar -->
+                                    <td>
+
+                                        @if (workOrder.TotalPaid > 0)
+                                        {
+                                            <span class="text-success">
+                                                @workOrder.TotalPaid.ToString("N2") ₺
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">
+                                                0,00 ₺
+                                            </span>
+                                        }
+
+                                    </td>
+
+                                    <!-- Kalan tutar -->
+                                    <td>
+
+                                        @if (workOrder.Status == WorkOrderStatus.Cancelled ||
+                                                                        workOrder.Status == WorkOrderStatus.Rejected)
+                                        {
+                                            <span class="text-muted">
+                                                -
+                                            </span>
+                                        }
+                                        else if (workOrder.RemainingAmount > 0)
+                                        {
+                                            <strong class="text-danger">
+                                                @workOrder.RemainingAmount.ToString("N2") ₺
+                                            </strong>
+                                        }
+                                        else
+                                        {
+                                            <strong class="text-success">
+                                                0,00 ₺
+                                            </strong>
+                                        }
+
+                                    </td>
+
+                                    <!-- İş emri açıklaması -->
+                                    <td>
+
+                                        @if (!string.IsNullOrWhiteSpace(workOrder.Description))
+                                        {
+                                            @workOrder.Description
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">
+                                                -
+                                            </span>
+                                        }
+
+                                    </td>
+
+                                    <!-- İşlemler -->
+                                    <td>
+
+                                        <div class="table-data-feature">
+
+                                            <a asp-controller="WorkOrder"
+                                               asp-action="Details"
+                                               asp-route-id="@workOrder.WorkOrderId"
+                                               class="item"
+                                               data-bs-toggle="tooltip"
+                                               title="İş Emri Detayı">
+
+                                                <i class="fa-solid fa-eye"></i>
+
+                                            </a>
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+                            }
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </div>
+</div>

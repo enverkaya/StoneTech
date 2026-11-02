@@ -1,0 +1,136 @@
+﻿@using StoneTech.Models.Supplier
+@model SupplierCreateViewModel
+
+@{
+    ViewData["Title"] = "Tedarikçi Ekle";
+}
+
+<div class="section__content section__content--p30">
+    <div class="container-fluid">
+
+        <div class="page-header">
+            <div>
+                <h1>Yeni Tedarikçi</h1>
+                <p class="subtitle">
+                    Sisteme yeni bir tedarikçi ekleyin.
+                </p>
+            </div>
+
+            <div class="page-header__actions">
+                <a asp-controller="Supplier"
+                   asp-action="Index"
+                   class="m-btn m-btn--ghost">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    Tedarikçilere Dön
+                </a>
+            </div>
+        </div>
+
+        <section class="m-card" style="padding: 24px;">
+
+            <form asp-controller="Supplier"
+                  asp-action="Create"
+                  method="post">
+
+                @Html.AntiForgeryToken()
+
+                <div asp-validation-summary="ModelOnly"
+                     class="text-danger mb-3">
+                </div>
+
+                <div class="row">
+
+                    <div class="col-md-6 mb-4">
+                        <label asp-for="SupplierName"
+                               class="form-label">
+                            Tedarikçi Adı
+                        </label>
+
+                        <input asp-for="SupplierName"
+                               class="form-control"
+                               placeholder="Örn: ABC Mermer" />
+
+                        <span asp-validation-for="SupplierName"
+                              class="text-danger">
+                        </span>
+                    </div>
+
+                    <div class="col-md-6 mb-4">
+                        <label asp-for="Phone"
+                               class="form-label">
+                            Telefon
+                        </label>
+
+                        <input asp-for="Phone"
+                               type="tel"
+                               class="form-control"
+                               placeholder="Örn: 0258 000 00 00" />
+
+                        <span asp-validation-for="Phone"
+                              class="text-danger">
+                        </span>
+                    </div>
+
+                    <div class="col-12 mb-4">
+                        <label asp-for="Address"
+                               class="form-label">
+                            Adres
+                        </label>
+
+                        <textarea asp-for="Address"
+                                  class="form-control"
+                                  rows="3"
+                                  placeholder="Tedarikçinin adresini girin..."></textarea>
+
+                        <span asp-validation-for="Address"
+                              class="text-danger">
+                        </span>
+                    </div>
+
+                    <div class="col-12 mb-4">
+                        <label asp-for="Note"
+                               class="form-label">
+                            Not
+                        </label>
+
+                        <textarea asp-for="Note"
+                                  class="form-control"
+                                  rows="4"
+                                  placeholder="Tedarikçi hakkında eklemek istediğiniz notlar..."></textarea>
+
+                        <span asp-validation-for="Note"
+                              class="text-danger">
+                        </span>
+
+                        <small class="text-muted d-block mt-2">
+                            Bu alan isteğe bağlıdır.
+                        </small>
+                    </div>
+
+                </div>
+
+                <div style="display: flex;
+                            justify-content: flex-end;
+                            gap: 10px;
+                            margin-top: 10px;">
+
+                    <a asp-controller="Supplier"
+                       asp-action="Index"
+                       class="m-btn m-btn--ghost">
+                        İptal
+                    </a>
+
+                    <button type="submit"
+                            class="m-btn m-btn--primary">
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        Tedarikçiyi Kaydet
+                    </button>
+
+                </div>
+
+            </form>
+
+        </section>
+
+    </div>
+</div>

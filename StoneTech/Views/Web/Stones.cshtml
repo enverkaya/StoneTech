@@ -1,0 +1,139 @@
+﻿@using StoneTech.Entities
+
+@{
+    ViewData["Title"] = "Taşlarımız";
+    Layout = "_WebLayout";
+
+    var stones = ViewBag.Stones as List<Stone> ?? new List<Stone>();
+}
+
+<section class="flexslider">
+    <ul class="slides">
+        <li style="background-image: url('@Url.Content("~/Web/img/slider_1.jpg")')" class="overlay">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-8 offset-md-2">
+                        <div class="probootstrap-slider-text text-center">
+                            <h1 class="probootstrap-heading">Taşlarımız</h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </li>
+    </ul>
+</section>
+
+<section class="probootstrap-section probootstrap-bg-white">
+    <div class="container">
+
+        <div class="row">
+            <div class="col-md-6 offset-md-3 text-center section-heading probootstrap-animate"
+                 data-animate-effect="fadeIn">
+                <h2>Taş Çeşitlerimiz</h2>
+            </div>
+        </div>
+
+        @if (stones.Any())
+        {
+            <div id="stonesContainer">
+
+                @for (int i = 0; i < stones.Count; i += 2)
+                {
+                    <div class="row stone-row"
+                        @(i >= 10 ? "hidden" : "")>
+
+                        @for (int j = i; j < Math.Min(i + 2, stones.Count); j++)
+                        {
+                            var stone = stones[j];
+
+                            <div class="col-md-6 d-flex">
+
+                                <div class="probootstrap-service-2 probootstrap-animate w-100"
+                                     data-animate-effect="fadeIn">
+
+                                    <div class="image">
+                                        <div class="image-bg">
+                                            @if (!string.IsNullOrWhiteSpace(stone.ImageUrl))
+                                            {
+                                                <img src="@Url.Content(stone.ImageUrl)"
+                                                     alt="@stone.StoneName" />
+                                            }
+                                        </div>
+                                    </div>
+
+                                    <div class="text">
+                                        <h3>@stone.StoneName</h3>
+
+                                        @if (!string.IsNullOrWhiteSpace(stone.WebDescription))
+                                        {
+                                            <p>@stone.WebDescription</p>
+                                        }
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        }
+
+                    </div>
+                }
+
+            </div>
+
+            @if (stones.Count > 10)
+            {
+                <div class="row">
+                    <div class="col-md-12 text-center">
+                        <button type="button"
+                                id="loadMoreStones"
+                                class="btn btn-primary">
+                            Daha Fazla Göster
+                        </button>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <p>Şu anda görüntülenecek taş bulunmamaktadır.</p>
+                </div>
+            </div>
+        }
+
+    </div>
+</section>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+
+        const rows = Array.from(
+            document.querySelectorAll("#stonesContainer .stone-row")
+        );
+
+        const button = document.getElementById("loadMoreStones");
+
+        let visibleRows = 5;
+
+        function updateStones() {
+
+            rows.forEach(function(row, index) {
+                row.hidden = index >= visibleRows;
+            });
+
+            if (button) {
+                button.hidden = visibleRows >= rows.length;
+            }
+        }
+
+        if (button) {
+            button.addEventListener("click", function() {
+                visibleRows += 5;
+                updateStones();
+            });
+        }
+
+        updateStones();
+    });
+</script>

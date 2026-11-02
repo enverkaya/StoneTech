@@ -1,0 +1,439 @@
+@using StoneTech.Enums
+@using StoneTech.Models.Report
+@model CustomerReportViewModel
+
+@{
+    ViewData["Title"] = "Müşteri Raporu";
+}
+
+<section class="section__content section__content--p30">
+    <div class="container-fluid">
+
+        <!-- Sayfa başlığı -->
+        <div class="page-header">
+            <div>
+                <h2 class="page-header__title">
+                    Müşteri Raporu
+                </h2>
+
+                <p class="page-header__subtitle">
+                    Müşteri bazında iş hacmi, tahsilat ve kalan alacakları görüntüleyin.
+                </p>
+            </div>
+
+            <div class="d-flex gap-2 flex-wrap">
+
+                <!-- Raporlama merkezine dönüş -->
+                <a asp-action="Index"
+                   class="btn btn-outline-secondary">
+                    <i class="fa-solid fa-arrow-left me-1"></i>
+                    Raporlama Merkezi
+                </a>
+
+                <!-- Excel raporu -->
+                <a asp-action="Export"
+                   asp-route-report="Customers"
+                   asp-route-format="Excel"
+                   asp-route-startDate="@(Model.StartDate?.ToString("yyyy-MM-dd"))"
+                   asp-route-endDate="@(Model.EndDate?.ToString("yyyy-MM-dd"))"
+                   asp-route-customerType="@Model.CustomerType"
+                   asp-route-search="@Model.Search"
+                   class="btn btn-success">
+                    <i class="fa-solid fa-file-excel me-1"></i>
+                    Excel
+                </a>
+
+                <!-- PDF raporu -->
+                <a asp-action="Export"
+                   asp-route-report="Customers"
+                   asp-route-format="Pdf"
+                   asp-route-startDate="@(Model.StartDate?.ToString("yyyy-MM-dd"))"
+                   asp-route-endDate="@(Model.EndDate?.ToString("yyyy-MM-dd"))"
+                   asp-route-customerType="@Model.CustomerType"
+                   asp-route-search="@Model.Search"
+                   class="btn btn-danger">
+                    <i class="fa-solid fa-file-pdf me-1"></i>
+                    PDF
+                </a>
+
+            </div>
+        </div>
+
+        <!-- Hata mesajı -->
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger">
+                @TempData["ErrorMessage"]
+            </div>
+        }
+
+        <!-- Rapor filtreleri -->
+        <div class="m-card mb-4 p-4">
+            <div class="m-card__header mb-3">
+                <div>
+                    <h4 class="m-card__title">
+                        Rapor Filtreleri
+                    </h4>
+
+                    <p class="m-card__subtitle">
+                        İş emri dönemi, müşteri tipi, adı veya telefonuna göre filtreleyin.
+                    </p>
+                </div>
+            </div>
+
+            <form asp-action="Customers" method="get">
+                <div class="row align-items-end">
+
+                    <!-- Başlangıç tarihi -->
+                    <div class="col-lg-2 col-md-6 mb-3">
+                        <label class="form-label">
+                            Başlangıç Tarihi
+                        </label>
+
+                        <input type="date"
+                               name="startDate"
+                               class="form-control"
+                               value="@(Model.StartDate?.ToString("yyyy-MM-dd"))" />
+                    </div>
+
+                    <!-- Bitiş tarihi -->
+                    <div class="col-lg-2 col-md-6 mb-3">
+                        <label class="form-label">
+                            Bitiş Tarihi
+                        </label>
+
+                        <input type="date"
+                               name="endDate"
+                               class="form-control"
+                               value="@(Model.EndDate?.ToString("yyyy-MM-dd"))" />
+                    </div>
+
+                    <!-- Müşteri tipi -->
+                    <div class="col-lg-2 col-md-6 mb-3">
+                        <label class="form-label">
+                            Müşteri Tipi
+                        </label>
+
+                        <select name="customerType"
+                                class="form-control">
+
+                            <option value="">
+                                Tümü
+                            </option>
+
+                            @if (Model.CustomerType == CustomerType.Individual)
+                            {
+                                <option value="1" selected>
+                                    Bireysel
+                                </option>
+                            }
+                            else
+                            {
+                                <option value="1">
+                                    Bireysel
+                                </option>
+                            }
+
+                            @if (Model.CustomerType == CustomerType.Corporate)
+                            {
+                                <option value="2" selected>
+                                    Kurumsal
+                                </option>
+                            }
+                            else
+                            {
+                                <option value="2">
+                                    Kurumsal
+                                </option>
+                            }
+
+                        </select>
+                    </div>
+
+                    <!-- Müşteri veya telefon araması -->
+                    <div class="col-lg-3 col-md-6 mb-3">
+                        <label class="form-label">
+                            Müşteri / Telefon
+                        </label>
+
+                        <input type="text"
+                               name="search"
+                               class="form-control"
+                               value="@Model.Search"
+                               placeholder="Müşteri adı veya telefon..." />
+                    </div>
+
+                    <!-- Filtre butonları -->
+                    <div class="col-lg-3 col-md-12 mb-3">
+                        <div class="d-flex gap-2">
+
+                            <button class="btn btn-primary flex-fill"
+                                    type="submit">
+                                <i class="fa-solid fa-filter me-1"></i>
+                                Filtrele
+                            </button>
+
+                            <a asp-action="Customers"
+                               class="btn btn-outline-secondary flex-fill">
+                                <i class="fa-solid fa-rotate-left me-1"></i>
+                                Temizle
+                            </a>
+
+                        </div>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+
+        <!-- KPI kartları -->
+        <div class="row row-tight mb-4">
+
+            <!-- Müşteri sayısı -->
+            <div class="col-sm-6 col-xl">
+                <article class="stat-card">
+                    <div class="stat-card__head">
+                        <span class="stat-card__label">
+                            Müşteri
+                        </span>
+
+                        <span class="stat-card__icon">
+                            <i class="fa-solid fa-users"></i>
+                        </span>
+                    </div>
+
+                    <div class="stat-card__value">
+                        @Model.CustomerCount
+                    </div>
+
+                    <div class="stat-card__meta">
+                        Filtreye uyan müşteri
+                    </div>
+                </article>
+            </div>
+
+            <!-- İş emri sayısı -->
+            <div class="col-sm-6 col-xl">
+                <article class="stat-card">
+                    <div class="stat-card__head">
+                        <span class="stat-card__label">
+                            İş Emri
+                        </span>
+
+                        <span class="stat-card__icon">
+                            <i class="fa-solid fa-clipboard-list"></i>
+                        </span>
+                    </div>
+
+                    <div class="stat-card__value">
+                        @Model.WorkOrderCount
+                    </div>
+
+                    <div class="stat-card__meta">
+                        Geçerli iş emri
+                    </div>
+                </article>
+            </div>
+
+            <!-- Toplam iş hacmi -->
+            <div class="col-sm-6 col-xl">
+                <article class="stat-card">
+                    <div class="stat-card__head">
+                        <span class="stat-card__label">
+                            İş Hacmi
+                        </span>
+
+                        <span class="stat-card__icon">
+                            <i class="fa-solid fa-chart-line"></i>
+                        </span>
+                    </div>
+
+                    <div class="stat-card__value">
+                        @Model.TotalBusinessVolume.ToString("N2") ₺
+                    </div>
+
+                    <div class="stat-card__meta">
+                        Toplam iş tutarı
+                    </div>
+                </article>
+            </div>
+
+            <!-- Toplam tahsilat -->
+            <div class="col-sm-6 col-xl">
+                <article class="stat-card">
+                    <div class="stat-card__head">
+                        <span class="stat-card__label">
+                            Ödeme
+                        </span>
+
+                        <span class="stat-card__icon">
+                            <i class="fa-solid fa-money-bill-transfer"></i>
+                        </span>
+                    </div>
+
+                    <div class="stat-card__value">
+                        @Model.TotalPaid.ToString("N2") ₺
+                    </div>
+
+                    <div class="stat-card__meta">
+                        Toplam tahsilat
+                    </div>
+                </article>
+            </div>
+
+            <!-- Kalan alacak -->
+            <div class="col-sm-6 col-xl">
+                <article class="stat-card">
+                    <div class="stat-card__head">
+                        <span class="stat-card__label">
+                            Kalan Alacak
+                        </span>
+
+                        <span class="stat-card__icon">
+                            <i class="fa-solid fa-wallet"></i>
+                        </span>
+                    </div>
+
+                    <div class="stat-card__value">
+                        @Model.TotalRemaining.ToString("N2") ₺
+                    </div>
+
+                    <div class="stat-card__meta">
+                        Henüz tahsil edilmemiş
+                    </div>
+                </article>
+            </div>
+
+        </div>
+
+        <!-- Müşteri detayları -->
+        <div class="m-card p-4">
+            <div class="m-card__header mb-3">
+                <div>
+                    <h4 class="m-card__title">
+                        Müşteri Detayları
+                    </h4>
+
+                    <p class="m-card__subtitle">
+                        İptal ve reddedilen iş emirleri finansal toplamların dışındadır.
+                    </p>
+                </div>
+
+                @if (Model.Items.Any())
+                {
+                    <div class="text-muted">
+                        <strong>@Model.Items.Count</strong> müşteri
+                    </div>
+                }
+            </div>
+
+            <div class="table-responsive">
+                <table class="table m-table dt-table align-middle">
+
+                    <thead>
+                        <tr>
+                            <th>Müşteri</th>
+                            <th>Tip</th>
+                            <th>Telefon</th>
+                            <th class="text-end">İş Emri</th>
+                            <th class="text-end">İş Hacmi</th>
+                            <th class="text-end">Ödeme</th>
+                            <th class="text-end">Kalan</th>
+                            <th>Durum</th>
+                            <th class="text-center">İşlem</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @if (Model.Items.Any())
+                        {
+                            foreach (var item in Model.Items)
+                            {
+                                <tr>
+
+                                    <!-- Müşteri adı -->
+                                    <td>
+                                        <strong>
+                                            @item.CustomerName
+                                        </strong>
+                                    </td>
+
+                                    <!-- Müşteri tipi -->
+                                    <td>
+                                        @(item.CustomerType == CustomerType.Individual
+                                                                        ? "Bireysel"
+                                                                        : "Kurumsal")
+                            </td>
+
+                                    <!-- Telefon -->
+                                    <td>
+                                        @item.Phone
+                                    </td>
+
+                                    <!-- İş emri sayısı -->
+                                    <td class="text-end">
+                                        @item.WorkOrderCount
+                                    </td>
+
+                                    <!-- Toplam iş hacmi -->
+                                    <td class="text-end">
+                                        @item.TotalAmount.ToString("N2") ₺
+                                    </td>
+
+                                    <!-- Toplam tahsilat -->
+                                    <td class="text-end">
+                                        @item.TotalPaid.ToString("N2") ₺
+                                    </td>
+
+                                    <!-- Kalan alacak -->
+                                    <td class="text-end">
+                                        <strong class="@(item.RemainingAmount > 0 ? "text-danger" : "text-success")">
+                                            @item.RemainingAmount.ToString("N2") ₺
+                                        </strong>
+                                    </td>
+
+                                    <!-- Müşteri durumu -->
+                                    <td>
+                                        <span class="badge @(item.IsActive ? "badge-success" : "badge-secondary")">
+                                            @(item.IsActive ? "Aktif" : "Pasif")
+                                        </span>
+                                    </td>
+
+                                    <!-- Müşteri detayına git -->
+                                    <td class="text-center">
+                                        <a asp-controller="Customer"
+                                           asp-action="Details"
+                                           asp-route-id="@item.CustomerId"
+                                           class="text-secondary"
+                                           title="Müşteri Detayını Görüntüle">
+                                            <i class="fa-solid fa-eye"></i>
+                                        </a>
+                                    </td>
+
+                                </tr>
+                                                }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="9"
+                                    class="text-center py-5 text-muted">
+                                    Seçilen filtrelere uygun müşteri bulunamadı.
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+
+                </table>
+            </div>
+
+            @if (Model.Items.Any())
+            {
+                <div class="mt-3 text-muted">
+                    Toplam <strong>@Model.Items.Count</strong> müşteri listeleniyor.
+                </div>
+            }
+        </div>
+
+    </div>
+</section>

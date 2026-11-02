@@ -1,0 +1,1187 @@
+﻿@model StoneTech.Models.Dashboard.WorkshopDashboardViewModel
+
+@{
+    ViewData["Title"] = "Atölye Dashboard";
+}
+
+<div class="section__content section__content--p30">
+    <div class="container-fluid">
+
+        @* Sayfa başlığı *@
+        <div class="page-header">
+
+            <div>
+                <h1>
+                    Hoş Geldiniz, @Model.CurrentUserFullName
+                </h1>
+
+                <p class="subtitle">
+                    Atölye işlerini, kullanılacak taşları ve stok durumunu tek ekrandan takip edin.
+                </p>
+            </div>
+
+            <div class="page-header__actions">
+
+                <span class="date-chip">
+                    <i class="fa-regular fa-calendar"></i>
+                    <span id="dashboardDate"></span>
+                </span>
+
+                <span class="date-chip">
+                    <i class="fa-regular fa-clock"></i>
+                    <span id="dashboardClock"></span>
+                </span>
+
+            </div>
+
+        </div>
+
+
+        @* Atölye personelinin sık kullandığı işlemler *@
+        <div class="m-card mb-3">
+
+            <header class="m-card__header">
+
+                <div>
+                    <h2 class="m-card__title">
+                        Hızlı İşlemler
+                    </h2>
+
+                    <p class="m-card__subtitle">
+                        Atölye ve stok işlemlerine hızlı erişim sağlayın.
+                    </p>
+                </div>
+
+            </header>
+
+            <div class="p-3">
+
+                <div class="d-flex flex-wrap gap-2">
+
+                    <a asp-controller="WorkOrder"
+                       asp-action="Index"
+                       class="m-btn m-btn--ghost">
+                        <i class="fa-solid fa-clipboard-check"></i>
+                        İş Emirleri
+                    </a>
+
+                    <a asp-controller="Stock"
+                       asp-action="Index"
+                       class="m-btn m-btn--ghost">
+                        <i class="fa-solid fa-boxes-stacked"></i>
+                        Stoklar
+                    </a>
+
+                    <a asp-controller="Stone"
+                       asp-action="Index"
+                       class="m-btn m-btn--ghost">
+                        <i class="fa-solid fa-gem"></i>
+                        Taşlar
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        @* Birinci sıra - Atölye iş durumu *@
+        <div class="row row-tight">
+
+            <div class="col-sm-6 col-lg-3">
+
+                <article class="stat-card">
+
+                    <div class="stat-card__head">
+
+                        <p class="stat-card__label">
+                            Başlamayı Bekleyen
+                        </p>
+
+                        <span class="stat-card__icon stat-card__icon--c1">
+                            <i class="fa-solid fa-hourglass-half"></i>
+                        </span>
+
+                    </div>
+
+                    <p class="stat-card__value">
+                        @Model.ApprovedWorkOrderCount
+                    </p>
+
+                    <p class="stat-card__delta">
+
+                        <i class="fa-solid fa-circle-check"></i>
+
+                        <span class="stat-card__delta-period">
+                            Onaylanmış iş emri
+                        </span>
+
+                    </p>
+
+                </article>
+
+            </div>
+
+
+            <div class="col-sm-6 col-lg-3">
+
+                <article class="stat-card">
+
+                    <div class="stat-card__head">
+
+                        <p class="stat-card__label">
+                            Atölyede
+                        </p>
+
+                        <span class="stat-card__icon stat-card__icon--c2">
+                            <i class="fa-solid fa-hammer"></i>
+                        </span>
+
+                    </div>
+
+                    <p class="stat-card__value">
+                        @Model.InWorkshopCount
+                    </p>
+
+                    <p class="stat-card__delta">
+
+                        <i class="fa-solid fa-gears"></i>
+
+                        <span class="stat-card__delta-period">
+                            Devam eden iş
+                        </span>
+
+                    </p>
+
+                </article>
+
+            </div>
+
+
+            <div class="col-sm-6 col-lg-3">
+
+                <article class="stat-card">
+
+                    <div class="stat-card__head">
+
+                        <p class="stat-card__label">
+                            Bu Ay Tamamlanan
+                        </p>
+
+                        <span class="stat-card__icon stat-card__icon--c3">
+                            <i class="fa-solid fa-check-double"></i>
+                        </span>
+
+                    </div>
+
+                    <p class="stat-card__value">
+                        @Model.MonthlyCompletedCount
+                    </p>
+
+                    <p class="stat-card__delta">
+
+                        <i class="fa-solid fa-circle-check"></i>
+
+                        <span class="stat-card__delta-period">
+                            Tamamlanan iş
+                        </span>
+
+                    </p>
+
+                </article>
+
+            </div>
+
+
+            <div class="col-sm-6 col-lg-3">
+
+                <article class="stat-card">
+
+                    <div class="stat-card__head">
+
+                        <p class="stat-card__label">
+                            Bekleyen Plaka
+                        </p>
+
+                        <span class="stat-card__icon stat-card__icon--c4">
+                            <i class="fa-solid fa-layer-group"></i>
+                        </span>
+
+                    </div>
+
+                    <p class="stat-card__value">
+                        @Model.WaitingPlateQuantity
+                    </p>
+
+                    <p class="stat-card__delta">
+
+                        <i class="fa-solid fa-box"></i>
+
+                        <span class="stat-card__delta-period">
+                            Başlayacak işlerde
+                        </span>
+
+                    </p>
+
+                </article>
+
+            </div>
+
+        </div>
+
+
+        @* İkinci sıra - Üretim ve stok durumu *@
+        <div class="row row-tight mt-3">
+
+            <div class="col-sm-6 col-lg-3">
+
+                <article class="stat-card">
+
+                    <div class="stat-card__head">
+
+                        <p class="stat-card__label">
+                            Atölyedeki Plaka
+                        </p>
+
+                        <span class="stat-card__icon stat-card__icon--c1">
+                            <i class="fa-solid fa-layer-group"></i>
+                        </span>
+
+                    </div>
+
+                    <p class="stat-card__value">
+                        @Model.InWorkshopPlateQuantity
+                    </p>
+
+                    <p class="stat-card__delta">
+
+                        <i class="fa-solid fa-hammer"></i>
+
+                        <span class="stat-card__delta-period">
+                            Devam eden işlerde
+                        </span>
+
+                    </p>
+
+                </article>
+
+            </div>
+
+
+            <div class="col-sm-6 col-lg-3">
+
+                <article class="stat-card">
+
+                    <div class="stat-card__head">
+
+                        <p class="stat-card__label">
+                            Kesim Metresi
+                        </p>
+
+                        <span class="stat-card__icon stat-card__icon--c2">
+                            <i class="fa-solid fa-ruler"></i>
+                        </span>
+
+                    </div>
+
+                    <p class="stat-card__value">
+                        @Model.InWorkshopCuttingMeter.ToString("N2") m
+                    </p>
+
+                    <p class="stat-card__delta">
+
+                        <i class="fa-solid fa-ruler-combined"></i>
+
+                        <span class="stat-card__delta-period">
+                            Atölyedeki işler
+                        </span>
+
+                    </p>
+
+                </article>
+
+            </div>
+
+
+            <div class="col-sm-6 col-lg-3">
+
+                <article class="stat-card">
+
+                    <div class="stat-card__head">
+
+                        <p class="stat-card__label">
+                            Toplam Stok
+                        </p>
+
+                        <span class="stat-card__icon stat-card__icon--c3">
+                            <i class="fa-solid fa-boxes-stacked"></i>
+                        </span>
+
+                    </div>
+
+                    <p class="stat-card__value">
+                        @Model.TotalStock.ToString("N0")
+                    </p>
+
+                    <p class="stat-card__delta">
+
+                        <i class="fa-solid fa-cubes-stacked"></i>
+
+                        <span class="stat-card__delta-period">
+                            Mevcut plaka
+                        </span>
+
+                    </p>
+
+                </article>
+
+            </div>
+
+
+            <div class="col-sm-6 col-lg-3">
+
+                <article class="stat-card">
+
+                    <div class="stat-card__head">
+
+                        <p class="stat-card__label">
+                            Kritik Stok
+                        </p>
+
+                        <span class="stat-card__icon stat-card__icon--c4">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                        </span>
+
+                    </div>
+
+                    <p class="stat-card__value">
+                        @Model.CriticalStockCount
+                    </p>
+
+                    <p class="stat-card__delta">
+
+                        <i class="fa-solid fa-box-open"></i>
+
+                        <span class="stat-card__delta-period">
+                            5 plaka veya altı
+                        </span>
+
+                    </p>
+
+                </article>
+
+            </div>
+
+        </div>
+
+
+        @* Üçüncü sıra - Taş çeşidi *@
+        <div class="row row-tight mt-3">
+
+            <div class="col-sm-6 col-lg-3">
+
+                <article class="stat-card">
+
+                    <div class="stat-card__head">
+
+                        <p class="stat-card__label">
+                            Aktif Taş Çeşidi
+                        </p>
+
+                        <span class="stat-card__icon stat-card__icon--c1">
+                            <i class="fa-solid fa-gem"></i>
+                        </span>
+
+                    </div>
+
+                    <p class="stat-card__value">
+                        @Model.ActiveStoneCount
+                    </p>
+
+                    <p class="stat-card__delta">
+
+                        <i class="fa-solid fa-layer-group"></i>
+
+                        <span class="stat-card__delta-period">
+                            Kullanılabilir taş
+                        </span>
+
+                    </p>
+
+                </article>
+
+            </div>
+
+        </div>
+
+
+        @* Atölyeye başlamayı bekleyen işler *@
+        <div class="row row-tight mt-3">
+
+            <div class="col-12">
+
+                <section class="m-card">
+
+                    <header class="m-card__header">
+
+                        <div>
+
+                            <h2 class="m-card__title">
+                                Atölyeye Başlamayı Bekleyen İşler
+                            </h2>
+
+                            <p class="m-card__subtitle">
+                                Onaylanmış işler ve bu işlerde kullanılacak taşlar.
+                            </p>
+
+                        </div>
+
+                        <a asp-controller="WorkOrder"
+                           asp-action="Index"
+                           class="m-btn m-btn--ghost">
+                            Tüm İş Emirleri
+                        </a>
+
+                    </header>
+
+
+                    <div class="p-3">
+
+                        @if (Model.WaitingWorkOrders.Any())
+                        {
+                            <div class="row row-tight">
+
+                                @foreach (var workOrder in Model.WaitingWorkOrders)
+                                {
+                                    <div class="col-xl-6 mb-3">
+
+                                        <div class="m-card h-100">
+
+                                            <header class="m-card__header">
+
+                                                <div>
+
+                                                    <h3 class="m-card__title">
+                                                        @workOrder.WorkOrderNumber
+                                                    </h3>
+
+                                                    <p class="m-card__subtitle">
+                                                        @workOrder.CustomerName
+                                                    </p>
+
+                                                </div>
+
+                                                <span class="badge bg-success">
+                                                    Onaylandı
+                                                </span>
+
+                                            </header>
+
+
+                                            <div class="p-3">
+
+                                                <div class="d-flex flex-wrap gap-3 mb-3">
+
+                                                    <span>
+                                                        <i class="fa-solid fa-layer-group"></i>
+                                                        <strong>
+                                                            @workOrder.TotalPlateQuantity
+                                                        </strong>
+                                                        Plaka
+                                                    </span>
+
+                                                    <span>
+                                                        <i class="fa-solid fa-ruler"></i>
+                                                        <strong>
+                                                            @workOrder.CuttingMeter.ToString("N2")
+                                                        </strong>
+                                                        m Kesim
+                                                    </span>
+
+                                                    <span>
+                                                        <i class="fa-regular fa-calendar"></i>
+                                                        @workOrder.CreatedDate.ToString("dd.MM.yyyy")
+                                                    </span>
+
+                                                </div>
+
+
+                                                @if (!string.IsNullOrWhiteSpace(workOrder.Description))
+                                                {
+                                                    <div class="alert alert-light mb-3">
+
+                                                        <strong>
+                                                            <i class="fa-solid fa-note-sticky"></i>
+                                                            İş Açıklaması:
+                                                        </strong>
+
+                                                        @workOrder.Description
+
+                                                    </div>
+                                                }
+
+
+                                                <h4 class="mb-3">
+                                                    Kullanılacak Taşlar
+                                                </h4>
+
+
+                                                @if (workOrder.Stones.Any())
+                                                {
+                                                    <div class="row">
+
+                                                        @foreach (var stone in workOrder.Stones)
+                                                        {
+                                                            <div class="col-md-6 mb-3">
+
+                                                                <div class="card h-100">
+
+                                                                    @if (!string.IsNullOrWhiteSpace(stone.ImageUrl))
+                                                                    {
+                                                                        <img src="@stone.ImageUrl"
+                                                                             class="card-img-top"
+                                                                             alt="@stone.StoneName"
+                                                                             style="height: 190px; object-fit: cover;" />
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <div class="d-flex align-items-center justify-content-center bg-light"
+                                                                             style="height: 190px;">
+
+                                                                            <div class="text-center text-muted">
+
+                                                                                <i class="fa-solid fa-image fa-3x mb-2"></i>
+
+                                                                                <div>
+                                                                                    Görsel Yok
+                                                                                </div>
+
+                                                                            </div>
+
+                                                                        </div>
+                                                                    }
+
+                                                                <div class="card-body">
+
+                                                                    <h5 class="card-title">
+                                                                        @stone.StoneName
+                                                                    </h5>
+
+                                                                    <p class="card-text mb-2">
+
+                                                                        <strong>
+                                                                            Renk:
+                                                                        </strong>
+
+                                                                        @(string.IsNullOrWhiteSpace(stone.Color)
+                                                                                                                                    ? "-"
+                                                                                                                                    : stone.Color)
+
+                                                        </p>
+
+                                                                        <span class="badge bg-primary">
+                                                                            @stone.Quantity Plaka
+                                                                        </span>
+
+                                                                    </div>
+
+                                                                </div>
+
+                                                            </div>
+                                                                                        }
+
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <p class="text-muted">
+                                                        Bu iş emrinde taş bilgisi bulunmuyor.
+                                                    </p>
+                                                }
+
+
+                                                <div class="d-flex justify-content-end mt-2">
+
+                                                    <a asp-controller="WorkOrder"
+                                                       asp-action="Details"
+                                                       asp-route-id="@workOrder.WorkOrderId"
+                                                       class="m-btn m-btn--ghost">
+
+                                                        <i class="fa-solid fa-eye"></i>
+                                                        İş Emrini Görüntüle
+
+                                                    </a>
+
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+                                }
+
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-center py-4">
+
+                                <i class="fa-solid fa-circle-check fa-2x mb-2"></i>
+
+                                <p class="mb-0">
+                                    Atölyeye başlamayı bekleyen iş bulunmuyor.
+                                </p>
+
+                            </div>
+                        }
+
+                    </div>
+
+                </section>
+
+            </div>
+
+        </div>
+
+
+        @* Şu anda atölyede bulunan işler *@
+        <div class="row row-tight mt-3">
+
+            <div class="col-12">
+
+                <section class="m-card">
+
+                    <header class="m-card__header">
+
+                        <div>
+
+                            <h2 class="m-card__title">
+                                Atölyedeki İşler
+                            </h2>
+
+                            <p class="m-card__subtitle">
+                                Şu anda üretimde olan işler ve kullanılan taşlar.
+                            </p>
+
+                        </div>
+
+                        <a asp-controller="WorkOrder"
+                           asp-action="Index"
+                           class="m-btn m-btn--ghost">
+                            Tüm İş Emirleri
+                        </a>
+
+                    </header>
+
+
+                    <div class="p-3">
+
+                        @if (Model.ActiveWorkOrders.Any())
+                        {
+                            <div class="row row-tight">
+
+                                @foreach (var workOrder in Model.ActiveWorkOrders)
+                                {
+                                    <div class="col-xl-6 mb-3">
+
+                                        <div class="m-card h-100">
+
+                                            <header class="m-card__header">
+
+                                                <div>
+
+                                                    <h3 class="m-card__title">
+                                                        @workOrder.WorkOrderNumber
+                                                    </h3>
+
+                                                    <p class="m-card__subtitle">
+                                                        @workOrder.CustomerName
+                                                    </p>
+
+                                                </div>
+
+                                                <span class="badge bg-warning">
+                                                    Atölyede
+                                                </span>
+
+                                            </header>
+
+
+                                            <div class="p-3">
+
+                                                <div class="d-flex flex-wrap gap-3 mb-3">
+
+                                                    <span>
+                                                        <i class="fa-solid fa-layer-group"></i>
+
+                                                        <strong>
+                                                            @workOrder.TotalPlateQuantity
+                                                        </strong>
+
+                                                        Plaka
+                                                    </span>
+
+                                                    <span>
+                                                        <i class="fa-solid fa-ruler"></i>
+
+                                                        <strong>
+                                                            @workOrder.CuttingMeter.ToString("N2")
+                                                        </strong>
+
+                                                        m Kesim
+                                                    </span>
+
+                                                    <span>
+                                                        <i class="fa-regular fa-calendar"></i>
+                                                        @workOrder.CreatedDate.ToString("dd.MM.yyyy")
+                                                    </span>
+
+                                                </div>
+
+
+                                                @if (!string.IsNullOrWhiteSpace(workOrder.Description))
+                                                {
+                                                    <div class="alert alert-light mb-3">
+
+                                                        <strong>
+                                                            <i class="fa-solid fa-note-sticky"></i>
+                                                            İş Açıklaması:
+                                                        </strong>
+
+                                                        @workOrder.Description
+
+                                                    </div>
+                                                }
+
+
+                                                <h4 class="mb-3">
+                                                    Kullanılan Taşlar
+                                                </h4>
+
+
+                                                @if (workOrder.Stones.Any())
+                                                {
+                                                    <div class="row">
+
+                                                        @foreach (var stone in workOrder.Stones)
+                                                        {
+                                                            <div class="col-md-6 mb-3">
+
+                                                                <div class="card h-100">
+
+                                                                    @if (!string.IsNullOrWhiteSpace(stone.ImageUrl))
+                                                                    {
+                                                                        <img src="@stone.ImageUrl"
+                                                                             class="card-img-top"
+                                                                             alt="@stone.StoneName"
+                                                                             style="height: 190px; object-fit: cover;" />
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <div class="d-flex align-items-center justify-content-center bg-light"
+                                                                             style="height: 190px;">
+
+                                                                            <div class="text-center text-muted">
+
+                                                                                <i class="fa-solid fa-image fa-3x mb-2"></i>
+
+                                                                                <div>
+                                                                                    Görsel Yok
+                                                                                </div>
+
+                                                                            </div>
+
+                                                                        </div>
+                                                                    }
+
+                                                                <div class="card-body">
+
+                                                                    <h5 class="card-title">
+                                                                        @stone.StoneName
+                                                                    </h5>
+
+                                                                    <p class="card-text mb-2">
+
+                                                                        <strong>
+                                                                            Renk:
+                                                                        </strong>
+
+                                                                        @(string.IsNullOrWhiteSpace(stone.Color)
+                                                                                                                                    ? "-"
+                                                                                                                                    : stone.Color)
+
+                                                        </p>
+
+                                                                        <span class="badge bg-primary">
+                                                                            @stone.Quantity Plaka
+                                                                        </span>
+
+                                                                    </div>
+
+                                                                </div>
+
+                                                            </div>
+                                                                                        }
+
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <p class="text-muted">
+                                                        Bu iş emrinde taş bilgisi bulunmuyor.
+                                                    </p>
+                                                }
+
+
+                                                <div class="d-flex justify-content-end mt-2">
+
+                                                    <a asp-controller="WorkOrder"
+                                                       asp-action="Details"
+                                                       asp-route-id="@workOrder.WorkOrderId"
+                                                       class="m-btn m-btn--ghost">
+
+                                                        <i class="fa-solid fa-eye"></i>
+                                                        İş Emrini Görüntüle
+
+                                                    </a>
+
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+                                }
+
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-center py-4">
+
+                                <i class="fa-solid fa-hammer fa-2x mb-2"></i>
+
+                                <p class="mb-0">
+                                    Şu anda atölyede devam eden iş bulunmuyor.
+                                </p>
+
+                            </div>
+                        }
+
+                    </div>
+
+                </section>
+
+            </div>
+
+        </div>
+
+
+        @* Kritik stoklar ve tamamlanan işler *@
+        <div class="row row-tight mt-3">
+
+            <div class="col-xl-5">
+
+                <section class="m-card">
+
+                    <header class="m-card__header">
+
+                        <div>
+
+                            <h2 class="m-card__title">
+                                Kritik Stoklar
+                            </h2>
+
+                            <p class="m-card__subtitle">
+                                5 plaka veya altında kalan taşlar.
+                            </p>
+
+                        </div>
+
+                        <a asp-controller="Stock"
+                           asp-action="Index"
+                           class="m-btn m-btn--ghost">
+                            Tüm Stoklar
+                        </a>
+
+                    </header>
+
+
+                    <div class="p-3">
+
+                        @if (Model.CriticalStocks.Any())
+                        {
+                            @foreach (var stone in Model.CriticalStocks)
+                            {
+                                <div class="card mb-3">
+
+                                    <div class="row g-0">
+
+                                        <div class="col-4">
+
+                                            @if (!string.IsNullOrWhiteSpace(stone.ImageUrl))
+                                            {
+                                                <img src="@stone.ImageUrl"
+                                                     class="img-fluid rounded-start"
+                                                     alt="@stone.StoneName"
+                                                     style="height: 120px; width: 100%; object-fit: cover;" />
+                                            }
+                                            else
+                                            {
+                                                <div class="d-flex align-items-center justify-content-center bg-light h-100">
+
+                                                    <i class="fa-solid fa-image fa-2x text-muted"></i>
+
+                                                </div>
+                                            }
+
+                                    </div>
+
+
+                                    <div class="col-8">
+
+                                        <div class="card-body">
+
+                                            <h5 class="card-title">
+                                                @stone.StoneName
+                                            </h5>
+
+                                            <p class="card-text mb-2">
+
+                                                @(string.IsNullOrWhiteSpace(stone.Color)
+                                                                                            ? "Renk belirtilmemiş"
+                                                                                            : stone.Color)
+
+                                        </p>
+
+                                        @if (stone.CurrentStock <= 0)
+                                                {
+                                                    <span class="badge bg-danger">
+                                                        Stok Yok
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-warning">
+                                                        @stone.CurrentStock Plaka
+                                                    </span>
+                                                }
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="text-center py-4">
+
+                                <i class="fa-solid fa-boxes-stacked fa-2x mb-2"></i>
+
+                                <p class="mb-0">
+                                    Kritik stokta taş bulunmuyor.
+                                </p>
+
+                            </div>
+                        }
+
+                    </div>
+
+                </section>
+
+            </div>
+
+
+            <div class="col-xl-7">
+
+                <section class="m-card">
+
+                    <header class="m-card__header">
+
+                        <div>
+
+                            <h2 class="m-card__title">
+                                Son Tamamlanan İşler
+                            </h2>
+
+                            <p class="m-card__subtitle">
+                                Atölyede tamamlanan son 5 iş emri.
+                            </p>
+
+                        </div>
+
+                        <a asp-controller="WorkOrder"
+                           asp-action="Index"
+                           class="m-btn m-btn--ghost">
+                            Tümünü Gör
+                        </a>
+
+                    </header>
+
+
+                    <div class="table-responsive">
+
+                        <table class="m-table">
+
+                            <thead>
+
+                                <tr>
+                                    <th>İş Emri</th>
+                                    <th>Müşteri</th>
+                                    <th>Taşlar</th>
+                                    <th class="num">Plaka</th>
+                                    <th class="num">Kesim</th>
+                                    <th></th>
+                                </tr>
+
+                            </thead>
+
+                            <tbody>
+
+                                @if (Model.CompletedWorkOrders.Any())
+                                {
+                                    foreach (var workOrder in Model.CompletedWorkOrders)
+                                    {
+                                        <tr>
+
+                                            <td>
+                                                <strong>
+                                                    @workOrder.WorkOrderNumber
+                                                </strong>
+                                            </td>
+
+                                            <td>
+                                                @workOrder.CustomerName
+                                            </td>
+
+                                            <td>
+
+                                                @if (workOrder.Stones.Any())
+                                                {
+                                                    foreach (var stone in workOrder.Stones)
+                                                    {
+                                                        <div class="mb-1">
+                                                            @stone.StoneName
+                                                            <span class="badge bg-light text-dark">
+                                                                @stone.Quantity Plaka
+                                                            </span>
+                                                        </div>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <span>-</span>
+                                                }
+
+                                            </td>
+
+                                            <td class="num">
+                                                @workOrder.TotalPlateQuantity
+                                            </td>
+
+                                            <td class="num">
+                                                @workOrder.CuttingMeter.ToString("N2") m
+                                            </td>
+
+                                            <td class="num">
+
+                                                <a asp-controller="WorkOrder"
+                                                   asp-action="Details"
+                                                   asp-route-id="@workOrder.WorkOrderId"
+                                                   class="m-btn m-btn--ghost"
+                                                   title="İş emrini görüntüle">
+
+                                                    <i class="fa-solid fa-eye"></i>
+
+                                                </a>
+
+                                            </td>
+
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+
+                                        <td colspan="6"
+                                            class="text-center">
+                                            Tamamlanan iş bulunmuyor.
+                                        </td>
+
+                                    </tr>
+                                }
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </section>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+
+@section Scripts
+{
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+
+            // Dashboard üzerindeki tarih ve saati günceller
+            function updateDashboardDateTime() {
+
+                const now = new Date();
+
+                const dateElement =
+                    document.getElementById("dashboardDate");
+
+                const clockElement =
+                    document.getElementById("dashboardClock");
+
+                if (dateElement) {
+
+                    dateElement.textContent =
+                        now.toLocaleDateString("tr-TR", {
+                            day: "2-digit",
+                            month: "long",
+                            year: "numeric",
+                            weekday: "long"
+                        });
+                }
+
+                if (clockElement) {
+
+                    clockElement.textContent =
+                        now.toLocaleTimeString("tr-TR", {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            second: "2-digit"
+                        });
+                }
+            }
+
+            // Sayfa açıldığında tarih ve saati hemen gösterir
+            updateDashboardDateTime();
+
+            // Saati her saniye günceller
+            setInterval(
+                updateDashboardDateTime,
+                1000);
+        });
+
+    </script>
+}

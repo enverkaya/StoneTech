@@ -1,0 +1,520 @@
+﻿@using StoneTech.Entities
+
+@{
+    ViewData["Title"] = "Ana Sayfa";
+    Layout = "~/Views/Shared/_WebLayout.cshtml";
+
+    // Ana sayfa slider kayıtları
+    var sliders = ViewBag.Sliders as List<Slider> ?? new List<Slider>();
+
+    // Hakkımızda bilgileri
+    var about = ViewBag.About as About;
+
+    // Aktif hizmetler
+    var services = ViewBag.Services as List<Service> ?? new List<Service>();
+
+    // Web sitesinde gösterilecek ilk dört taş
+    var stones = ViewBag.Stones as List<Stone> ?? new List<Stone>();
+    // Web sitesinde galeri görselleri
+    var galleries = ViewBag.Galleries as List<Gallery> ?? new List<Gallery>();
+
+    // Neden biz özellikleri
+    var whyChooseUs = ViewBag.WhyChooseUs as List<WhyChooseUs> ?? new List<WhyChooseUs>();
+}
+
+<!-- Ana sayfa slider -->
+@if (sliders.Any())
+{
+    <section class="flexslider">
+
+        <ul class="slides">
+
+            @foreach (var slider in sliders)
+            {
+                <li class="overlay"
+                    style="background-image: url('@Url.Content(slider.ImageUrl)');">
+
+                    <div class="container">
+                        <div class="row">
+
+                            <div class="col-md-8 offset-md-2">
+
+                                <div class="probootstrap-slider-text text-center">
+
+                                    @if (!string.IsNullOrWhiteSpace(slider.Title))
+                                    {
+                                        <h1 class="probootstrap-heading probootstrap-animate">
+                                            @slider.Title
+                                        </h1>
+                                    }
+
+                                 
+
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+
+                </li>
+            }
+
+        </ul>
+
+    </section>
+}
+else
+{
+    <!-- Slider kaydı bulunmadığında tema görseli -->
+    <section class="flexslider">
+
+        <ul class="slides">
+
+            <li class="overlay"
+                style="background-image: url('@Url.Content("~/web/img/slider_1.jpg")');">
+
+                <div class="container">
+                    <div class="row">
+
+                        <div class="col-md-8 offset-md-2">
+
+                            <div class="probootstrap-slider-text text-center">
+
+                                <h1 class="probootstrap-heading probootstrap-animate">
+                                    StoneTech
+                                </h1>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </li>
+
+        </ul>
+
+    </section>
+}
+
+
+<!-- Hakkımızda -->
+@if (about != null)
+{
+    <section class="probootstrap-section probootstrap-bg-white">
+        <div class="container">
+            <div class="row">
+
+                <!-- Hakkımızda başlığı -->
+                <div class="col-md-6 probootstrap-animate">
+                    <h2 class="mb0">
+                        @about.Title
+                    </h2>
+                </div>
+
+                <!-- Hakkımızda açıklaması -->
+                <div class="col-md-6 probootstrap-animate">
+                    @if (!string.IsNullOrWhiteSpace(about.Description1))
+                    {
+                        <p style="white-space: pre-line;">@about.Description1</p>
+                    }
+                </div>
+
+            </div>
+        </div>
+    </section>
+}
+
+
+
+
+<!-- Hizmetlerimiz -->
+@if (services.Any())
+{
+    var leftServices = services
+        .Where((service, index) => index % 2 == 0)
+        .ToList();
+
+    var rightServices = services
+        .Where((service, index) => index % 2 == 1)
+        .ToList();
+
+    <section class="probootstrap-section probootstrap-bg-white">
+        <div class="container">
+
+            <div class="row">
+                <div class="col-md-6 offset-md-3 text-center section-heading probootstrap-animate">
+                    <h2>Hizmetlerimiz</h2>
+                </div>
+            </div>
+            <!-- END row -->
+
+            <div class="row">
+
+                <!-- Sol sütun -->
+                <div class="col-md-6">
+                    @foreach (var service in leftServices)
+                    {
+                        <div class="probootstrap-service-2 probootstrap-animate">
+                            <div class="image">
+                                <div class="image-bg">
+                                    @if (!string.IsNullOrWhiteSpace(service.ImageUrl))
+                                    {
+                                        <img src="@Url.Content(service.ImageUrl)"
+                                             alt="@service.Title">
+                                    }
+                                    else
+                                    {
+                                        <img src="~/web/img/img_sm_1.jpg"
+                                             alt="@service.Title">
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="text">
+                                @if (!string.IsNullOrWhiteSpace(service.Description))
+                                {
+                                    <p>@service.Description</p>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <!-- Sağ sütun -->
+                <div class="col-md-6">
+                    @foreach (var service in rightServices)
+                    {
+                        <div class="probootstrap-service-2 probootstrap-animate">
+                            <div class="image">
+                                <div class="image-bg">
+                                    @if (!string.IsNullOrWhiteSpace(service.ImageUrl))
+                                    {
+                                        <img src="@Url.Content(service.ImageUrl)"
+                                             alt="@service.Title">
+                                    }
+                                    else
+                                    {
+                                        <img src="~/web/img/img_sm_1.jpg"
+                                             alt="@service.Title">
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="text">
+                                @if (!string.IsNullOrWhiteSpace(service.Description))
+                                {
+                                    <p>@service.Description</p>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+
+            </div>
+
+            <!-- Tüm hizmetler bağlantısı -->
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <a asp-controller="Web"
+                       asp-action="Services"
+                       class="btn btn-primary">
+                        Tüm Hizmetlerimizi Gör
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </section>
+}
+
+
+
+
+<!-- Galerimiz -->
+@if (galleries.Any())
+{
+    <section class="probootstrap-section probootstrap-bg-white">
+        <div class="container">
+
+            <div class="row">
+                <div class="col-md-8 offset-md-2 section-heading text-center probootstrap-animate">
+                    <h2>Galeri</h2>
+                </div>
+            </div>
+
+            <div class="row">
+                @foreach (var gallery in galleries)
+                {
+                    <div class="col-6 col-md-4 mb-4">
+
+                        <a href="@Url.Content(gallery.ImageUrl)"
+                           class="stonetech-gallery-item"
+                           data-bs-toggle="modal"
+                           data-bs-target="#galleryModal"
+                           data-title="@gallery.Title">
+
+                            <img src="@Url.Content(gallery.ImageUrl)"
+                                 alt="@gallery.Title"
+                                 class="stonetech-gallery-image">
+
+                        </a>
+
+                    </div>
+                }
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Galeri büyütme penceresi -->
+    <div class="modal fade"
+         id="galleryModal"
+         tabindex="-1"
+         aria-labelledby="galleryModalLabel"
+         aria-hidden="true">
+
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title" id="galleryModalLabel">
+                        Galeri
+                    </h5>
+
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Kapat">
+                    </button>
+                </div>
+
+                <div class="modal-body text-center">
+                    <img id="galleryModalImage"
+                         src=""
+                         alt="Galeri görseli"
+                         class="img-fluid">
+                </div>
+
+            </div>
+        </div>
+    </div>
+}
+
+
+
+<!-- Taşlarımız -->
+@if (stones.Any())
+{
+    <section class="probootstrap-section probootstrap-bg-white">
+        <div class="container">
+
+            <!-- Bölüm başlığı -->
+            <div class="row">
+                <div class="col-md-8 offset-md-2 section-heading text-center probootstrap-animate">
+                    <h2>Taşlar</h2>
+
+                    <p class="lead">
+                        Doğal taşın eşsiz dokusunu ve estetiğini
+                        yaşam alanlarınıza taşıyoruz.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Taş kartları -->
+            <div class="row">
+
+                @foreach (var stone in stones)
+                {
+                    <div class="col-6 col-lg-3 mb-4">
+
+                        <div class="stonetech-stone-card probootstrap-animate">
+
+                            <!-- Taş görseli -->
+                            @if (!string.IsNullOrWhiteSpace(stone.ImageUrl))
+                            {
+                                <div class="stonetech-stone-image">
+                                    <img src="@Url.Content(stone.ImageUrl)"
+                                         alt="@stone.StoneName"
+                                         loading="lazy">
+                                </div>
+                            }
+
+                            <!-- Taş adı -->
+                            <div class="stonetech-stone-info">
+                                <h3>@stone.StoneName</h3>
+                            </div>
+
+                        </div>
+
+                    </div>
+                }
+
+            </div>
+
+            <!-- Tüm taşlar bağlantısı -->
+            <div class="row">
+                <div class="col-md-12 text-center">
+
+                    <a asp-controller="Web"
+                       asp-action="Stones"
+                       class="btn btn-primary">
+                        Tüm Taşlarımızı Gör
+                    </a>
+
+                </div>
+            </div>
+
+        </div>
+    </section>
+}
+
+
+
+<!-- Neden Biz? -->
+@if (whyChooseUs.Any())
+{
+    var leftCount = (whyChooseUs.Count + 1) / 2;
+
+    <section class="probootstrap-section">
+
+        <div class="container">
+
+            <!-- Bölüm başlığı -->
+            <div class="row">
+                <div class="col-md-6 offset-md-3 text-center section-heading probootstrap-animate">
+
+                    <h2>Neden Biz?</h2>
+
+                    <p class="lead">
+                        StoneTech olarak kaliteye, güvene ve müşteri memnuniyetine önem veriyoruz.
+                    </p>
+
+                </div>
+            </div>
+
+            <!-- Özellikler -->
+            <div class="row">
+
+                <!-- Sol sütun -->
+                <div class="col-md-6">
+
+                    @foreach (var feature in whyChooseUs.Take(leftCount))
+                    {
+                        <div class="service left-icon probootstrap-animate">
+
+                            <!-- Özellik ikonu -->
+                            <div class="icon">
+
+                                @if (!string.IsNullOrWhiteSpace(feature.IconClass))
+                                {
+                                    <i class="@feature.IconClass" aria-hidden="true"></i>
+                                }
+                                else
+                                {
+                                    <i class="fa-solid fa-gem" aria-hidden="true"></i>
+                                }
+
+                            </div>
+
+                            <!-- Özellik bilgileri -->
+                            <div class="text">
+
+                                <h3>@feature.Title</h3>
+
+                                @if (!string.IsNullOrWhiteSpace(feature.Description))
+                                {
+                                    <p>@feature.Description</p>
+                                }
+
+                            </div>
+
+                        </div>
+                    }
+
+                </div>
+
+                <!-- Sağ sütun -->
+                <div class="col-md-6">
+
+                    @foreach (var feature in whyChooseUs.Skip(leftCount))
+                    {
+                        <div class="service left-icon probootstrap-animate">
+
+                            <!-- Özellik ikonu -->
+                            <div class="icon">
+
+                                @if (!string.IsNullOrWhiteSpace(feature.IconClass))
+                                {
+                                    <i class="@feature.IconClass" aria-hidden="true"></i>
+                                }
+                                else
+                                {
+                                    <i class="fa-solid fa-gem" aria-hidden="true"></i>
+                                }
+
+                            </div>
+
+                            <!-- Özellik bilgileri -->
+                            <div class="text">
+
+                                <h3>@feature.Title</h3>
+
+                                @if (!string.IsNullOrWhiteSpace(feature.Description))
+                                {
+                                    <p>@feature.Description</p>
+                                }
+
+                            </div>
+
+                        </div>
+                    }
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+}
+
+
+                                
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+
+            const galleryModal = document.getElementById("galleryModal");
+
+            if (!galleryModal) {
+                return;
+            }
+
+            galleryModal.addEventListener("show.bs.modal", function(event) {
+
+                const clickedImage = event.relatedTarget;
+
+                if (!clickedImage) {
+                    return;
+                }
+
+                const imageUrl = clickedImage.getAttribute("href");
+                const imageTitle = clickedImage.getAttribute("data-title") || "Galeri";
+
+                const modalImage = document.getElementById("galleryModalImage");
+                const modalTitle = document.getElementById("galleryModalLabel");
+
+                modalImage.src = imageUrl;
+                modalImage.alt = imageTitle;
+                modalTitle.textContent = imageTitle;
+            });
+
+            galleryModal.addEventListener("hidden.bs.modal", function() {
+                document.getElementById("galleryModalImage").removeAttribute("src");
+            });
+
+        });
+    </script>
+}

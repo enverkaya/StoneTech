@@ -1,0 +1,390 @@
+﻿@using StoneTech.Models.ContactMessage
+@model ContactMessageDetailsViewModel
+
+@{
+    ViewData["Title"] = "Mesaj Detayı";
+}
+
+<div class="section__content section__content--p30">
+    <div class="container-fluid">
+
+        <!-- Sayfa başlığı -->
+        <div class="page-header">
+
+            <div>
+
+                <h1>Mesaj Detayı</h1>
+
+                <p class="subtitle">
+                    Müşterinin gönderdiği iletişim mesajını inceleyin ve e-posta ile cevaplayın.
+                </p>
+
+            </div>
+
+            <div class="page-header__actions">
+
+                <a asp-controller="ContactMessage"
+                   asp-action="Index"
+                   class="m-btn m-btn--ghost">
+
+                    <i class="fa-solid fa-arrow-left"></i>
+                    Mesajlara Dön
+
+                </a>
+
+            </div>
+
+        </div>
+
+        <!-- Başarı mesajı -->
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success">
+                @TempData["Success"]
+            </div>
+        }
+
+        <!-- Hata mesajı -->
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger">
+                @TempData["Error"]
+            </div>
+        }
+
+        <div class="row">
+
+            <!-- Mesaj bilgileri -->
+            <div class="col-lg-8">
+
+                <!-- Gönderen bilgileri -->
+                <section class="m-card"
+                         style="padding: 20px; margin-bottom: 20px;">
+
+                    <div class="mb-4">
+
+                        <h4 style="margin-bottom: 5px;">
+                            Gönderen Bilgileri
+                        </h4>
+
+                        <p class="text-muted"
+                           style="margin-bottom: 0;">
+                            Web sitesi iletişim formundan gönderilen kişi bilgileri.
+                        </p>
+
+                    </div>
+
+                    <div class="row">
+
+                        <!-- Ad soyad -->
+                        <div class="col-md-6">
+
+                            <div class="mb-4">
+
+                                <span class="text-muted"
+                                      style="display: block;
+                                    font-size: 12px;
+                                    margin-bottom: 5px;">
+                                    Ad Soyad
+                                </span>
+
+                                <strong>
+                                    @Model.FullName
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                        <!-- E-posta -->
+                        <div class="col-md-6">
+
+                            <div class="mb-4">
+
+                                <span class="text-muted"
+                                      style="display: block;
+                                    font-size: 12px;
+                                    margin-bottom: 5px;">
+                                    E-posta
+                                </span>
+
+                                <a href="mailto:@Model.Email">
+                                    @Model.Email
+                                </a>
+
+                            </div>
+
+                        </div>
+
+                        <!-- Mesaj konusu -->
+                        <div class="col-md-6">
+
+                            <div class="mb-4">
+
+                                <span class="text-muted"
+                                      style="display: block;
+                                    font-size: 12px;
+                                    margin-bottom: 5px;">
+                                    Konu
+                                </span>
+
+                                <strong>
+                                    @Model.Subject
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                        <!-- Gönderim tarihi -->
+                        <div class="col-md-6">
+
+                            <div class="mb-4">
+
+                                <span class="text-muted"
+                                      style="display: block;
+                                    font-size: 12px;
+                                    margin-bottom: 5px;">
+                                    Gönderim Tarihi
+                                </span>
+
+                                <span>
+                                    @Model.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+                <!-- Müşterinin gönderdiği mesaj -->
+                <section class="m-card"
+                         style="padding: 20px; margin-bottom: 20px;">
+
+                    <div class="mb-4">
+
+                        <h4 style="margin-bottom: 5px;">
+                            Gelen Mesaj
+                        </h4>
+
+                        <p class="text-muted"
+                           style="margin-bottom: 0;">
+                            Müşterinin web sitesi üzerinden gönderdiği mesaj içeriği.
+                        </p>
+
+                    </div>
+
+                    <div style="white-space: pre-wrap;">@Model.Message</div>
+
+                </section>
+
+                <!-- Daha önce gönderilmiş cevap -->
+                @if (Model.IsReplied)
+                {
+                    <section class="m-card"
+                             style="padding: 20px;">
+
+                        <div class="mb-4">
+
+                            <h4 style="margin-bottom: 5px;">
+                                Gönderilen Cevap
+                            </h4>
+
+                            <p class="text-muted"
+                               style="margin-bottom: 0;">
+                                Müşterinin e-posta adresine gönderilen cevap.
+                            </p>
+
+                        </div>
+
+                        <div style="white-space: pre-wrap;">@Model.ReplyMessage</div>
+
+                    </section>
+                }
+
+            </div>
+
+            <!-- Sağ bilgi alanı -->
+            <div class="col-lg-4">
+
+                <!-- Mesaj durumu -->
+                <section class="m-card"
+                         style="padding: 20px; margin-bottom: 20px;">
+
+                    <h4 style="margin-bottom: 20px;">
+                        Mesaj Durumu
+                    </h4>
+
+                    <!-- Okunma durumu -->
+                    <div style="display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        margin-bottom: 15px;">
+
+                        <span class="text-muted">
+                            Okunma Durumu
+                        </span>
+
+                        @if (Model.IsRead)
+                        {
+                            <span class="badge bg-success">
+                                Okundu
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-warning text-dark">
+                                Okunmadı
+                            </span>
+                        }
+
+                    </div>
+
+                    <!-- Cevap durumu -->
+                    <div style="display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        margin-bottom: 15px;">
+
+                        <span class="text-muted">
+                            Cevap Durumu
+                        </span>
+
+                        @if (Model.IsReplied)
+                        {
+                            <span class="badge bg-success">
+                                Cevaplandı
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">
+                                Cevap Bekliyor
+                            </span>
+                        }
+
+                    </div>
+
+                    <!-- Cevap tarihi -->
+                    <div style="display: flex;
+                        justify-content: space-between;
+                        align-items: center;">
+
+                        <span class="text-muted">
+                            Cevap Tarihi
+                        </span>
+
+                        @if (Model.RepliedAt.HasValue)
+                        {
+                            <strong>
+                                @Model.RepliedAt.Value.ToLocalTime().ToString("dd.MM.yyyy HH:mm")
+                            </strong>
+                        }
+                        else
+                        {
+                            <span class="text-muted">
+                                -
+                            </span>
+                        }
+
+                    </div>
+
+                </section>
+
+                <!-- E-posta ile cevap gönderme -->
+                <section class="m-card"
+                         style="padding: 20px;">
+
+                    <div class="mb-4">
+
+                        <h4 style="margin-bottom: 5px;">
+                            E-posta ile Cevapla
+                        </h4>
+
+                        <p class="text-muted"
+                           style="margin-bottom: 0;">
+                            Müşteriye doğrudan e-posta gönderin.
+                        </p>
+
+                    </div>
+
+                    @if (!Model.IsReplied)
+                    {
+                        <form asp-controller="ContactMessage"
+                              asp-action="Reply"
+                              method="post">
+
+                            @Html.AntiForgeryToken()
+
+                            <!-- Mesaj kimlik numarası -->
+                            <input type="hidden"
+                                   asp-for="Id" />
+
+                            <!-- Cevap gönderilecek e-posta -->
+                            <div class="mb-4">
+
+                                <label class="form-label">
+                                    Alıcı E-posta
+                                </label>
+
+                                <input type="email"
+                                       class="form-control"
+                                       value="@Model.Email"
+                                       readonly />
+
+                            </div>
+
+                            <!-- Cevap mesajı -->
+                            <div class="mb-4">
+
+                                <label asp-for="ReplyMessage"
+                                       class="form-label">
+                                    Cevap Mesajı
+                                </label>
+
+                                <textarea asp-for="ReplyMessage"
+                                          class="form-control"
+                                          rows="8"
+                                          maxlength="5000"
+                                          placeholder="Müşteriye göndermek istediğiniz cevabı yazın..."
+                                          required></textarea>
+
+                                <span asp-validation-for="ReplyMessage"
+                                      class="text-danger"></span>
+
+                            </div>
+
+                            <!-- Cevap gönderme butonu -->
+                            <button type="submit"
+                                    class="m-btn m-btn--primary"
+                                    onclick="return confirm('Bu cevabı müşterinin e-posta adresine göndermek istiyor musunuz?');">
+
+                                <i class="fa-solid fa-paper-plane"></i>
+                                Cevap Gönder
+
+                            </button>
+
+                        </form>
+                    }
+                    else
+                    {
+                        <div class="alert alert-success">
+
+                            <i class="fa-solid fa-circle-check"></i>
+
+                            Bu mesaja daha önce e-posta ile cevap gönderildi.
+
+                        </div>
+                    }
+
+                </section>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>

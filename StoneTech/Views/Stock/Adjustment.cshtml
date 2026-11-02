@@ -1,0 +1,382 @@
+﻿@using StoneTech.Models.Stock
+@using StoneTech.Enums
+@model StockAdjustmentViewModel
+
+@{
+    ViewData["Title"] = "Stok Düzeltme";
+}
+
+<div class="section__content section__content--p30">
+    <div class="container-fluid">
+
+        <!-- Sayfa başlığı -->
+        <div class="page-header">
+
+            <div>
+
+                <h1>Stok Düzeltme</h1>
+
+                <p class="subtitle">
+                    Fiziksel stok ile sistem stoğu arasındaki farkı düzeltin.
+                </p>
+
+            </div>
+
+            <div class="page-header__actions">
+
+                <!-- Stok hareketlerine geri döner -->
+                <a asp-controller="Stock"
+                   asp-action="Movements"
+                   asp-route-id="@Model.StoneId"
+                   class="m-btn m-btn--ghost">
+
+                    <i class="fa-solid fa-arrow-left"></i>
+                    Hareketlere Dön
+
+                </a>
+
+            </div>
+
+        </div>
+
+        <form asp-controller="Stock"
+              asp-action="Adjustment"
+              method="post"
+              id="stockAdjustmentForm"
+              data-current-stock="@Model.CurrentStock"
+              data-adjustment-in="@((int)StockMovementType.AdjustmentIn)"
+              data-adjustment-out="@((int)StockMovementType.AdjustmentOut)">
+
+            @Html.AntiForgeryToken()
+
+            <!-- Düzenleme yapılacak taşın Id'si -->
+            <input asp-for="StoneId"
+                   type="hidden" />
+
+            <!-- Genel doğrulama hatalarını gösterir -->
+            <div asp-validation-summary="ModelOnly"
+                 class="text-danger mb-3">
+            </div>
+
+            <!-- Taş bilgileri -->
+            <div class="card">
+
+                <div class="card-header">
+                    Taş Bilgileri
+                </div>
+
+                <div class="card-body">
+
+                    <div class="row">
+
+                        <!-- Taş adı -->
+                        <div class="col-md-6">
+
+                            <div class="mb-3">
+
+                                <label class="form-control-label">
+                                    Taş
+                                </label>
+
+                                <input type="text"
+                                       class="form-control"
+                                       value="@Model.StoneName"
+                                       readonly />
+
+                            </div>
+
+                        </div>
+
+                        <!-- Mevcut stok -->
+                        <div class="col-md-6">
+
+                            <div class="mb-3">
+
+                                <label class="form-control-label">
+                                    Mevcut Stok
+                                </label>
+
+                                <input type="text"
+                                       class="form-control"
+                                       value="@Model.CurrentStock plaka"
+                                       readonly />
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Düzeltme bilgileri -->
+            <div class="card">
+
+                <div class="card-header">
+                    Düzeltme Bilgileri
+                </div>
+
+                <div class="card-body">
+
+                    <div class="row">
+
+                        <!-- Düzeltme türü -->
+                        <div class="col-md-6">
+
+                            <div class="mb-3">
+
+                                <label asp-for="MovementType"
+                                       class="form-control-label">
+                                    Düzeltme Türü
+                                </label>
+
+                                <select asp-for="MovementType"
+                                        class="form-select"
+                                        id="movementType">
+
+                                    <option value="@((int)StockMovementType.AdjustmentIn)">
+                                        Stok Artır
+                                    </option>
+
+                                    <option value="@((int)StockMovementType.AdjustmentOut)">
+                                        Stok Azalt
+                                    </option>
+
+                                </select>
+
+                                <span asp-validation-for="MovementType"
+                                      class="text-danger">
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                        <!-- Plaka adedi -->
+                        <div class="col-md-6">
+
+                            <div class="mb-3">
+
+                                <label asp-for="Quantity"
+                                       class="form-control-label">
+                                    Plaka Adedi
+                                </label>
+
+                                <input asp-for="Quantity"
+                                       type="number"
+                                       min="1"
+                                       class="form-control"
+                                       id="quantity" />
+
+                                <span asp-validation-for="Quantity"
+                                      class="text-danger">
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- Düzeltme sebebi -->
+                    <div class="mb-3">
+
+                        <label asp-for="Description"
+                               class="form-control-label">
+                            Düzeltme Sebebi
+                        </label>
+
+                        <textarea asp-for="Description"
+                                  class="form-control"
+                                  rows="4"
+                                  placeholder="Örnek: Fiziksel sayımda 2 plaka fazla tespit edildi."></textarea>
+
+                        <span asp-validation-for="Description"
+                              class="text-danger">
+                        </span>
+
+                        <small class="form-text text-muted">
+                            Manuel stok düzeltmelerinde sebep yazılması zorunludur.
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- İşlem sonrası stok bilgileri -->
+            <div class="card">
+
+                <div class="card-header">
+                    Stok Sonucu
+                </div>
+
+                <div class="card-body">
+
+                    <div class="row">
+
+                        <!-- İşlem öncesindeki stok -->
+                        <div class="col-md-6">
+
+                            <div class="mb-3">
+
+                                <label class="form-control-label">
+                                    İşlem Öncesi Stok
+                                </label>
+
+                                <input type="text"
+                                       class="form-control"
+                                       value="@Model.CurrentStock plaka"
+                                       readonly />
+
+                            </div>
+
+                        </div>
+
+                        <!-- İşlem sonrasındaki stok -->
+                        <div class="col-md-6">
+
+                            <div class="mb-3">
+
+                                <label class="form-control-label">
+                                    İşlem Sonrası Stok
+                                </label>
+
+                                <input type="text"
+                                       class="form-control"
+                                       id="stockAfterAdjustment"
+                                       readonly />
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Form işlem butonları -->
+            <div class="card">
+
+                <div class="card-footer">
+
+                    <!-- Stok düzeltmesini kaydeder -->
+                    <button type="submit"
+                            class="btn btn-primary">
+
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        Düzeltmeyi Kaydet
+
+                    </button>
+
+                    <!-- İşlemi iptal ederek stok hareketlerine döner -->
+                    <a asp-controller="Stock"
+                       asp-action="Movements"
+                       asp-route-id="@Model.StoneId"
+                       class="btn btn-secondary">
+
+                        İptal
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            // Stok düzeltme formunu alır
+            const form =
+                document.getElementById("stockAdjustmentForm");
+
+            // Düzeltme türü seçim alanını alır
+            const movementType =
+                document.getElementById("movementType");
+
+            // Plaka adedi alanını alır
+            const quantity =
+                document.getElementById("quantity");
+
+            // İşlem sonrası stok bilgisinin gösterileceği alanı alır
+            const stockAfterAdjustment =
+                document.getElementById("stockAfterAdjustment");
+
+            // HTML data alanından mevcut stok miktarını alır
+            const currentStock =
+                Number(form.dataset.currentStock);
+
+            // HTML data alanından stok artırma enum değerini alır
+            const adjustmentIn =
+                Number(form.dataset.adjustmentIn);
+
+            // HTML data alanından stok azaltma enum değerini alır
+            const adjustmentOut =
+                Number(form.dataset.adjustmentOut);
+
+            // Düzeltme işleminden sonraki stok miktarını hesaplar
+            function calculateStockAfterAdjustment() {
+
+                // Seçilen düzeltme türünü sayıya çevirir
+                const type =
+                    Number(movementType.value);
+
+                // Girilen plaka miktarını sayıya çevirir
+                const amount =
+                    Number(quantity.value) || 0;
+
+                // Hesaplamaya mevcut stoktan başlanır
+                let newStock =
+                    currentStock;
+
+                // Stok artırma seçilmişse miktarı mevcut stoğa ekler
+                if (type === adjustmentIn) {
+
+                    newStock =
+                        currentStock + amount;
+                }
+
+                // Stok azaltma seçilmişse miktarı mevcut stoktan çıkarır
+                else if (type === adjustmentOut) {
+
+                    newStock =
+                        currentStock - amount;
+                }
+
+                // Hesaplanan yeni stok miktarını ekranda gösterir
+                stockAfterAdjustment.value =
+                    newStock + " plaka";
+            }
+
+            // Düzeltme türü değiştirildiğinde stok sonucunu tekrar hesaplar
+            movementType.addEventListener(
+                "change",
+                calculateStockAfterAdjustment
+            );
+
+            // Plaka adedi değiştirildiğinde stok sonucunu tekrar hesaplar
+            quantity.addEventListener(
+                "input",
+                calculateStockAfterAdjustment
+            );
+
+            // Sayfa ilk açıldığında işlem sonrası stoğu hesaplar
+            calculateStockAfterAdjustment();
+
+        });
+    </script>
+}

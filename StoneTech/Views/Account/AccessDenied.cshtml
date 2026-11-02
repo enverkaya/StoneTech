@@ -1,0 +1,47 @@
+﻿@{
+    ViewData["Title"] = "Erişim Engellendi";
+}
+
+<div class="section__content section__content--p30">
+    <div class="container-fluid">
+
+        <div class="page-header">
+            <div>
+                <h1>Erişim Engellendi</h1>
+                <p class="subtitle">
+                    Bu sayfaya erişim yetkiniz bulunmamaktadır.
+                </p>
+            </div>
+        </div>
+
+        <div class="m-card">
+
+            <div class="card-body text-center">
+
+                <div class="mb-4">
+                    <i class="fa-solid fa-shield-halved fa-4x text-danger"></i>
+                </div>
+
+                <h3 class="mb-3">
+                    Yetkisiz Erişim
+                </h3>
+
+                <p class="text-muted mb-4">
+                    Bu işlemi gerçekleştirmek için gerekli kullanıcı yetkisine sahip değilsiniz.
+                </p>
+
+                <a asp-controller="Home"
+                   asp-action="Index"
+                   class="m-btn m-btn--primary">
+
+                    <i class="fa-solid fa-house"></i>
+                    Ana Sayfaya Dön
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>

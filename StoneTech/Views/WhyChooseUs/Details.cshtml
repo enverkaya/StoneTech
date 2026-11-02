@@ -1,0 +1,274 @@
+﻿@model StoneTech.Entities.WhyChooseUs
+
+@{
+    ViewData["Title"] = "Neden Biz Özelliği Detayı";
+}
+
+<div class="section__content section__content--p30">
+    <div class="container-fluid">
+
+        <!-- Sayfa başlığı -->
+        <div class="page-header">
+
+            <div>
+                <h1>Neden Biz Özelliği Detayı</h1>
+
+                <p class="subtitle">
+                    Web sitesinin Neden Biz bölümüne ait özellik bilgilerini görüntüleyin.
+                </p>
+            </div>
+
+            <div class="page-header__actions">
+
+                <a asp-controller="WhyChooseUs"
+                   asp-action="Index"
+                   class="m-btn m-btn--ghost">
+
+                    <i class="fa-solid fa-arrow-left"></i>
+                    Özelliklere Dön
+
+                </a>
+
+                @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
+                {
+                    <a asp-controller="WhyChooseUs"
+                       asp-action="Edit"
+                       asp-route-id="@Model.Id"
+                       class="m-btn m-btn--primary">
+
+                        <i class="fa-solid fa-pen-to-square"></i>
+                        Düzenle
+
+                    </a>
+                }
+
+            </div>
+
+        </div>
+
+        <!-- Özellik özet kartı -->
+        <section class="m-card mb-4" style="padding: 24px;">
+
+            <div class="row align-items-center">
+
+                <!-- Özellik ikonu -->
+                <div class="col-lg-3 col-md-4 mb-3 mb-md-0">
+
+                    <div style="width: 100%;
+                        height: 200px;
+                        border-radius: 10px;
+                        background: #f8f9fb;
+                        border: 1px solid #e5e7eb;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        color: #6b7280;">
+
+                        @if (!string.IsNullOrWhiteSpace(Model.IconClass))
+                        {
+                            <i class="@Model.IconClass"
+                               style="font-size: 64px;"></i>
+                        }
+                        else
+                        {
+                            <i class="fa-regular fa-star"
+                               style="font-size: 64px;"></i>
+                        }
+
+                    </div>
+
+                </div>
+
+                <!-- Özet bilgiler -->
+                <div class="col-lg-9 col-md-8">
+
+                    <h2 class="mb-3">
+                        @Model.Title
+                    </h2>
+
+                    <p class="text-muted mb-4">
+                        @if (!string.IsNullOrWhiteSpace(Model.Description))
+                        {
+                            @Model.Description
+                        }
+                        else
+                        {
+                            @:Bu özellik için henüz açıklama eklenmemiş.
+                        }
+                    </p>
+
+                    <div class="row">
+
+                        <!-- Kayıt numarası -->
+                        <div class="col-md-4 mb-3">
+
+                            <small class="text-muted d-block mb-2">
+                                Kayıt Numarası
+                            </small>
+
+                            <strong>
+                                #@Model.Id
+                            </strong>
+
+                        </div>
+
+                        <!-- Görüntülenme sırası -->
+                        <div class="col-md-4 mb-3">
+
+                            <small class="text-muted d-block mb-2">
+                                Görüntülenme Sırası
+                            </small>
+
+                            <strong>
+                                @Model.DisplayOrder
+                            </strong>
+
+                        </div>
+
+                        <!-- Aktiflik durumu -->
+                        <div class="col-md-4 mb-3">
+
+                            <small class="text-muted d-block mb-2">
+                                Özellik Durumu
+                            </small>
+
+                            @if (Model.IsActive)
+                            {
+                                <span class="badge bg-success">
+                                    Aktif
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">
+                                    Pasif
+                                </span>
+                            }
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- Özellik detay bilgileri -->
+        <section class="m-card" style="padding: 24px;">
+
+            <h3 class="mb-4">
+                <i class="fa-solid fa-circle-info me-2"></i>
+                Özellik Bilgileri
+            </h3>
+
+            <div class="row">
+
+                <!-- Kayıt numarası -->
+                <div class="col-md-6 mb-4">
+
+                    <label class="form-label">
+                        Kayıt Numarası
+                    </label>
+
+                    <input type="text"
+                           class="form-control"
+                           value="@Model.Id"
+                           readonly />
+
+                </div>
+
+                <!-- Özellik başlığı -->
+                <div class="col-md-6 mb-4">
+
+                    <label class="form-label">
+                        Özellik Başlığı
+                    </label>
+
+                    <input type="text"
+                           class="form-control"
+                           value="@Model.Title"
+                           readonly />
+
+                </div>
+
+                <!-- İkon sınıfı -->
+                <div class="col-md-6 mb-4">
+
+                    <label class="form-label">
+                        Font Awesome İkon Sınıfı
+                    </label>
+
+                    <input type="text"
+                           class="form-control"
+                           value="@Model.IconClass"
+                           readonly />
+
+                </div>
+
+                <!-- Görüntülenme sırası -->
+                <div class="col-md-6 mb-4">
+
+                    <label class="form-label">
+                        Görüntülenme Sırası
+                    </label>
+
+                    <input type="text"
+                           class="form-control"
+                           value="@Model.DisplayOrder"
+                           readonly />
+
+                </div>
+
+                <!-- Özellik açıklaması -->
+                <div class="col-md-12 mb-4">
+
+                    <label class="form-label">
+                        Özellik Açıklaması
+                    </label>
+
+                    <textarea class="form-control"
+                              rows="6"
+                              readonly>@Model.Description</textarea>
+
+                </div>
+
+                <!-- Aktiflik durumu -->
+                <div class="col-md-6 mb-4">
+
+                    <label class="form-label">
+                        Özellik Durumu
+                    </label>
+
+                    <div class="mt-2">
+
+                        @if (Model.IsActive)
+                        {
+                            <span class="badge bg-success">
+                                <i class="fa-solid fa-check me-1"></i>
+                                Aktif
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">
+                                <i class="fa-solid fa-xmark me-1"></i>
+                                Pasif
+                            </span>
+                        }
+
+                    </div>
+
+                    <small class="text-muted d-block mt-2">
+                        Aktif özellikler web sitesinin Neden Biz bölümünde gösterilir.
+                    </small>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </div>
+</div>
