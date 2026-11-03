@@ -243,6 +243,28 @@
 
                     </div>
 
+                    <!-- Okundu işaretleme butonu -->
+                    @if (!Model.IsRead)
+                    {
+                        <form asp-controller="ContactMessage"
+                              asp-action="MarkAsRead"
+                              asp-route-id="@Model.Id"
+                              method="post"
+                              style="margin-bottom: 20px;">
+
+                            @Html.AntiForgeryToken()
+
+                            <button type="submit"
+                                    class="m-btn m-btn--primary">
+
+                                <i class="fa-solid fa-check"></i>
+                                Okundu İşaretle
+
+                            </button>
+
+                        </form>
+                    }
+
                     <!-- Cevap durumu -->
                     <div style="display: flex;
                         justify-content: space-between;

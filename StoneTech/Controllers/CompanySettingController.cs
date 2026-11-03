@@ -80,12 +80,20 @@ namespace StoneTech.Controllers
                 .OrderBy(x => x.CompanySettingId)
                 .FirstOrDefaultAsync();
 
-            // Mevcut logo yolları form yeniden gösterildiğinde korunur
+            // Birinci logonun veritabanındaki mevcut adresini saklar
+            string? oldLogoUrl = companySetting?.LogoUrl;
+
+            // İkinci logonun veritabanındaki mevcut adresini saklar
+            string? oldSecondLogoUrl = companySetting?.SecondLogoUrl;
+
+            // Mevcut logo yollarını form için veritabanından doldurur
+            // İstemciden gönderilen gizli alanlara güvenilmez
+            model.ExistingLogoUrl = oldLogoUrl;
+            model.ExistingSecondLogoUrl = oldSecondLogoUrl;
+
             if (companySetting != null)
             {
                 model.CompanySettingId = companySetting.CompanySettingId;
-                model.ExistingLogoUrl = companySetting.LogoUrl;
-                model.ExistingSecondLogoUrl = companySetting.SecondLogoUrl;
             }
 
             // Birinci logo için dosya doğrulaması
@@ -292,33 +300,35 @@ namespace StoneTech.Controllers
             }
 
             // Birinci logo değiştirildiyse eski dosyası silinir
+            // Eski adres formdan değil, veritabanından alınmıştır
             if (newLogoUrl != null &&
-                !string.IsNullOrWhiteSpace(model.ExistingLogoUrl) &&
+                !string.IsNullOrWhiteSpace(oldLogoUrl) &&
                 !string.Equals(
-                    model.ExistingLogoUrl,
+                    oldLogoUrl,
                     newLogoUrl,
                     StringComparison.OrdinalIgnoreCase) &&
                 !string.Equals(
-                    model.ExistingLogoUrl,
+                    oldLogoUrl,
                     companySetting.SecondLogoUrl,
                     StringComparison.OrdinalIgnoreCase))
             {
-                DeleteOldLogo(model.ExistingLogoUrl);
+                DeleteOldLogo(oldLogoUrl);
             }
 
             // İkinci logo değiştirildiyse eski dosyası silinir
+            // Eski adres formdan değil, veritabanından alınmıştır
             if (newSecondLogoUrl != null &&
-                !string.IsNullOrWhiteSpace(model.ExistingSecondLogoUrl) &&
+                !string.IsNullOrWhiteSpace(oldSecondLogoUrl) &&
                 !string.Equals(
-                    model.ExistingSecondLogoUrl,
+                    oldSecondLogoUrl,
                     newSecondLogoUrl,
                     StringComparison.OrdinalIgnoreCase) &&
                 !string.Equals(
-                    model.ExistingSecondLogoUrl,
+                    oldSecondLogoUrl,
                     companySetting.LogoUrl,
                     StringComparison.OrdinalIgnoreCase))
             {
-                DeleteOldLogo(model.ExistingSecondLogoUrl);
+                DeleteOldLogo(oldSecondLogoUrl);
             }
 
             // Firma ayarları güncellemesini işlem geçmişine kaydeder
@@ -346,26 +356,85 @@ namespace StoneTech.Controllers
         // Yeni logo yüklendikten sonra artık kullanılmayan eski logoyu siler
         private void DeleteOldLogo(string logoUrl)
         {
-            // Yalnızca firma logo klasöründeki dosyaların silinmesine izin verilir
+            // Yalnızca firma logo klasöründeki adresleri kabul eder
             const string companyLogoPrefix = "/uploads/company/";
 
-            if (!logoUrl.StartsWith(
-                companyLogoPrefix,
-                StringComparison.OrdinalIgnoreCase))
+            if (string.IsNullOrWhiteSpace(logoUrl) ||
+                !logoUrl.StartsWith(
+                    companyLogoPrefix,
+                    StringComparison.OrdinalIgnoreCase))
             {
                 return;
             }
 
-            // Web yolu fiziksel dosya yoluna dönüştürülür
-            var relativePath = logoUrl
-                .TrimStart('/')
-                .Replace('/', Path.DirectorySeparatorChar);
+            // Logo adresinden yalnızca dosya adını alır
+            string fileName = logoUrl.Substring(
+                companyLogoPrefix.Length);
 
-            var physicalPath = Path.Combine(
-                _environment.WebRootPath,
-                relativePath);
+            // Alt klasör, yol geçişi ve özel yol karakterlerini reddeder
+            if (string.IsNullOrWhiteSpace(fileName) ||
+                fileName != Path.GetFileName(fileName) ||
+                fileName.Contains('/') ||
+                fileName.Contains('\\') ||
+                fileName.Contains(':'))
+            {
+                return;
+            }
 
-            // Dosya mevcutsa sunucudan kaldırılır
+            // Dosyanın uzantısını doğrular
+            string extension = Path
+                .GetExtension(fileName)
+                .ToLowerInvariant();
+
+            if (extension != ".jpg" &&
+                extension != ".jpeg" &&
+                extension != ".png" &&
+                extension != ".webp")
+            {
+                return;
+            }
+
+            // Dosya adının GUID biçiminde oluşturulduğunu doğrular
+            string nameWithoutExtension =
+                Path.GetFileNameWithoutExtension(fileName);
+
+            if (!Guid.TryParseExact(
+                nameWithoutExtension,
+                "N",
+                out _))
+            {
+                return;
+            }
+
+            // Firma logolarının tutulduğu gerçek klasörü belirler
+            string logoDirectory = Path.GetFullPath(
+                Path.Combine(
+                    _environment.WebRootPath,
+                    "uploads",
+                    "company"));
+
+            // Silinecek dosyanın gerçek tam yolunu oluşturur
+            string physicalPath = Path.GetFullPath(
+                Path.Combine(
+                    logoDirectory,
+                    fileName));
+
+            // Dosyanın firma logo klasörünün dışına çıkmasını engeller
+            string allowedDirectory = Path.EndsInDirectorySeparator(
+                logoDirectory)
+                ? logoDirectory
+                : logoDirectory + Path.DirectorySeparatorChar;
+
+            if (!physicalPath.StartsWith(
+                allowedDirectory,
+                OperatingSystem.IsWindows()
+                    ? StringComparison.OrdinalIgnoreCase
+                    : StringComparison.Ordinal))
+            {
+                return;
+            }
+
+            // Yalnızca doğrulanan eski logo dosyasını siler
             if (System.IO.File.Exists(physicalPath))
             {
                 System.IO.File.Delete(physicalPath);

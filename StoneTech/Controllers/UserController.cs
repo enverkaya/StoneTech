@@ -7,6 +7,8 @@ using StoneTech.Entities;
 using StoneTech.Enums;
 using StoneTech.Models.User;
 using StoneTech.Services;
+using Microsoft.AspNetCore.RateLimiting;
+using System.Security.Claims;
 
 namespace StoneTech.Controllers
 {
@@ -193,12 +195,20 @@ namespace StoneTech.Controllers
                     "Bu kullanıcı adı zaten kullanılıyor.");
             }
 
-            // Rol değerinin geçerli bir UserRole değeri olup olmadığını kontrol eder
+            // Rol değerinin geçerli olup olmadığını kontrol eder
             if (!Enum.IsDefined(model.Role))
             {
                 ModelState.AddModelError(
                     nameof(model.Role),
                     "Geçerli bir kullanıcı rolü seçilmelidir.");
+            }
+
+            // Sistemde yalnızca mevcut Admin hesabının bulunmasını sağlar
+            if (model.Role == UserRole.Admin)
+            {
+                ModelState.AddModelError(
+                    nameof(model.Role),
+                    "Yeni Admin hesabı oluşturulamaz. Sistemde yalnızca bir Admin bulunabilir.");
             }
 
             // Validasyon hatası varsa formu tekrar gösterir
@@ -362,12 +372,22 @@ namespace StoneTech.Controllers
                     "Bu kullanıcı adı başka bir kullanıcı hesabı tarafından kullanılıyor.");
             }
 
-            // Rol değerinin geçerli bir UserRole değeri olup olmadığını kontrol eder
-            if (!Enum.IsDefined(model.Role))
+            // Mevcut Admin hesabının rolünün değiştirilmesini ve pasifleştirilmesini engeller
+            if (user.Role == UserRole.Admin &&
+                (model.Role != UserRole.Admin || !model.IsActive))
+            {
+                ModelState.AddModelError(
+                    string.Empty,
+                    "Admin hesabının rolü değiştirilemez veya hesabı pasifleştirilemez.");
+            }
+
+            // Admin olmayan kullanıcıların Admin rolüne geçirilmesini engeller
+            if (user.Role != UserRole.Admin &&
+                model.Role == UserRole.Admin)
             {
                 ModelState.AddModelError(
                     nameof(model.Role),
-                    "Geçerli bir kullanıcı rolü seçilmelidir.");
+                    "Başka bir kullanıcıya Admin rolü verilemez.");
             }
 
             // Pasif personelin kullanıcı hesabının aktif edilmesini engeller
@@ -380,26 +400,7 @@ namespace StoneTech.Controllers
                     "Pasif veya işten ayrılmış personelin kullanıcı hesabı aktif edilemez.");
             }
 
-            // Sistemde en az bir kullanılabilir Admin hesabı kalmasını garanti eder
-            if (user.Role == UserRole.Admin &&
-                user.IsActive &&
-                (model.Role != UserRole.Admin || !model.IsActive))
-            {
-                bool anotherActiveAdminExists = await _context.Users
-                    .AnyAsync(x =>
-                        x.UserId != user.UserId &&
-                        x.Role == UserRole.Admin &&
-                        x.IsActive &&
-                        x.Employee.IsActive &&
-                        !x.Employee.TerminationDate.HasValue);
-
-                if (!anotherActiveAdminExists)
-                {
-                    ModelState.AddModelError(
-                        string.Empty,
-                        "Sistemde en az bir aktif Admin hesabı bulunmalıdır.");
-                }
-            }
+           
 
             // Validasyon hatası varsa formu tekrar gösterir
             if (!ModelState.IsValid)
@@ -466,9 +467,11 @@ namespace StoneTech.Controllers
             return View(model);
         }
 
-        // Admin tarafından kullanıcının şifresini sıfırlar
+
+        // Admin tarafından kullanıcının şifresini güvenli şekilde sıfırlar
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [EnableRateLimiting("login")]
         public async Task<IActionResult> ResetPassword(
             int id,
             UserResetPasswordViewModel model)
@@ -479,7 +482,7 @@ namespace StoneTech.Controllers
                 return BadRequest();
             }
 
-            // Kullanıcıyı bağlı olduğu personel bilgileriyle birlikte getirir
+            // Şifresi sıfırlanacak kullanıcıyı personel bilgileriyle getirir
             var user = await _context.Users
                 .Include(x => x.Employee)
                 .FirstOrDefaultAsync(x => x.UserId == id);
@@ -490,36 +493,150 @@ namespace StoneTech.Controllers
                 return NotFound();
             }
 
-            // Formdan gelen kullanıcı bilgilerine güvenmek yerine veritabanındaki değerleri kullanır
+            // Formda gösterilecek kullanıcı bilgilerini veritabanından alır
             model.FullName = user.Employee.FullName;
             model.Username = user.Username;
 
-            // Validasyon hatası varsa şifre sıfırlama ekranını tekrar gösterir
+            // Form doğrulaması başarısızsa işlemi durdurur
             if (!ModelState.IsValid)
             {
                 return View(model);
             }
 
-            // Yeni şifreyi güvenli şekilde hashleyerek eski şifrenin yerine kaydeder
-            user.PasswordHash = _passwordHasher.HashPassword(
+            // Oturum açmış Admin hesabının Id bilgisini alır
+            string? adminIdValue = User.FindFirstValue(
+                ClaimTypes.NameIdentifier);
+
+            // Geçerli bir Admin Id bulunamazsa işlemi reddeder
+            if (!int.TryParse(adminIdValue, out int adminId))
+            {
+                return Challenge();
+            }
+
+            // İşlemi gerçekleştiren Admin hesabını veritabanından getirir
+            var admin = await _context.Users
+                .AsNoTracking()
+                .Include(x => x.Employee)
+                .FirstOrDefaultAsync(x =>
+                    x.UserId == adminId &&
+                    x.Role == UserRole.Admin &&
+                    x.IsActive &&
+                    x.Employee.IsActive &&
+                    !x.Employee.TerminationDate.HasValue);
+
+            // Admin hesabı geçerli değilse işlemi reddeder
+            if (admin == null)
+            {
+                return Forbid();
+            }
+
+            // Admin hesabının kilit durumunu kontrol eder
+            if (admin.LockoutEndUtc.HasValue &&
+                admin.LockoutEndUtc.Value > DateTime.UtcNow)
+            {
+                int remainingMinutes = (int)Math.Ceiling(
+                    (admin.LockoutEndUtc.Value - DateTime.UtcNow)
+                    .TotalMinutes);
+
+                ModelState.AddModelError(
+                    nameof(model.CurrentAdminPassword),
+                    $"Admin hesabınız geçici olarak kilitlidir. " +
+                    $"Yaklaşık {remainingMinutes} dakika sonra tekrar deneyin.");
+
+                return View(model);
+            }
+
+            // Girilen mevcut Admin şifresini hash üzerinden doğrular
+            var verificationResult = _passwordHasher.VerifyHashedPassword(
+                admin,
+                admin.PasswordHash,
+                model.CurrentAdminPassword);
+
+            // Admin şifresi yanlışsa başarısız deneme sayısını artırır
+            if (verificationResult == PasswordVerificationResult.Failed)
+            {
+                // Başarısız deneme sayısını atomik olarak artırır
+                await _context.Users
+                    .Where(x => x.UserId == adminId)
+                    .ExecuteUpdateAsync(setters => setters
+                        .SetProperty(
+                            x => x.FailedLoginCount,
+                            x => x.FailedLoginCount + 1));
+
+                // Güncel başarısız deneme sayısını getirir
+                var failedCount = await _context.Users
+                    .AsNoTracking()
+                    .Where(x => x.UserId == adminId)
+                    .Select(x => x.FailedLoginCount)
+                    .FirstAsync();
+
+                // Beş veya daha fazla yanlış denemede hesabı kilitler
+                if (failedCount >= 5)
+                {
+                    DateTime lockoutEnd = DateTime.UtcNow.AddMinutes(15);
+
+                    await _context.Users
+                        .Where(x =>
+                            x.UserId == adminId &&
+                            (x.LockoutEndUtc == null ||
+                             x.LockoutEndUtc <= DateTime.UtcNow))
+                        .ExecuteUpdateAsync(setters => setters
+                            .SetProperty(
+                                x => x.LockoutEndUtc,
+                                lockoutEnd));
+
+                    ModelState.AddModelError(
+                        nameof(model.CurrentAdminPassword),
+                        "Çok fazla hatalı şifre denemesi yapıldı. " +
+                        "Admin hesabı 15 dakika kilitlendi.");
+                }
+                else
+                {
+                    ModelState.AddModelError(
+                        nameof(model.CurrentAdminPassword),
+                        "Mevcut Admin şifreniz yanlış.");
+                }
+
+                return View(model);
+            }
+
+            // Admin şifresi doğruysa başarısız deneme sayacını sıfırlar
+            await _context.Users
+                .Where(x => x.UserId == adminId)
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(x => x.FailedLoginCount, 0)
+                    .SetProperty(
+                        x => x.LockoutEndUtc,
+                        (DateTime?)null));
+
+            // Şifresi değiştirilecek kullanıcının güncel hash bilgisini hazırlar
+            string newPasswordHash = _passwordHasher.HashPassword(
                 user,
                 model.NewPassword);
 
+            // Yeni şifreyi veritabanına kaydeder
+            user.PasswordHash = newPasswordHash;
+
             await _context.SaveChangesAsync();
 
+            // Şifre sıfırlama işlemini işlem geçmişine kaydeder
             await _activityLogService.LogAsync(
                 "User",
                 "PasswordReset",
                 user.UserId,
-                $"{user.Username} kullanıcı hesabının şifresi yönetici tarafından sıfırlandı.");
+                $"{user.Username} kullanıcı hesabının şifresi " +
+                "Admin kimlik doğrulaması sonrasında sıfırlandı.");
 
+            // Başarılı işlem mesajını hazırlar
             TempData["SuccessMessage"] =
                 $"{user.Employee.FullName} kullanıcısının şifresi başarıyla sıfırlandı.";
 
+            // Kullanıcı detay sayfasına yönlendirir
             return RedirectToAction(
                 nameof(Details),
                 new { id = user.UserId });
         }
+
 
         // Kullanıcı hesabını aktif veya pasif duruma getirir
         [HttpPost]
@@ -550,26 +667,14 @@ namespace StoneTech.Controllers
                 }
             }
 
-            // Son kullanılabilir Admin hesabının pasife alınmasını engeller
-            if (user.IsActive && user.Role == UserRole.Admin)
+            // Admin hesabının pasifleştirilmesini engeller
+            if (user.Role == UserRole.Admin && user.IsActive)
             {
-                bool anotherActiveAdminExists = await _context.Users
-                    .AnyAsync(x =>
-                        x.UserId != user.UserId &&
-                        x.Role == UserRole.Admin &&
-                        x.IsActive &&
-                        x.Employee.IsActive &&
-                        !x.Employee.TerminationDate.HasValue);
+                TempData["ErrorMessage"] =
+                    "Admin hesabı pasifleştirilemez.";
 
-                if (!anotherActiveAdminExists)
-                {
-                    TempData["ErrorMessage"] =
-                        "Sistemde en az bir aktif Admin hesabı bulunmalıdır.";
-
-                    return RedirectToAction(nameof(Index));
-                }
+                return RedirectToAction(nameof(Index));
             }
-
             // Kullanıcı hesabının aktiflik durumunu tersine çevirir
             user.IsActive = !user.IsActive;
 
@@ -620,27 +725,13 @@ namespace StoneTech.Controllers
                 return NotFound();
             }
 
-            // Son kullanılabilir Admin hesabının silinmesini engeller
-            if (user.Role == UserRole.Admin &&
-                user.IsActive &&
-                user.Employee.IsActive &&
-                !user.Employee.TerminationDate.HasValue)
+            // Admin hesabının sistemden silinmesini engeller
+            if (user.Role == UserRole.Admin)
             {
-                bool anotherActiveAdminExists = await _context.Users
-                    .AnyAsync(x =>
-                        x.UserId != user.UserId &&
-                        x.Role == UserRole.Admin &&
-                        x.IsActive &&
-                        x.Employee.IsActive &&
-                        !x.Employee.TerminationDate.HasValue);
+                TempData["ErrorMessage"] =
+                    "Admin hesabı sistemden silinemez.";
 
-                if (!anotherActiveAdminExists)
-                {
-                    TempData["ErrorMessage"] =
-                        "Sistemde en az bir aktif Admin hesabı bulunmalıdır.";
-
-                    return RedirectToAction(nameof(Index));
-                }
+                return RedirectToAction(nameof(Index));
             }
 
             string deletedUsername = user.Username;

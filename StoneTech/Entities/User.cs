@@ -25,6 +25,12 @@ namespace StoneTech.Entities
         // Kullanıcı hesabı aktif mi?
         public bool IsActive { get; set; } = true;
 
+        // Kullanıcının art arda yaptığı başarısız giriş denemesi sayısı
+        public int FailedLoginCount { get; set; } = 0;
+
+        // Kullanıcı hesabının geçici kilidinin biteceği UTC zamanı
+        public DateTime? LockoutEndUtc { get; set; }
+
         // Kullanıcı hesabının bağlı olduğu personel
         public Employee Employee { get; set; } = null!;
     }

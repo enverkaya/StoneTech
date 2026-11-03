@@ -585,6 +585,11 @@ namespace StoneTech.Data
                 .HasIndex(x => x.Username)
                 .IsUnique();
 
+            // Sistemde yalnızca bir Admin hesabı bulunmasını sağlar
+            modelBuilder.Entity<User>()
+                .HasIndex(x => x.Role, "UX_Users_SingleAdmin")
+                .IsUnique()
+                .HasFilter("[Role] = 1");
 
             // ACTIVITY LOG - SİSTEM İŞLEM GEÇMİŞİ AYARLARI
 

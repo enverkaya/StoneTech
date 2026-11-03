@@ -31,21 +31,20 @@ namespace StoneTech.Controllers
             _logger = logger;
         }
 
-
-        // Gelen mesajları listele
+        // Gelen mesajları listeler
         [HttpGet]
         public async Task<IActionResult> Index(
             string? search,
             int page = 1,
             int pageSize = 10)
         {
-            // Sayfa numarasının geçerli olmasını sağla
+            // Sayfa numarasının geçerli olmasını sağlar
             if (page < 1)
             {
                 page = 1;
             }
 
-            // Sayfa başına gösterilecek kayıt sayısını kontrol et
+            // Sayfa başına gösterilecek kayıt sayısını kontrol eder
             if (pageSize != 5 &&
                 pageSize != 10 &&
                 pageSize != 20 &&
@@ -54,15 +53,15 @@ namespace StoneTech.Controllers
                 pageSize = 10;
             }
 
-            // Arama metnini düzenle
+            // Arama metnini düzenler
             search = search?.Trim();
 
-            // Mesaj sorgusunu oluştur
+            // Mesaj sorgusunu oluşturur
             var query = _context.ContactMessages
                 .AsNoTracking()
                 .AsQueryable();
 
-            // Ad soyad, e-posta veya konuya göre arama yap
+            // Ad soyad, e-posta veya konuya göre arama yapar
             if (!string.IsNullOrWhiteSpace(search))
             {
                 query = query.Where(x =>
@@ -71,26 +70,26 @@ namespace StoneTech.Controllers
                     x.Subject.Contains(search));
             }
 
-            // Filtreye uygun toplam mesaj sayısını hesapla
+            // Filtreye uygun toplam mesaj sayısını hesaplar
             int totalCount = await query.CountAsync();
 
-            // Toplam sayfa sayısını hesapla
+            // Toplam sayfa sayısını hesaplar
             int totalPages = (int)Math.Ceiling(
                 totalCount / (double)pageSize);
 
-            // İstenen sayfa toplam sayfa sayısını aşmasın
+            // İstenen sayfanın toplam sayfa sayısını aşmasını engeller
             if (totalPages > 0 && page > totalPages)
             {
                 page = totalPages;
             }
 
-            // Hiç kayıt yoksa ilk sayfayı göster
+            // Hiç kayıt yoksa ilk sayfayı gösterir
             if (totalPages == 0)
             {
                 page = 1;
             }
 
-            // Mesajları en yeniden en eskiye sırala ve sayfala
+            // Mesajları en yeniden en eskiye sıralar ve sayfalar
             var messages = await query
                 .OrderByDescending(x => x.CreatedAt)
                 .ThenByDescending(x => x.Id)
@@ -108,48 +107,40 @@ namespace StoneTech.Controllers
                 })
                 .ToListAsync();
 
-            // Arama bilgisini View'a gönder
+            // Arama bilgisini View'a gönderir
             ViewBag.Search = search ?? "";
 
-            // Aktif sayfa numarasını View'a gönder
+            // Aktif sayfa numarasını View'a gönderir
             ViewBag.Page = page;
 
-            // Sayfa başına kayıt sayısını View'a gönder
+            // Sayfa başına kayıt sayısını View'a gönderir
             ViewBag.PageSize = pageSize;
 
-            // Toplam sayfa sayısını View'a gönder
+            // Toplam sayfa sayısını View'a gönderir
             ViewBag.TotalPages = totalPages;
 
-            // Toplam mesaj sayısını View'a gönder
+            // Toplam mesaj sayısını View'a gönderir
             ViewBag.TotalCount = totalCount;
 
             return View(messages);
         }
 
-
-        // Gelen mesajın detaylarını görüntüle
+        // Gelen mesajın detaylarını yalnızca görüntüler
         [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
-            // Mesajı veritabanından getir
+            // Mesajı veritabanından salt okunur şekilde getirir
             var message = await _context.ContactMessages
+                .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.Id == id);
 
-            // Mesaj bulunamazsa 404 döndür
+            // Mesaj bulunamazsa 404 döndürür
             if (message == null)
             {
                 return NotFound();
             }
 
-            // Mesaj ilk kez açılıyorsa okundu olarak işaretle
-            if (!message.IsRead)
-            {
-                message.IsRead = true;
-
-                await _context.SaveChangesAsync();
-            }
-
-            // Mesaj bilgilerini Details modeline aktar
+            // Mesaj bilgilerini Details modeline aktarır
             var model = new ContactMessageDetailsViewModel
             {
                 Id = message.Id,
@@ -167,52 +158,98 @@ namespace StoneTech.Controllers
             return View(model);
         }
 
-        // Müşteriye e-posta ile cevap gönder
+        // Admin isteğiyle mesajı okundu olarak işaretler
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> MarkAsRead(int id)
+        {
+            // Yalnızca henüz okunmamış mesajın durumunu değiştirir
+            int affectedRows = await _context.ContactMessages
+                .Where(x => x.Id == id && !x.IsRead)
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(x => x.IsRead, true));
+
+            // Güncelleme yapılmadıysa mesajın varlığını kontrol eder
+            if (affectedRows == 0)
+            {
+                bool exists = await _context.ContactMessages
+                    .AnyAsync(x => x.Id == id);
+
+                // Mesaj bulunamadıysa 404 döndürür
+                if (!exists)
+                {
+                    return NotFound();
+                }
+            }
+
+            // İşlem sonucunu kullanıcıya bildirir
+            TempData["Success"] = "Mesaj okundu olarak işaretlendi.";
+
+            // Mesaj detayına geri döner
+            return RedirectToAction(
+                nameof(Details),
+                new { id });
+        }
+
+        // Müşteriye e-posta ile cevap gönderir
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Reply(
             ContactMessageDetailsViewModel model)
         {
-            // Gelen mesajı veritabanından getir
-            var message = await _context.ContactMessages
-                .FirstOrDefaultAsync(x => x.Id == model.Id);
+            // Cevap alanındaki gereksiz boşlukları temizler
+            string replyText = model.ReplyMessage?.Trim() ?? string.Empty;
 
-            // Mesaj bulunamazsa 404 döndür
-            if (message == null)
-            {
-                return NotFound();
-            }
-
-            // Cevap alanının boş olmasını engelle
-            if (string.IsNullOrWhiteSpace(model.ReplyMessage))
+            // Cevap alanının boş olmasını engeller
+            if (string.IsNullOrWhiteSpace(replyText))
             {
                 TempData["Error"] = "Lütfen cevap mesajı yazınız.";
 
                 return RedirectToAction(
                     nameof(Details),
-                    new { id = message.Id });
+                    new { id = model.Id });
             }
 
-            // Cevabın veritabanı sınırını aşmasını engelle
-            if (model.ReplyMessage.Length > 5000)
+            // Cevabın veritabanı sınırını aşmasını engeller
+            if (replyText.Length > 5000)
             {
-                TempData["Error"] =
-                    "Cevap en fazla 5000 karakter olabilir.";
+                TempData["Error"] = "Cevap en fazla 5000 karakter olabilir.";
 
                 return RedirectToAction(
                     nameof(Details),
-                    new { id = message.Id });
+                    new { id = model.Id });
             }
 
-            // Aynı mesaja tekrar cevap gönderilmesini engelle
-            if (message.IsReplied)
+            // Mesajı veritabanından getirir
+            var message = await _context.ContactMessages
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == model.Id);
+
+            // Mesaj bulunamadıysa 404 döndürür
+            if (message == null)
+            {
+                return NotFound();
+            }
+
+            // Mesajı yalnızca cevaplanmamış ve işleme alınmamışsa kilitler
+            // ExecuteUpdateAsync işlemi veritabanında atomik olarak çalışır
+            int affectedRows = await _context.ContactMessages
+                .Where(x =>
+                    x.Id == model.Id &&
+                    !x.IsReplied &&
+                    !x.IsReplyProcessing)
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(x => x.IsReplyProcessing, true));
+
+            // Başka bir istek mesajı işleme aldıysa tekrar e-posta göndermez
+            if (affectedRows == 0)
             {
                 TempData["Error"] =
-                    "Bu mesaja daha önce cevap verilmiş.";
+                    "Bu mesaj daha önce cevaplanmış veya cevap gönderimi başlatılmış.";
 
                 return RedirectToAction(
                     nameof(Details),
-                    new { id = message.Id });
+                    new { id = model.Id });
             }
 
             // Müşteriye gönderilecek e-posta konusu
@@ -221,49 +258,58 @@ namespace StoneTech.Controllers
             // Müşteriye gönderilecek e-posta içeriği
             string emailBody =
                 $"Sayın {message.FullName},\n\n" +
-                $"{model.ReplyMessage.Trim()}\n\n" +
+                $"{replyText}\n\n" +
                 "Saygılarımızla,\n" +
                 "KAYA Ceramic & Tile";
 
             try
             {
-                // Müşterinin e-posta adresine cevap gönder
+                // Müşterinin e-posta adresine cevap gönderir
                 await _mailService.SendEmailAsync(
                     message.Email,
                     subject,
                     emailBody);
 
-                // Gönderilen cevabı veritabanına kaydet
-                message.ReplyMessage = model.ReplyMessage.Trim();
+                // Gönderilen cevabı veritabanına kaydeder
+                int updatedRows = await _context.ContactMessages
+                    .Where(x =>
+                        x.Id == model.Id &&
+                        x.IsReplyProcessing &&
+                        !x.IsReplied)
+                    .ExecuteUpdateAsync(setters => setters
+                        .SetProperty(x => x.ReplyMessage, replyText)
+                        .SetProperty(x => x.IsReplied, true)
+                        .SetProperty(x => x.RepliedAt, DateTime.UtcNow)
+                        .SetProperty(x => x.IsReplyProcessing, false));
 
-                // Mesajı cevaplandı olarak işaretle
-                message.IsReplied = true;
-
-                // Cevap gönderim tarihini kaydet
-                message.RepliedAt = DateTime.UtcNow;
-
-                // Değişiklikleri veritabanına kaydet
-                await _context.SaveChangesAsync();
+                // Cevap durumunun veritabanına kaydedildiğini doğrular
+                if (updatedRows != 1)
+                {
+                    throw new InvalidOperationException(
+                        "E-posta gönderildi ancak cevap durumu veritabanına kaydedilemedi.");
+                }
 
                 TempData["Success"] =
                     "Cevabınız müşterinin e-posta adresine gönderildi.";
             }
             catch (Exception ex)
             {
-                // Hata ayrıntılarını sistem kayıtlarına yaz
+                // Hata ayrıntılarını sistem kayıtlarına yazar
                 _logger.LogError(
                     ex,
                     "İletişim mesajına cevap gönderilirken hata oluştu. Mesaj ID: {MessageId}",
-                    message.Id);
+                    model.Id);
 
+                // Gönderimin sonucu belirsiz olabileceği için kilidi kaldırmaz
+                // Böylece aynı e-postanın yanlışlıkla tekrar gönderilmesini önler
                 TempData["Error"] =
-                    "Cevap gönderilirken veya kaydedilirken hata oluştu. " +
-                    "Lütfen işlem durumunu kontrol ediniz.";
+                    "Cevap gönderimi sırasında hata oluştu. " +
+                    "E-posta gönderilmiş olabilir. Tekrar göndermeden önce işlem durumunu kontrol ediniz.";
             }
 
             return RedirectToAction(
                 nameof(Details),
-                new { id = message.Id });
+                new { id = model.Id });
         }
     }
 }

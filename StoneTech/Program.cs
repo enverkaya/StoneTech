@@ -14,19 +14,19 @@ using StoneTech.ModelBinding;
 using StoneTech.Services;
 using StoneTech.Services.Reports;
 
-// QuestPDF Community lisans ayarÄ±
+// QuestPDF Community lisans ayarı
 QuestPDF.Settings.License =
     QuestPDF.Infrastructure.LicenseType.Community;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Ekrandaki tarih ve para gÃ¶sterimlerini TÃ¼rkÃ§e biÃ§imde tutar
+// Ekrandaki tarih ve para gösterimlerini Türkçe biçimde tutar
 var turkishCulture = CultureInfo.GetCultureInfo("tr-TR");
 
 CultureInfo.DefaultThreadCurrentCulture = turkishCulture;
 CultureInfo.DefaultThreadCurrentUICulture = turkishCulture;
 
-// HTML number alanlarÄ±ndan gelen noktalÄ± decimal deÄŸerleri kÃ¼ltÃ¼rden baÄŸÄ±msÄ±z baÄŸlar
+// HTML number alanlarından gelen noktalı decimal değerleri kültürden bağımsız bağlar
 builder.Services.AddControllersWithViews(options =>
 {
     options.ModelBinderProviders.Insert(
@@ -34,70 +34,70 @@ builder.Services.AddControllersWithViews(options =>
         new InvariantDecimalModelBinderProvider());
 });
 
-// AppDbContext'i uygulamaya tanÄ±tÄ±r
-// BaÄŸlantÄ± bilgisini appsettings.json iÃ§indeki DefaultConnection'dan alÄ±r
+// AppDbContext'i uygulamaya tanıtır
+// Bağlantı bilgisini appsettings.json içindeki DefaultConnection'dan alır
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// KullanÄ±cÄ± ÅŸifrelerini gÃ¼venli ÅŸekilde hashlemek ve doÄŸrulamak iÃ§in kullanÄ±lÄ±r
+// Kullanıcı şifrelerini güvenli şekilde hashlemek ve doğrulamak için kullanılır
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
-// HTTP isteÄŸine ve giriÅŸ yapan kullanÄ±cÄ±nÄ±n bilgilerine servislerden eriÅŸilmesini saÄŸlar
+// HTTP isteğine ve giriş yapan kullanıcının bilgilerine servislerden erişilmesini sağlar
 builder.Services.AddHttpContextAccessor();
 
-// Sistem iÃ§erisinde yapÄ±lan iÅŸlemleri ActivityLogs tablosuna kaydeden servisi tanÄ±tÄ±r
+// Sistem içerisinde yapılan işlemleri ActivityLogs tablosuna kaydeden servisi tanıtır
 builder.Services.AddScoped<IActivityLogService, ActivityLogService>();
 
-// RaporlarÄ±n Excel dosyasÄ± olarak oluÅŸturulmasÄ±nÄ± saÄŸlayan servisi tanÄ±tÄ±r
+// Raporların Excel dosyası olarak oluşturulmasını sağlayan servisi tanıtır
 builder.Services.AddScoped<IExcelService, ExcelService>();
 
-// RaporlarÄ±n PDF dosyasÄ± olarak oluÅŸturulmasÄ±nÄ± saÄŸlayan servisi tanÄ±tÄ±r
+// Raporların PDF dosyası olarak oluşturulmasını sağlayan servisi tanıtır
 builder.Services.AddScoped<IPdfService, PdfService>();
 
-// Rapor sorgularÄ±nÄ± ve hesaplamalarÄ±nÄ± controller katmanÄ±ndan ayÄ±rÄ±r
+// Rapor sorgularını ve hesaplamalarını controller katmanından ayırır
 builder.Services.AddScoped<IReportService, ReportService>();
 
-// Profesyonel fatura PDF belgelerini oluÅŸturan servisi tanÄ±tÄ±r
+// Profesyonel fatura PDF belgelerini oluşturan servisi tanıtır
 builder.Services.AddScoped<IInvoicePdfService, InvoicePdfService>();
 
-// MÃ¼ÅŸterilere e-posta ile cevap gÃ¶nderen servisi tanÄ±tÄ±r
+// Müşterilere e-posta ile cevap gönderen servisi tanıtır
 builder.Services.AddScoped<IMailService, MailService>();
 
-// Cookie tabanlÄ± kullanÄ±cÄ± giriÅŸ sistemini uygulamaya tanÄ±tÄ±r
+// Cookie tabanlı kullanıcı giriş sistemini uygulamaya tanıtır
 builder.Services
     .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
-        // GiriÅŸ yapmamÄ±ÅŸ kullanÄ±cÄ±larÄ±n yÃ¶nlendirileceÄŸi sayfa
+        // Giriş yapmamış kullanıcıların yönlendirileceği sayfa
         options.LoginPath = "/Account/Login";
 
-        // Yetkisi olmayan kullanÄ±cÄ±larÄ±n yÃ¶nlendirileceÄŸi sayfa
+        // Yetkisi olmayan kullanıcıların yönlendirileceği sayfa
         options.AccessDeniedPath = "/Account/AccessDenied";
 
-        // KullanÄ±cÄ±nÄ±n giriÅŸ oturumunun geÃ§erlilik sÃ¼resi
+        // Kullanıcının giriş oturumunun geçerlilik süresi
         options.ExpireTimeSpan = TimeSpan.FromHours(8);
 
-        // KullanÄ±cÄ± sistemi aktif kullandÄ±kÃ§a oturum sÃ¼resini yeniler
+        // Kullanıcı sistemi aktif kullandıkça oturum süresini yeniler
         options.SlidingExpiration = true;
 
-        // StoneTech giriÅŸ cookie'sinin adÄ±
+        // StoneTech giriş cookie'sinin adı
         options.Cookie.Name = "StoneTech.Auth";
 
-        // JavaScript Ã¼zerinden authentication cookie'sine eriÅŸilmesini engeller
+        // JavaScript üzerinden authentication cookie'sine erişilmesini engeller
         options.Cookie.HttpOnly = true;
 
-        // Cookie'nin aynÄ± site politikasÄ±
+        // Cookie'nin aynı site politikası
         options.Cookie.SameSite = SameSiteMode.Lax;
 
-        // HTTPS kullanÄ±ldÄ±ÄŸÄ±nda cookie'nin gÃ¼venli baÄŸlantÄ± Ã¼zerinden gÃ¶nderilmesini saÄŸlar
+        // HTTPS kullanıldığında cookie'nin güvenli bağlantı üzerinden gönderilmesini sağlar
         options.Cookie.SecurePolicy =
             builder.Environment.IsDevelopment()
                 ? CookieSecurePolicy.SameAsRequest
                 : CookieSecurePolicy.Always;
 
-        // Pasife alÄ±nan, iÅŸten ayrÄ±lan veya rolÃ¼ deÄŸiÅŸtirilen kullanÄ±cÄ±larÄ±n
-        // daha Ã¶nce oluÅŸturulmuÅŸ cookie ile eski yetkilerini kullanmasÄ±nÄ± engeller.
+        // Pasife alınan, işten ayrılan veya rolü değiştirilen kullanıcıların
+        // daha önce oluşturulmuş cookie ile eski yetkilerini kullanmasını engeller.
         options.Events.OnValidatePrincipal = async context =>
         {
             string? userIdValue = context.Principal?
@@ -161,7 +161,7 @@ builder.Services
         };
     });
 
-// VarsayÄ±lan olarak bÃ¼tÃ¼n MVC sayfalarÄ±nÄ±n giriÅŸ yapmÄ±ÅŸ kullanÄ±cÄ± gerektirmesini saÄŸlar
+// Varsayılan olarak bütün MVC sayfalarının giriş yapmış kullanıcı gerektirmesini sağlar
 builder.Services.AddAuthorization(options =>
 {
     options.FallbackPolicy = new AuthorizationPolicyBuilder()
@@ -169,14 +169,14 @@ builder.Services.AddAuthorization(options =>
         .Build();
 });
 
-// Tek bir istemciden kÄ±sa sÃ¼rede sÄ±nÄ±rsÄ±z istek yapÄ±lmasÄ±nÄ± engeller
+// Tek bir istemciden kısa sürede sınırsız istek yapılmasını engeller
 builder.Services.AddRateLimiter(options =>
 {
-    // Limit aÅŸÄ±ldÄ±ÄŸÄ±nda HTTP 429 dÃ¶ndÃ¼r
+    // Limit aşıldığında HTTP 429 döndür
     options.RejectionStatusCode =
         StatusCodes.Status429TooManyRequests;
 
-    // GiriÅŸ sayfasÄ± iÃ§in IP bazlÄ± hÄ±z sÄ±nÄ±rlamasÄ±
+    // Giriş sayfası için IP bazlı hız sınırlaması
     options.AddPolicy("login", httpContext =>
         RateLimitPartition.GetFixedWindowLimiter(
             partitionKey:
@@ -184,20 +184,20 @@ builder.Services.AddRateLimiter(options =>
                 ?? "unknown",
             factory: _ => new FixedWindowRateLimiterOptions
             {
-                // Bir dakikada en fazla 10 giriÅŸ isteÄŸi
+                // Bir dakikada en fazla 10 giriş isteği
                 PermitLimit = 10,
 
-                // Bir dakikalÄ±k zaman aralÄ±ÄŸÄ±
+                // Bir dakikalık zaman aralığı
                 Window = TimeSpan.FromMinutes(1),
 
-                // Bekleme kuyruÄŸu oluÅŸturma
+                // Bekleme kuyruğu oluşturma
                 QueueLimit = 0,
 
-                // SÃ¼re dolunca istek hakkÄ±nÄ± otomatik yenile
+                // Süre dolunca istek hakkını otomatik yenile
                 AutoReplenishment = true
             }));
 
-    // Ä°letiÅŸim formu iÃ§in IP bazlÄ± hÄ±z sÄ±nÄ±rlamasÄ±
+    // İletişim formu için IP bazlı hız sınırlaması
     options.AddPolicy("contact", httpContext =>
         RateLimitPartition.GetFixedWindowLimiter(
             partitionKey:
@@ -205,23 +205,23 @@ builder.Services.AddRateLimiter(options =>
                 ?? "unknown",
             factory: _ => new FixedWindowRateLimiterOptions
             {
-                // On dakikada en fazla 5 mesaj gÃ¶nderme isteÄŸi
+                // On dakikada en fazla 5 mesaj gönderme isteği
                 PermitLimit = 5,
 
-                // On dakikalÄ±k zaman aralÄ±ÄŸÄ±
+                // On dakikalık zaman aralığı
                 Window = TimeSpan.FromMinutes(10),
 
-                // Bekleme kuyruÄŸu oluÅŸturma
+                // Bekleme kuyruğu oluşturma
                 QueueLimit = 0,
 
-                // SÃ¼re dolunca istek hakkÄ±nÄ± otomatik yenile
+                // Süre dolunca istek hakkını otomatik yenile
                 AutoReplenishment = true
             }));
 });
 
 var app = builder.Build();
 
-// Production ortamÄ±nda hata yÃ¶netimini ayarlar
+// Production ortamında hata yönetimini ayarlar
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -231,8 +231,8 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// TarayÄ±cÄ±nÄ±n yÃ¼klenen dosyalarÄ± farklÄ± bir iÃ§erik tÃ¼rÃ¼ gibi yorumlamasÄ±nÄ±
-// ve sayfalarÄ±n baÅŸka siteler iÃ§inde Ã§erÃ§evelenmesini sÄ±nÄ±rlar.
+// Tarayıcının yüklenen dosyaları farklı bir içerik türü gibi yorumlamasını
+// ve sayfaların başka siteler içinde çerçevelenmesini sınırlar.
 app.Use(async (context, next) =>
 {
     context.Response.Headers.XContentTypeOptions = "nosniff";
@@ -245,20 +245,21 @@ app.Use(async (context, next) =>
 
 app.UseRouting();
 
-// Ä°stek hÄ±z sÄ±nÄ±rlarÄ±nÄ± uygular
+// İstek hız sınırlarını uygular
 app.UseRateLimiter();
 
-// Cookie Ã¼zerinden giriÅŸ yapan kullanÄ±cÄ±yÄ± tanÄ±r
+// Cookie üzerinden giriş yapan kullanıcıyı tanır
 app.UseAuthentication();
 
-// Personel fotoÄŸraflarÄ± kiÅŸisel veri iÃ§erdiÄŸi iÃ§in doÄŸrudan anonim
-// statik dosya isteÄŸiyle indirilmesini engeller.
+// Eski personel fotoğraflarının bulunduğu herkese açık klasöre
+// doğrudan HTTP erişimini engeller.
+// Yeni personel fotoğrafları EmployeeController.Photo üzerinden
+// yalnızca Admin yetkisiyle görüntülenir.
 app.Use(async (context, next) =>
 {
     if (context.Request.Path.StartsWithSegments(
-            "/images/employees",
-            StringComparison.OrdinalIgnoreCase) &&
-        context.User.Identity?.IsAuthenticated != true)
+            "/uploads/employees",
+            StringComparison.OrdinalIgnoreCase))
     {
         context.Response.StatusCode =
             StatusCodes.Status404NotFound;
@@ -271,10 +272,10 @@ app.Use(async (context, next) =>
 
 app.UseStaticFiles();
 
-// KullanÄ±cÄ±nÄ±n rol ve yetkilerini kontrol eder
+// Kullanıcının rol ve yetkilerini kontrol eder
 app.UseAuthorization();
 
-// VarsayÄ±lan MVC route ayarÄ±
+// Varsayılan MVC route ayarı
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
