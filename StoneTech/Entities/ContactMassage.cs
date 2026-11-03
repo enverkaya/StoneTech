@@ -27,6 +27,9 @@ namespace StoneTech.Entities
         // Mesaja e-posta ile yanıt gönderildi mi?
         public bool IsReplied { get; set; } = false;
 
+        // E-posta yanıtı gönderiminin başlatıldığını veya sonucunun belirsiz olduğunu belirtir
+        public bool IsReplyProcessing { get; set; } = false;
+
         // Yönetici tarafından gönderilen yanıt
         public string? ReplyMessage { get; set; }
 

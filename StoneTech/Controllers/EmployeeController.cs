@@ -376,32 +376,14 @@ namespace StoneTech.Controllers
                 }
             }
 
-            // Düzenleme sonucunda personelin kullanılabilir durumda kalıp kalmayacağını belirler
-            bool willRemainActive =
-                model.IsActive &&
-                !model.TerminationDate.HasValue;
-
-            // Son kullanılabilir Admin hesabına bağlı personelin pasif
-            // veya işten ayrılmış duruma getirilmesini engeller
-            if (employee.IsActive &&
-                employee.User?.IsActive == true &&
-                employee.User.Role == UserRole.Admin &&
-                !willRemainActive)
+            // Admin hesabına bağlı personelin pasifleştirilmesini
+            // veya işten ayrılmış olarak işaretlenmesini engeller
+            if (employee.User?.Role == UserRole.Admin &&
+                (!model.IsActive || model.TerminationDate.HasValue))
             {
-                bool anotherActiveAdminExists = await _context.Users
-                    .AnyAsync(x =>
-                        x.UserId != employee.User.UserId &&
-                        x.Role == UserRole.Admin &&
-                        x.IsActive &&
-                        x.Employee.IsActive &&
-                        !x.Employee.TerminationDate.HasValue);
-
-                if (!anotherActiveAdminExists)
-                {
-                    ModelState.AddModelError(
-                        string.Empty,
-                        "Sistemde en az bir aktif Admin hesabı bulunmalıdır.");
-                }
+                ModelState.AddModelError(
+                    string.Empty,
+                    "Admin hesabına bağlı personel pasifleştirilemez veya işten ayrılmış olarak işaretlenemez.");
             }
 
             // Yeni profil fotoğrafı seçilmişse doğrular
@@ -507,27 +489,13 @@ namespace StoneTech.Controllers
             // İşlem öncesindeki personel durumunu saklar
             bool wasActive = employee.IsActive;
 
-            // Son kullanılabilir Admin hesabına bağlı personelin pasife
-            // alınması nedeniyle sistemin yöneticisiz kalmasını engeller
-            if (employee.IsActive &&
-                employee.User?.IsActive == true &&
-                employee.User.Role == UserRole.Admin)
+            // Admin hesabına bağlı personelin pasifleştirilmesini engeller
+            if (employee.User?.Role == UserRole.Admin && employee.IsActive)
             {
-                bool anotherActiveAdminExists = await _context.Users
-                    .AnyAsync(x =>
-                        x.UserId != employee.User.UserId &&
-                        x.Role == UserRole.Admin &&
-                        x.IsActive &&
-                        x.Employee.IsActive &&
-                        !x.Employee.TerminationDate.HasValue);
+                TempData["ErrorMessage"] =
+                    "Admin hesabına bağlı personel pasifleştirilemez.";
 
-                if (!anotherActiveAdminExists)
-                {
-                    TempData["ErrorMessage"] =
-                        "Sistemde en az bir aktif Admin hesabı bulunmalıdır.";
-
-                    return RedirectToAction(nameof(Index));
-                }
+                return RedirectToAction(nameof(Index));
             }
 
             // Aktif personel pasife alınacaksa
@@ -644,6 +612,55 @@ namespace StoneTech.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        // Personel fotoğrafını yalnızca Admin yetkisiyle görüntüler
+        [HttpGet("/Employee/Photo/{fileName}")]
+        public async Task<IActionResult> Photo(string fileName)
+        {
+            // Dosya adının güvenli olup olmadığını kontrol eder
+            if (!IsValidPhotoFileName(fileName))
+            {
+                return NotFound();
+            }
+
+            // Fotoğrafın kayıtlı bir personele ait olduğunu doğrular
+            string imageUrl = "/Employee/Photo/" + fileName;
+
+            bool photoExists = await _context.Employees
+                .AsNoTracking()
+                .AnyAsync(x => x.ImageUrl == imageUrl);
+
+            if (!photoExists)
+            {
+                return NotFound();
+            }
+
+            // Fotoğrafın fiziksel konumunu belirler
+            string filePath = Path.Combine(
+                GetPrivateEmployeeFolder(),
+                fileName);
+
+            if (!System.IO.File.Exists(filePath))
+            {
+                return NotFound();
+            }
+
+            // Dosya uzantısına göre içerik türünü belirler
+            string extension = Path.GetExtension(fileName).ToLowerInvariant();
+
+            string contentType = extension switch
+            {
+                ".jpg" or ".jpeg" => "image/jpeg",
+                ".png" => "image/png",
+                ".webp" => "image/webp",
+                _ => "application/octet-stream"
+            };
+
+            // Özel fotoğrafların önbellekte tutulmasını engeller
+            Response.Headers.CacheControl = "private, no-store";
+
+            return PhysicalFile(filePath, contentType);
+        }
+
         // Yüklenen profil fotoğrafının geçerli olup olmadığını kontrol eder
         private void ValidateImage(
             IFormFile imageFile,
@@ -661,50 +678,85 @@ namespace StoneTech.Controllers
                     validationError);
             }
         }
+        // Personel fotoğraflarının güvenli klasör yolunu belirler
+        private string GetPrivateEmployeeFolder()
+        {
+            return Path.Combine(
+                _environment.ContentRootPath,
+                "PrivateUploads",
+                "Employees");
+        }
 
-        // Profil fotoğrafını wwwroot/uploads/employees klasörüne kaydeder
+        // Fotoğraf dosyasının güvenli bir ada sahip olduğunu doğrular
+        private static bool IsValidPhotoFileName(string? fileName)
+        {
+            // Dosya adı boş olamaz
+            if (string.IsNullOrWhiteSpace(fileName))
+            {
+                return false;
+            }
+
+            // Dosya adında klasör yolu bulunmasını engeller
+            if (Path.GetFileName(fileName) != fileName)
+            {
+                return false;
+            }
+
+            // Dosya uzantısını kontrol eder
+            string extension = Path.GetExtension(fileName)
+                .ToLowerInvariant();
+
+            if (extension != ".jpg" &&
+                extension != ".jpeg" &&
+                extension != ".png" &&
+                extension != ".webp")
+            {
+                return false;
+            }
+
+            // Dosya adının GUID formatında olup olmadığını kontrol eder
+            string name = Path.GetFileNameWithoutExtension(fileName);
+
+            return name.Length == 32 &&
+                   Guid.TryParseExact(name, "N", out _);
+        }
+
+        // Personel profil fotoğrafını wwwroot dışındaki güvenli klasöre kaydeder
         private async Task<string> SaveImageAsync(
             IFormFile imageFile)
         {
-            // wwwroot yolunu belirler
-            string webRootPath =
-                _environment.WebRootPath;
-
-            // Personel fotoğraflarının tutulacağı klasörü belirler
-            string uploadFolder = Path.Combine(
-                webRootPath,
-                "uploads",
-                "employees");
+            // Personel fotoğraflarının güvenli klasör yolunu alır
+            string uploadFolder = GetPrivateEmployeeFolder();
 
             // Klasör yoksa oluşturur
             Directory.CreateDirectory(uploadFolder);
 
-            // Dosyanın güvenli şekilde sadece uzantısını alır
+            // Dosyanın uzantısını alır
             string extension =
                 Path.GetExtension(imageFile.FileName)
                     .ToLowerInvariant();
 
-            // Tahmin edilemeyen benzersiz bir dosya adı oluşturur
+            // Benzersiz ve tahmin edilmesi zor dosya adı oluşturur
             string fileName =
                 $"{Guid.NewGuid():N}{extension}";
 
-            // Dosyanın fiziksel kayıt yolunu oluşturur
+            // Fotoğrafın kaydedileceği fiziksel yolu oluşturur
             string filePath = Path.Combine(
                 uploadFolder,
                 fileName);
 
-            // Dosyayı sunucuya kaydeder
+            // Fotoğrafı güvenli klasöre kaydeder
             await using FileStream stream = new(
                 filePath,
                 FileMode.CreateNew);
 
             await imageFile.CopyToAsync(stream);
 
-            // Veritabanına kaydedilecek web yolunu döndürür
-            return $"/uploads/employees/{fileName}";
+            // Veritabanına Admin yetkisi gerektiren fotoğraf adresini kaydeder
+            return $"/Employee/Photo/{fileName}";
         }
 
-        // Eski profil fotoğrafını sunucudan siler
+        // Personel profil fotoğrafını sunucudan güvenli şekilde siler
         private void DeleteImage(string? imageUrl)
         {
             // Fotoğraf yolu boşsa işlem yapmaz
@@ -713,27 +765,45 @@ namespace StoneTech.Controllers
                 return;
             }
 
-            // Sadece personel yükleme klasöründeki dosyaların silinmesine izin verir
-            const string employeeUploadPrefix =
-                "/uploads/employees/";
+            const string privatePrefix = "/Employee/Photo/";
+            const string legacyPrefix = "/uploads/employees/";
 
-            if (!imageUrl.StartsWith(
-                    employeeUploadPrefix,
-                    StringComparison.OrdinalIgnoreCase))
+            string fileName;
+            string folder;
+
+            // Yeni özel klasördeki fotoğrafları kontrol eder
+            if (imageUrl.StartsWith(
+                privatePrefix,
+                StringComparison.OrdinalIgnoreCase))
+            {
+                fileName = imageUrl[privatePrefix.Length..];
+                folder = GetPrivateEmployeeFolder();
+            }
+            // Eski fotoğraf klasöründeki dosyaları kontrol eder
+            else if (imageUrl.StartsWith(
+                legacyPrefix,
+                StringComparison.OrdinalIgnoreCase))
+            {
+                fileName = imageUrl[legacyPrefix.Length..];
+
+                folder = Path.Combine(
+                    _environment.WebRootPath,
+                    "uploads",
+                    "employees");
+            }
+            else
             {
                 return;
             }
 
-            // Web yolunu fiziksel dosya yoluna dönüştürür
-            string relativePath = imageUrl
-                .TrimStart('/')
-                .Replace(
-                    '/',
-                    Path.DirectorySeparatorChar);
+            // Güvenli dosya adı kontrolü yapar
+            if (!IsValidPhotoFileName(fileName))
+            {
+                return;
+            }
 
-            string filePath = Path.Combine(
-                _environment.WebRootPath,
-                relativePath);
+            // Silinecek dosyanın fiziksel yolunu oluşturur
+            string filePath = Path.Combine(folder, fileName);
 
             // Dosya mevcutsa siler
             if (System.IO.File.Exists(filePath))
@@ -741,7 +811,6 @@ namespace StoneTech.Controllers
                 System.IO.File.Delete(filePath);
             }
         }
-
         // Boş veya sadece boşluk içeren metinleri null değerine dönüştürür
         private static string? NormalizeNullable(
             string? value)

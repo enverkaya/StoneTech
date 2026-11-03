@@ -204,6 +204,9 @@ namespace StoneTech.Migrations
                     b.Property<bool>("IsReplied")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsReplyProcessing")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Message")
                         .IsRequired()
                         .HasMaxLength(5000)
@@ -886,10 +889,16 @@ namespace StoneTech.Migrations
                     b.Property<int>("EmployeeId")
                         .HasColumnType("int");
 
+                    b.Property<int>("FailedLoginCount")
+                        .HasColumnType("int");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
                     b.Property<DateTime?>("LastLoginDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("LockoutEndUtc")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("PasswordHash")
@@ -912,6 +921,10 @@ namespace StoneTech.Migrations
 
                     b.HasIndex("Username")
                         .IsUnique();
+
+                    b.HasIndex(new[] { "Role" }, "UX_Users_SingleAdmin")
+                        .IsUnique()
+                        .HasFilter("[Role] = 1");
 
                     b.ToTable("Users", t =>
                         {

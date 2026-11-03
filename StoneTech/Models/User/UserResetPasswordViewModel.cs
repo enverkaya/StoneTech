@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿
+using System.ComponentModel.DataAnnotations;
 
 namespace StoneTech.Models.User
 {
@@ -12,6 +13,11 @@ namespace StoneTech.Models.User
 
         // Sisteme girişte kullanılan kullanıcı adı
         public string Username { get; set; } = string.Empty;
+
+        // İşlemi gerçekleştiren Admin hesabının mevcut şifresi
+        [Required(ErrorMessage = "Mevcut Admin şifrenizi giriniz.")]
+        [DataType(DataType.Password)]
+        public string CurrentAdminPassword { get; set; } = string.Empty;
 
         // Admin tarafından belirlenecek yeni şifre
         [Required(ErrorMessage = "Yeni şifre zorunludur.")]
